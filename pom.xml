@@ -15,6 +15,8 @@
     <description>location-service</description>
     <properties>
         <java.version>1.8</java.version>
+        <swagger-models.version>2.1.12</swagger-models.version>
+        <springdoc-openapi-ui.version>1.6.3</springdoc-openapi-ui.version>
     </properties>
     <dependencies>
         <dependency>
@@ -34,6 +36,16 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-models</artifactId>
+            <version>${swagger-models.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>${springdoc-openapi-ui.version}</version>
         </dependency>
 
         <dependency>
