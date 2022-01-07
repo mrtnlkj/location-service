@@ -3,6 +3,20 @@
 Location service provides a REST API mainly for purposes of searching localities across Slovak Republic based on GPS coordinates, with possibility of extending
 searched area by other countries in the future.
 
+### SwaggerUI
+
+SwaggerUI is accessible on following url:
+
+```
+http://{host}:{port}/swagger-ui.html
+```
+
+Possibility to **_enable / disable_** swagger endpoints by specifying following property with **_true/false_** value.
+
+```
+springdoc.api-docs.enabled=true
+```
+
 ### Configuration properties
 
 #### HttpRequestResponseLoggingFilter
