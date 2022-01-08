@@ -17,6 +17,39 @@ Possibility to **_enable / disable_** swagger endpoints by specifying following 
 springdoc.api-docs.enabled=true
 ```
 
+### PostgresSQL
+
+Create user and database specified bellow:
+
+```
+database: location_service
+user: ls_api
+password: pwd
+schema: ls
+```
+
+```postgresql
+CREATE USER "ls_api" WITH
+    LOGIN
+    SUPERUSER
+    INHERIT
+    CREATEDB
+    CREATEROLE
+    REPLICATION;
+ALTER USER "ls_api" PASSWORD 'pwd';
+
+CREATE DATABASE "location_service"
+    WITH
+    OWNER = "ls_api"
+    ENCODING = 'UTF8'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1;
+    
+CREATE SCHEMA IF NOT EXISTS "ls" AUTHORIZATION "ls_api";
+```
+
+After that, database schema will be initialized with tables by FLYWAY migration tool
+using predefined scripts located in [resources/db/migration/](src/main/resources/db/migration)
 ### Configuration properties
 
 #### HttpRequestResponseLoggingFilter
