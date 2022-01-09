@@ -12,11 +12,18 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.List;
+
+import sk.uniza.locationservice.converters.StringToURLConverter;
+import sk.uniza.locationservice.converters.URLToStringConverter;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJdbcRepositories(basePackages = "sk.uniza.locationservice.repository")
+@EnableJdbcRepositories(basePackages = {DatasourceConfig.REPOSITORY_PATH})
 public class DatasourceConfig extends AbstractJdbcConfiguration {
+
+	public static final String REPOSITORY_PATH = "sk.uniza.locationservice.repository";
 
 	@Bean
 	public DataSource getDatasource() {
@@ -37,5 +44,13 @@ public class DatasourceConfig extends AbstractJdbcConfiguration {
 	@Bean
 	public PlatformTransactionManager transactionManager(DataSource dataSource) {
 		return new DataSourceTransactionManager(dataSource);
+	}
+
+	@Override
+	protected List<?> userConverters() {
+		return Arrays.asList(
+				new URLToStringConverter(),
+				new StringToURLConverter()
+		);
 	}
 }
