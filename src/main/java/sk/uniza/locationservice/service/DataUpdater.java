@@ -2,6 +2,7 @@ package sk.uniza.locationservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -25,6 +26,7 @@ public class DataUpdater {
 	private final Osm2pgsqlImporter osm2pgsqlImporter;
 	private final UpdateRecordMarker updateRecordMarker;
 
+	@Async
 	public void update(UpdateWrapper wrapper) {
 		if (isUpdateRunning.getAndSet(true)) {
 			log.debug("Data update is already IN PROGRESS. Skipping {}.", wrapper.getTrigger());
