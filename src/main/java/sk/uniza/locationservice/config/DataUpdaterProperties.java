@@ -22,10 +22,33 @@ import java.net.URL;
 @ConfigurationProperties(prefix = "location-service.data-updater")
 public class DataUpdaterProperties {
 
+	@NotBlank
+	private String scheduledCronUpdate;
+	private boolean updateAtStartupEnabled;
+	private boolean forceUpdateAtStartupEnabled;
+
+	@NotNull
+	@Valid
+	@NestedConfigurationProperty
+	private Osm2pgsqlProperties osm2pgsql = new Osm2pgsqlProperties();
+
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
 	private FileDownloaderProperties fileDownloader = new FileDownloaderProperties();
+
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Osm2pgsqlProperties {
+
+		@NotBlank
+		private String basePath;
+		@NotBlank
+		private String exeFileName;
+		@NotBlank
+		private String styleFileName;
+	}
 
 	@Data
 	@NoArgsConstructor
