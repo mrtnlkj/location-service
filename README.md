@@ -48,8 +48,25 @@ CREATE DATABASE "location_service"
 CREATE SCHEMA IF NOT EXISTS "ls" AUTHORIZATION "ls_api";
 ```
 
-After that, database schema will be initialized with tables by FLYWAY migration tool
+
+#### PostGIS extension
+
+PostGIS is a spatial database extender for PostgreSQL object-relational database. It adds support for geographic objects allowing location queries to be run in
+SQL.
+
+Version: 3.1.4
+
+#### osm2pgsql tool
+
+Osm2pgsql imports OpenStreetMap data into a PostgreSQL/PostGIS database.
+
+Version: 1.5.1
+https://osm2pgsql.org/doc/install.html
+
+After DB creation, database schema will be initialized with tables by FLYWAY migration tool
 using predefined scripts located in [resources/db/migration/](src/main/resources/db/migration)
+
+
 ### Configuration properties
 
 #### HttpRequestResponseLoggingFilter
@@ -66,4 +83,38 @@ Example:
 ```
 location-service.http-logging-filter.enabled=true
 location-service.http-logging-filter.max-payload-length=15000
+```
+
+#### Data updating
+
+DataUpdater with DataUpdateExecutor manages updates of location data. Process of updating data consist of downloading OSM data file from specified URL, importing the file into
+PostgreSQL/PostGIS database using osm2pgsql tool and finally, updating data in location table.
+
+Data updater must be configured by following properties:
+
+* **scheduled-cron-update** -> cron expression that defines scheduled update time
+* **update-at-startup-enabled** -> possibility to **_turn ON/OFF_** data update by setting this property to **_true/false_** value. Data update basically updates location data at every startup of application, only if data ARE NOT already PRESENT in database from previous update runs
+* **force-update-at-startup-enabled** -> possibility to **_turn ON/OFF_** force data update by setting this property to **_true/false_** value. Force data updates basically updates location data at every startup of application, even if data ARE already PRESENT in database from previous update runs
+
+
+* **osm2pgsql.base-path** -> base path of osm2pgsql tool located on server
+* **osm2pgsql.exe-file-name** -> name of executable file of om2pgsql cmd tool
+* **osm2pgsql.style-file-name** -> file name of style that defines advanced import properties during import by osm2pgsql tool
+
+
+* **file-downloader.download-url** -> url for download OSM data file
+* **file-downloader.dest-file-base-path** -> base path for downloaded file located on server
+
+Example:
+
+```
+location-service.data-updater.scheduled-cron-update=0 30 03 * * *
+location-service.data-updater.force-update-after-start-enabled=false
+
+location-service.data-updater.osm2pgsql.base-path=C:/osm2pgsql/osm2pgsql-bin
+location-service.data-updater.osm2pgsql.exe-file-name=osm2pgsql.exe
+location-service.data-updater.osm2pgsql.style-file-name=default.style
+
+location-service.data-updater.file-downloader.download-url=https://download.geofabrik.de/europe/slovakia-latest.osm.pbf
+location-service.data-updater.file-downloader.dest-file-base-path=C:/data/location_service/osm_data
 ```

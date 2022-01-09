@@ -2,58 +2,97 @@ package sk.uniza.locationservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import sk.uniza.locationservice.bean.RunUpdateRequest;
 import sk.uniza.locationservice.bean.UpdateRecord;
 import sk.uniza.locationservice.bean.UpdateWrapper;
 import sk.uniza.locationservice.bean.enums.UpdateStatus;
+import sk.uniza.locationservice.bean.enums.UpdateTrigger;
+import sk.uniza.locationservice.config.DataUpdaterProperties;
 
-import static sk.uniza.locationservice.util.DurationUtils.durationBetween;
+import static java.util.Objects.nonNull;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DataUpdater {
 
-	private static final AtomicBoolean isUpdateRunning = new AtomicBoolean(false);
+	private final DataUpdaterProperties dataUpoDataUpdaterProperties;
+	private static final AtomicBoolean isDataInitialized = new AtomicBoolean(false);
 
-	private final OsmFileDownloader fileDownloader;
-	private final Osm2pgsqlImporter osm2pgsqlImporter;
-	private final UpdateRecordMarker updateRecordMarker;
+	private final DataUpdateExecutor dataUpdateExecutor;
+	private final UpdateRecordService updateRecordService;
+	private final LocationService locationService;
 
-	@Async
-	public void update(UpdateWrapper wrapper) {
-		if (isUpdateRunning.getAndSet(true)) {
-			log.debug("Data update is already IN PROGRESS. Skipping {}.", wrapper.getTrigger());
-			return;
+	public UpdateRecord manualUpdate(RunUpdateRequest request) {
+		final UpdateTrigger trigger = UpdateTrigger.MANUAL_UPDATE;
+		log.debug("Data {} STARTED, request: {}", trigger, request);
+		if (dataUpdateExecutor.isUpdateRunning()) {
+			//TODO exception
+			throw new RuntimeException("data is alreadyUpdating");
 		}
-		Instant start = Instant.now();
-		UpdateStatus status = UpdateStatus.RUNNING;
-		log.info("Data update {}, started by: {}.", status, wrapper.getTrigger());
-		UpdateRecord update = null;
-		try {
-			update = updateRecordMarker.getOrCreateRunningUpdateRecord(wrapper);
-			File file = fileDownloader.downloadOsmFile(wrapper.getUrl());
-			int importExitCode = osm2pgsqlImporter.importFile(file);
-			status = importExitCode == 0 ? UpdateStatus.FINISHED : UpdateStatus.FAILED;
-		} catch (Exception e) {
-			status = UpdateStatus.FAILED;
-			log.error("ERROR: ", e);
-		} finally {
-			updateRecordMarker.markUpdateRecordAs(update, status);
-			Instant end = Instant.now();
-			isUpdateRunning.set(false);
-			log.info("Data update {}. Total time elapsed: {}s.", status, durationBetween(start, end));
+		UpdateWrapper wrapper = UpdateWrapper.builder().fromRunUpdateRequest(request,
+																			 dataUpoDataUpdaterProperties.getFileDownloader().getDownloadUrl())
+											 .trigger(trigger)
+											 .build();
+		UpdateRecord update = updateRecordService.saveRunningUpdate(wrapper);
+		dataUpdateExecutor.update(wrapper);
+		return update;
+	}
+
+	@Scheduled(initialDelayString = "PT30M", fixedDelayString = "PT1H")
+	public void scheduledRetryUpdate() {
+		final UpdateTrigger trigger = UpdateTrigger.SCHEDULED_RETRY_UPDATE;
+		log.debug("Data {} started.", trigger);
+		UpdateRecord latestUpdate = updateRecordService.getLatestUpdateRecord();
+		if (nonNull(latestUpdate) && UpdateStatus.FAILED.equals(latestUpdate.getStatus())) {
+			UpdateWrapper wrapper = UpdateWrapper.builder()
+												 .url(latestUpdate.getDataDownloadUrl())
+												 .trigger(UpdateTrigger.SCHEDULED_RETRY_UPDATE)
+												 .build();
+			dataUpdateExecutor.update(wrapper);
 		}
 	}
 
-	public boolean isUpdateRunning() {
-		return isUpdateRunning.get();
+	@Scheduled(fixedDelay = Long.MAX_VALUE)
+	public void scheduledStartupUpdate() {
+		final UpdateTrigger trigger = UpdateTrigger.SCHEDULED_STARTUP_UPDATE;
+		log.debug("Data {} started.", trigger);
+
+		UpdateWrapper wrapper = UpdateWrapper.builder()
+											 .url(dataUpoDataUpdaterProperties.getFileDownloader().getDownloadUrl())
+											 .trigger(trigger)
+											 .build();
+		final boolean updateEnabled = dataUpoDataUpdaterProperties.isUpdateAtStartupEnabled();
+		final boolean forceUpdateEnabled = dataUpoDataUpdaterProperties.isForceUpdateAtStartupEnabled();
+		if (isDataInitialized.getAndSet(true)) {
+			if (forceUpdateEnabled) {
+				log.debug("Data initialization at startup: FORCE UPDATE");
+				dataUpdateExecutor.update(wrapper);
+			} else if (updateEnabled) {
+				Long locationsCount = locationService.getLocationsCount();
+				if (locationsCount <= 0) {
+					log.debug("Data initialization at startup: UPDATE");
+					dataUpdateExecutor.update(wrapper);
+				} else {
+					log.debug("Data initialization at startup skipping. Actual location data count: {}.", locationsCount);
+				}
+			}
+		}
 	}
 
+	@Scheduled(cron = "${location-service.data-updater.scheduled-cron-update}")
+	public void scheduledUpdate() {
+		final UpdateTrigger trigger = UpdateTrigger.SCHEDULED_UPDATE;
+		log.debug("Data {} started.", trigger);
+		UpdateWrapper wrapper = UpdateWrapper.builder()
+											 .url(dataUpoDataUpdaterProperties.getFileDownloader().getDownloadUrl())
+											 .trigger(trigger)
+											 .build();
+		dataUpdateExecutor.update(wrapper);
+	}
 }
