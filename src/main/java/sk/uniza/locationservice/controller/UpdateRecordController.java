@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import sk.uniza.locationservice.bean.OverviewResponse;
 import sk.uniza.locationservice.bean.RunUpdateRequest;
 import sk.uniza.locationservice.bean.UpdateRecord;
 import sk.uniza.locationservice.bean.UpdateRecordsFilter;
@@ -90,11 +91,11 @@ public class UpdateRecordController {
 			@ApiResponse(responseCode = "200",
 					description = "Success.",
 					content = @Content(schema = @Schema(implementation = List.class), examples = {
-							@ExampleObject(name = "Update record.", value = Examples.UPDATE_RECORDS_EXAMPLE),
+							@ExampleObject(name = "Update records overview.", value = Examples.UPDATE_RECORDS_EXAMPLE),
 					}))
 	})
 	public ResponseEntity<?> getUpdateRecordsByFilter(@ParameterObject UpdateRecordsFilter filter) {
-		List<UpdateRecord> response = updateRecordService.getUpdateRecordsByFilter(filter);
+		OverviewResponse<UpdateRecord> response = updateRecordService.getUpdateRecordsByFilter(filter);
 		return ResponseEntity.ok().body(response);
 	}
 }

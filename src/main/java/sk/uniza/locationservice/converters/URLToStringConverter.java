@@ -5,6 +5,8 @@ import org.springframework.data.convert.WritingConverter;
 
 import java.net.URL;
 
+import static java.util.Objects.nonNull;
+
 @WritingConverter
 public class URLToStringConverter implements Converter<URL, String> {
 

@@ -34,4 +34,14 @@ public class UpdateRecordsFilter {
 			description = "Filter update records by specified URL parameter.")
 	private URL url;
 
+
+	@Nullable
+	@Parameter(example = "\"10\"", schema = @Schema(type = "string", implementation = String.class, example = "\"10\""),
+			description = "Limit returned update records by specified limit parameter. There will be returned only given number of records.")
+	private Long limit;
+
+	@Nullable
+	@Parameter(example = "\"0\"", schema = @Schema(type = "string", implementation = String.class, example = "\"0\""),
+			description = "Offset returned update records by specified offset parameter. There will be skipped given number of records before records will be returned.")
+	private Long offset;
 }
