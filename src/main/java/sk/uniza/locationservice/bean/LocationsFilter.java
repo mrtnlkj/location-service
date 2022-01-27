@@ -21,7 +21,7 @@ public class LocationsFilter {
 	@Nullable
 	@Parameter(example = "\"999\"", schema = @Schema(type = "string", example = "\"999\""),
 			description = "Filter locations by specified unique location identification ID parameter.")
-	private Long id;
+	private Long locationId;
 
 	@Nullable
 	@Parameter(example = "Martin", schema = @Schema(type = "string", implementation = String.class, example = "Martin"),

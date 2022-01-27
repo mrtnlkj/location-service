@@ -21,7 +21,7 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
 	@Query("SELECT COUNT(l.location_id) " +
 			"FROM location l " +
 			"JOIN location_version lv ON (lv.version_id = l.version_id) AND (l.version_id IN (SELECT MAX(version_id) FROM location_version)) " +
-			"WHERE (l.location_id = :id OR :id IS NULL) " +
+			"WHERE (l.location_id = :locationId OR :locationId IS NULL) " +
 			"AND (UPPER(l.name_sk) ILIKE UPPER(:nameSk) OR :nameSk IS NULL) " +
 			"AND (UPPER(l.name_en) ILIKE UPPER(:nameEn) OR :nameEn IS NULL) " +
 			"AND (" +
@@ -31,7 +31,7 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
 			") " +
 			"AND (UPPER(l.type) = UPPER(:type) OR :type IS NULL) " +
 			"AND (REPLACE(l.postal_code, ' ', '') ILIKE REPLACE(:postalCode, ' ', '') OR :postalCode IS NULL) ")
-	public Long getLocationsCountByFilter(@Param("id") Long id,
+	public Long getLocationsCountByFilter(@Param("locationId") Long locationId,
 										  @Param("nameSk") String nameSk,
 										  @Param("nameEn") String nameEn,
 										  @Param("areaFrom") BigDecimal areaFrom,
@@ -60,7 +60,7 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
 			"NULL AS boundary " +
 			"FROM location l " +
 			"JOIN location_version lv ON (lv.version_id = l.version_id) AND (l.version_id IN (SELECT MAX(version_id) FROM location_version)) " +
-			"WHERE (l.location_id = :id OR :id IS NULL) " +
+			"WHERE (l.location_id = :locationId OR :locationId IS NULL) " +
 			"AND (UPPER(l.name_sk) ILIKE UPPER(:nameSk) OR :nameSk IS NULL) " +
 			"AND (UPPER(l.name_en) ILIKE UPPER(:nameEn) OR :nameEn IS NULL) " +
 			"AND (" +
@@ -72,7 +72,7 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
 			"AND (REPLACE(l.postal_code, ' ', '') ILIKE REPLACE(:postalCode, ' ', '') OR :postalCode IS NULL) " +
 			"ORDER BY l.location_id ASC " +
 			"LIMIT :limit OFFSET :offset")
-	public List<Location> getLocationsByFilter(@Param("id") Long id,
+	public List<Location> getLocationsByFilter(@Param("locationId") Long locationId,
 											   @Param("nameSk") String nameSk,
 											   @Param("nameEn") String nameEn,
 											   @Param("areaFrom") BigDecimal areaFrom,
@@ -81,6 +81,30 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
 											   @Param("postalCode") String postalCode,
 											   @Param("limit") Long limit,
 											   @Param("offset") Long offset);
+
+	@Query("SELECT " +
+			"l.location_id AS location_id, " +
+			"l.version_id AS version_id, " +
+			"l.name_sk AS name_sk, " +
+			"l.name_en AS name_en, " +
+			"l.area AS area, " +
+			"l.population AS population, " +
+			"l.district_name_sk AS district_name_sk, " +
+			"l.district_name_en AS district_name_en, " +
+			"l.region_name_sk AS region_name_sk, " +
+			"l.region_name_en AS region_name_en, " +
+			"l.state_name_sk AS state_name_sk, " +
+			"l.state_name_en AS state_name_en, " +
+			"l.is_in AS is_in, " +
+			"l.postal_code AS postal_code, " +
+			"l.type AS type, " +
+			"l.lat AS lat, " +
+			"l.lon AS lon, " +
+			"public.ST_AsGeoJSON(l.boundary) AS boundary " +
+			"FROM location l " +
+			"JOIN location_version lv ON (lv.version_id = l.version_id) " +
+			"WHERE (l.location_id = :locationId) ")
+	public Location getLocationById(@Param("locationId") Long locationId);
 
 	@Query("CALL insert_location_data_proc(:versionId, 0) ")
 	public Long importLocationDataWithVersionAndGetInsertedRecordsCount(@Param("versionId") Long versionId);

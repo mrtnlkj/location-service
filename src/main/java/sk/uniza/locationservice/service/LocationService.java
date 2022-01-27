@@ -27,8 +27,12 @@ public class LocationService {
 		return locationRepository.importLocationDataWithVersionAndGetInsertedRecordsCount(versionId);
 	}
 
+	public Location getLocationById(Long locationId) {
+		return locationRepository.getLocationById(locationId);
+	}
+
 	public OverviewResponse<Location> getLocationsOverviewByFilter(LocationsFilter filter) {
-		List<Location> locations = locationRepository.getLocationsByFilter(filter.getId(),
+		List<Location> locations = locationRepository.getLocationsByFilter(filter.getLocationId(),
 																		   filter.getNameSk(),
 																		   filter.getNameEn(),
 																		   filter.getAreaFrom(),
@@ -37,7 +41,7 @@ public class LocationService {
 																		   filter.getPostalCode(),
 																		   filter.getLimit(),
 																		   filter.getOffset());
-		Long recordsCount = locationRepository.getLocationsCountByFilter(filter.getId(),
+		Long recordsCount = locationRepository.getLocationsCountByFilter(filter.getLocationId(),
 																		 filter.getNameSk(),
 																		 filter.getNameEn(),
 																		 filter.getAreaFrom(),

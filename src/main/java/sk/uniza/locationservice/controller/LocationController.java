@@ -1,6 +1,7 @@
 package sk.uniza.locationservice.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,6 +51,24 @@ public class LocationController {
 	})
 	public ResponseEntity<?> getLocationsOverviewByFilter(@ParameterObject LocationsFilter filter) {
 		OverviewResponse<Location> response = locationService.getLocationsOverviewByFilter(filter);
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/{locationId}")
+	@Operation(
+			summary = "Returns location by specified id.",
+			description = "Returns location by specified ID extended by boundary GeoJson."
+	)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					description = "Success.",
+					content = @Content(schema = @Schema(implementation = Location.class), examples = {
+							@ExampleObject(name = "Location.", value = Examples.LOCATION_BY_ID_EXAMPLE),
+					}))
+	})
+	public ResponseEntity<?> getLocationById(
+			@Parameter(required = true, description = "Unique ID identifier of the location.", example = "\"969\"") @PathVariable Long locationId) {
+		Location response = locationService.getLocationById(locationId);
 		return ResponseEntity.ok().body(response);
 	}
 }
