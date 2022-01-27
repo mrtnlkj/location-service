@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
 
+import sk.uniza.locationservice.bean.enums.LocationType;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -15,7 +17,7 @@ import java.math.BigDecimal;
 public class Location {
 
 	@Id
-	private Long id;
+	private Long locationId;
 	private Long versionId;
 	private String nameSk;
 	private String nameEn;
@@ -29,7 +31,7 @@ public class Location {
 	private String stateNameEn;
 	private String isIn;
 	private String postalCode;
-	private String type;
+	private LocationType type;
 	private BigDecimal lat;
 	private BigDecimal lon;
 	private String boundary;

@@ -11,7 +11,34 @@ public class Examples {
 			"  \"dataDownloadUrl\": \"https://download.geofabrik.de/europe/slovakia-latest.osm.pbf\",\n" +
 			"  \"status\": \"RUNNING\",\n" +
 			"  \"trigger\": \"MANUAL_UPDATE\",\n" +
-			"  \"description\": \"Trying to run manual update of locations data. Default data updater setting will be applied.\"";
+			"  \"description\": \"Trying to run manual update of locations data. Default data updater setting will be applied.\" " +
+			"}\n";
+
+	public static final String LOCATIONS_OVERVIEW_EXAMPLE = "{\n" +
+			"  \"records\": [\n" +
+			"    {\n" +
+			"      \"locationId\": 5613,\n" +
+			"      \"versionId\": 2,\n" +
+			"      \"nameSk\": \"Žilina\",\n" +
+			"      \"nameEn\": \"Žilina\",\n" +
+			"      \"area\": 73.99,\n" +
+			"      \"population\": 81494,\n" +
+			"      \"districtNameSk\": \"okres Žilina\",\n" +
+			"      \"districtNameEn\": \"District of Žilina\",\n" +
+			"      \"regionNameSk\": \"Žilinský kraj\",\n" +
+			"      \"regionNameEn\": \"Region of Žilina\",\n" +
+			"      \"stateNameSk\": \"Slovensko\",\n" +
+			"      \"stateNameEn\": \"Slovakia\",\n" +
+			"      \"isIn\": \"Stredné Slovensko\",\n" +
+			"      \"postalCode\": null,\n" +
+			"      \"type\": \"CITY\",\n" +
+			"      \"lat\": 49.2234674,\n" +
+			"      \"lon\": 18.7393139,\n" +
+			"      \"boundary\": null\n" +
+			"    }\n" +
+			"  ],\n" +
+			"  \"recordsCount\": 1\n" +
+			"}\n";
 
 	public static final String UPDATE_RECORDS_EXAMPLE = "[\n" +
 			"\n" +
