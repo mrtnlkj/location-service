@@ -13,7 +13,7 @@ import sk.uniza.locationservice.common.http.HttpRequestResponseLoggingFilter;
 @Configuration
 @EnableConfigurationProperties({
 		HttpRequestResponseLoggingFilterProperties.class,
-		DataUpdaterProperties.class
+		UpdateProperties.class
 })
 @RequiredArgsConstructor
 public class LocationServiceConfiguration {

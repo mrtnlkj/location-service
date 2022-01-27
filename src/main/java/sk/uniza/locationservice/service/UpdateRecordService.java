@@ -2,10 +2,13 @@ package sk.uniza.locationservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 import sk.uniza.locationservice.bean.UpdateRecord;
-import sk.uniza.locationservice.bean.UpdateWrapper;
+import sk.uniza.locationservice.bean.UpdateWrapperRequest;
 import sk.uniza.locationservice.bean.enums.UpdateStatus;
 import sk.uniza.locationservice.bean.enums.UpdateTrigger;
 import sk.uniza.locationservice.repository.UpdateRecordRepository;
@@ -24,11 +27,12 @@ public class UpdateRecordService implements UpdateRecordMarker {
 		return updateRecordRepository.save(update);
 	}
 
+	@Override
 	public UpdateRecord getLatestUpdateRecord() {
 		return updateRecordRepository.getLatestUpdateRecord();
 	}
 
-	public UpdateRecord saveRunningUpdate(UpdateWrapper wrapper) {
+	public UpdateRecord saveRunningUpdate(UpdateWrapperRequest wrapper) {
 		log.debug("saveRunningUpdate({})", wrapper);
 
 		UpdateRecord update = UpdateRecord.builder()
@@ -40,7 +44,7 @@ public class UpdateRecordService implements UpdateRecordMarker {
 	}
 
 	@Override
-	public UpdateRecord getOrCreateRunningUpdateRecord(UpdateWrapper wrapper) {
+	public UpdateRecord getOrCreateRunningUpdateRecord(UpdateWrapperRequest wrapper) {
 		if (UpdateTrigger.MANUAL_UPDATE != wrapper.getTrigger()) {
 			return this.saveRunningUpdate(wrapper);
 		}
@@ -57,5 +61,16 @@ public class UpdateRecordService implements UpdateRecordMarker {
 			update = update.toBuilder().markUpdateAs(status).build();
 			this.save(update);
 		}
+	}
+
+	@Scheduled(fixedDelayString = "PT1H")
+	public void markRunningUpdatesAsFailedAfterXMinutes() {
+		final long xMinutes = 120L;
+		List<UpdateRecord> recordList = updateRecordRepository.getUpdateRecordsWithStatusAndStartedTimeBeforeXMinutes(UpdateStatus.RUNNING,
+																													  xMinutes);
+		recordList.forEach(r -> {
+			r.toBuilder().markUpdateAs(UpdateStatus.FAILED);
+			updateRecordRepository.save(r);
+		});
 	}
 }

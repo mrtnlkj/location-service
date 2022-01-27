@@ -87,34 +87,40 @@ location-service.http-logging-filter.max-payload-length=15000
 
 #### Data updating
 
-DataUpdater with DataUpdateExecutor manages updates of location data. Process of updating data consist of downloading OSM data file from specified URL, importing the file into
-PostgreSQL/PostGIS database using osm2pgsql tool and finally, updating data in location table.
+Process of updating data consist of downloading OSM data file from specified URL, importing the file into PostgreSQL/PostGIS database using osm2pgsql tool and
+finally, updating data in location table.
 
-Data updater must be configured by following properties:
+Data update process must be configured by following properties:
 
-* **scheduled-cron-update** -> cron expression that defines scheduled update time
-* **update-at-startup-enabled** -> possibility to **_turn ON/OFF_** data update by setting this property to **_true/false_** value. Data update basically updates location data at every startup of application, only if data ARE NOT already PRESENT in database from previous update runs
-* **force-update-at-startup-enabled** -> possibility to **_turn ON/OFF_** force data update by setting this property to **_true/false_** value. Force data updates basically updates location data at every startup of application, even if data ARE already PRESENT in database from previous update runs
-
-
-* **osm2pgsql.base-path** -> base path of osm2pgsql tool located on server
-* **osm2pgsql.exe-file-name** -> name of executable file of om2pgsql cmd tool
-* **osm2pgsql.style-file-name** -> file name of style that defines advanced import properties during import by osm2pgsql tool
-
-
-* **file-downloader.download-url** -> url for download OSM data file
-* **file-downloader.dest-file-base-path** -> base path for downloaded file located on server
+//TODO add description for following properties
 
 Example:
 
 ```
-location-service.data-updater.scheduled-cron-update=0 30 03 * * *
-location-service.data-updater.force-update-after-start-enabled=false
+#update properties
+#startup-update-executor properties
+location-service.update.startup-update-executor.enabled=true
+location-service.update.startup-update-executor.force-update-enabled=false
 
-location-service.data-updater.osm2pgsql.base-path=C:/osm2pgsql/osm2pgsql-bin
-location-service.data-updater.osm2pgsql.exe-file-name=osm2pgsql.exe
-location-service.data-updater.osm2pgsql.style-file-name=default.style
+#scheduled-update-executor properties
+location-service.update.scheduled-update-executor.enabled=true
+location-service.update.scheduled-update-executor.cron=0 30 03 * * *
 
-location-service.data-updater.file-downloader.download-url=https://download.geofabrik.de/europe/slovakia-latest.osm.pbf
-location-service.data-updater.file-downloader.dest-file-base-path=C:/data/location_service/osm_data
+#retry-update-executor properties
+location-service.update.retry-update-executor.enabled=true
+location-service.update.retry-update-executor.max-attempts-count=5
+location-service.update.retry-update-executor.duration-between-attempts=PT1H
+
+#manual-update-executor properties
+location-service.update.manual-update-executor.enabled=true
+
+#data update - osm2pgsql properties
+location-service.update.osm2pgsql.base-path=C:/osm2pgsql/osm2pgsql-bin
+location-service.update.osm2pgsql.exe-file-name=osm2pgsql.exe
+location-service.update.osm2pgsql.style-file-name=default.style
+
+#data update - file downloader properties
+location-service.update.file-downloader.download-url=https://download.geofabrik.de/europe/slovakia-latest.osm.pbf
+location-service.update.file-downloader.dest-file-base-path=C:/data/location_service/osm_data
+
 ```

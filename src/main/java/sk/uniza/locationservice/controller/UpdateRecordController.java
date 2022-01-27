@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import sk.uniza.locationservice.bean.RunUpdateRequest;
 import sk.uniza.locationservice.bean.UpdateRecord;
 import sk.uniza.locationservice.common.openapi.examples.Examples;
-import sk.uniza.locationservice.service.DataUpdater;
+import sk.uniza.locationservice.service.ManualUpdateTriggerService;
+import sk.uniza.locationservice.service.UpdateRecordService;
 
 @Slf4j
 @RestController
@@ -29,9 +30,10 @@ public class UpdateRecordController {
 
 	public static final String API_TAG = "UpdateRecordController";
 	public static final String API_DESCRIPTION = "The main purpose of update record controller is manually trigger the update, " +
-			"check latest triggered update for a status and possibility to list history records of previous updates.";
+			"check latest update progress and also possibility to list history records of previous updates.";
 
-	private final DataUpdater dataUpdateRunner;
+	private final UpdateRecordService updateRecordService;
+	private final ManualUpdateTriggerService manualUpdateTriggerService;
 
 	@PostMapping("/run-update")
 	@Operation(
@@ -53,7 +55,7 @@ public class UpdateRecordController {
 							@ExampleObject(name = "Run update request with specified custom url.", value = Examples.RUN_UPDATE_REQUEST_WITH_URL_EXAMPLE),
 					}))
 			@RequestBody(required = false) RunUpdateRequest request) {
-		UpdateRecord response = dataUpdateRunner.manualUpdate(request);
+		UpdateRecord response = manualUpdateTriggerService.triggerUpdate(request);
 		return ResponseEntity.ok().body(response);
 	}
 }

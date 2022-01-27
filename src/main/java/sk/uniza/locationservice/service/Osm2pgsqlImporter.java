@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import sk.uniza.locationservice.config.DataUpdaterProperties;
 import sk.uniza.locationservice.config.DatasourceProperties;
+import sk.uniza.locationservice.config.UpdateProperties;
 
 import static sk.uniza.locationservice.util.JdbcUrlParserUtils.getDatabaseNameFromJdbcUrl;
 import static sk.uniza.locationservice.util.JdbcUrlParserUtils.getHostFromJdbcUrl;
@@ -19,9 +19,9 @@ import static sk.uniza.locationservice.util.JdbcUrlParserUtils.getPortFromJdbcUr
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class Osm2pgsqlImporter extends ProcessRunner {
+public class Osm2pgsqlImporter extends AbstractProcessExecutor {
 
-	private final DataUpdaterProperties dataUpdaterProperties;
+	private final UpdateProperties updateProperties;
 	private final DatasourceProperties datasourceProperties;
 	private static final String PG_PASSWORD_ENV_PROPERTY_NAME = "PGPASSWORD";
 
@@ -43,19 +43,19 @@ public class Osm2pgsqlImporter extends ProcessRunner {
 
 	protected String[] buildOsm2pgsqlCmd(File file) {
 		return new String[]{
-				appendFileNameToExtPath(dataUpdaterProperties.getOsm2pgsql().getExeFileName()),
+				appendFileNameToExtPath(updateProperties.getOsm2pgsql().getExeFileName()),
 				"--host", getHostFromJdbcUrl(datasourceProperties.getUrl()),
 				"--port", getPortFromJdbcUrl(datasourceProperties.getUrl()),
 				"--database", getDatabaseNameFromJdbcUrl(datasourceProperties.getUrl()),
 				"--username", datasourceProperties.getUsername(),
 				"--prefix", OSM_TABLE_PREFIX,
-				"--style", appendFileNameToExtPath(dataUpdaterProperties.getOsm2pgsql().getStyleFileName()),
+				"--style", appendFileNameToExtPath(updateProperties.getOsm2pgsql().getStyleFileName()),
 				"--hstore",
 				file.getAbsolutePath(),
 				};
 	}
 
 	private String appendFileNameToExtPath(String fileName) {
-		return dataUpdaterProperties.getOsm2pgsql().getBasePath().concat(File.separator).concat(fileName);
+		return updateProperties.getOsm2pgsql().getBasePath().concat(File.separator).concat(fileName);
 	}
 }

@@ -16,4 +16,9 @@ public class LocationService {
 	public Long getLocationsCount() {
 		return locationRepository.getLocationsCount();
 	}
+
+	public Long importLocationDataWithVersionAndGetInsertedRecordsCount(Long versionId) {
+		log.debug("importLocationDataWithVersionAndGetInsertedRecordsCount({})", versionId);
+		return locationRepository.importLocationDataWithVersionAndGetInsertedRecordsCount(versionId);
+	}
 }

@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 
+import sk.uniza.locationservice.converters.StringToLocationTypeConverter;
 import sk.uniza.locationservice.converters.StringToURLConverter;
 import sk.uniza.locationservice.converters.URLToStringConverter;
 
@@ -50,7 +51,8 @@ public class DatasourceConfig extends AbstractJdbcConfiguration {
 	protected List<?> userConverters() {
 		return Arrays.asList(
 				new URLToStringConverter(),
-				new StringToURLConverter()
+				new StringToURLConverter(),
+				new StringToLocationTypeConverter()
 		);
 	}
 }

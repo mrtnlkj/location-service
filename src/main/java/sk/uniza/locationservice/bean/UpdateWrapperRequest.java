@@ -17,11 +17,11 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class UpdateWrapper extends RunUpdateRequest {
+public class UpdateWrapperRequest extends RunUpdateRequest {
 
 	private UpdateTrigger trigger;
 
-	public abstract static class UpdateWrapperBuilder<C extends UpdateWrapper, B extends UpdateWrapperBuilder<C, B>>
+	public abstract static class UpdateWrapperRequestBuilder<C extends UpdateWrapperRequest, B extends UpdateWrapperRequestBuilder<C, B>>
 			extends RunUpdateRequestBuilder<C, B> {
 
 		public B fromRunUpdateRequest(RunUpdateRequest request, URL defaultUrl) {
