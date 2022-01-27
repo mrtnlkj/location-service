@@ -1,6 +1,8 @@
 --create postgis extension
-CREATE
-EXTENSION IF NOT EXISTS "postgis" SCHEMA "ls";
+CREATE EXTENSION IF NOT EXISTS "postgis" WITH SCHEMA public;
+--create hstore extension
+CREATE EXTENSION IF NOT EXISTS "hstore" WITH SCHEMA public;
+SET search_path TO "$user", public, "ls";
 
 --update_id sequence
 CREATE SEQUENCE "ls"."update_id_seq" start 1 increment 1;
@@ -38,9 +40,24 @@ CREATE SEQUENCE "ls"."location_id_seq" start 1 increment 1;
 --location table
 CREATE TABLE "ls"."location"
 (
-    "location_id" int8 NOT NULL DEFAULT nextval('"ls".location_id_seq'::regclass),
-    "version_id"  int8,
-    "name_sk"     text,
+    "location_id"      int8 NOT NULL DEFAULT nextval('"ls".location_id_seq'::regclass),
+    "version_id"       int8,
+    "name_sk"          text,
+    "name_en"          text,
+    "lat"              decimal(10, 7),
+    "lon"              decimal(10, 7),
+    "postal_code"      text,
+    "area"             decimal(10, 2),
+    "population"       int4,
+    "type"             text,
+    "district_name_sk" text,
+    "district_name_en" text,
+    "region_name_sk"   text,
+    "region_name_en"   text,
+    "state_name_sk"    text,
+    "state_name_en"    text,
+    "is_in"            text,
+    "boundary"         geometry,
     PRIMARY KEY ("location_id"),
     CONSTRAINT fk_location_location_version_version_id
         FOREIGN KEY ("version_id")
