@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import sk.uniza.locationservice.bean.UpdateRecord;
+import sk.uniza.locationservice.bean.UpdateRecordFilter;
 import sk.uniza.locationservice.bean.UpdateWrapperRequest;
 import sk.uniza.locationservice.bean.enums.UpdateStatus;
 import sk.uniza.locationservice.bean.enums.UpdateTrigger;
@@ -22,14 +23,20 @@ public class UpdateRecordService implements UpdateRecordMarker {
 
 	private final UpdateRecordRepository updateRecordRepository;
 
-	public UpdateRecord save(UpdateRecord update) {
-		log.debug("save({})", update);
-		return updateRecordRepository.save(update);
-	}
-
 	@Override
 	public UpdateRecord getLatestUpdateRecord() {
 		return updateRecordRepository.getLatestUpdateRecord();
+	}
+
+	public List<UpdateRecord> getUpdateRecordsByFilter(UpdateRecordFilter filter) {
+		return updateRecordRepository.getUpdateRecords(filter.getStatus(),
+													   filter.getTrigger(),
+													   filter.getUrl());
+	}
+
+	public UpdateRecord save(UpdateRecord update) {
+		log.debug("save({})", update);
+		return updateRecordRepository.save(update);
 	}
 
 	public UpdateRecord saveRunningUpdate(UpdateWrapperRequest wrapper) {

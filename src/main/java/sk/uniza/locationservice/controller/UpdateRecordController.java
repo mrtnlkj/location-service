@@ -9,14 +9,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 import sk.uniza.locationservice.bean.RunUpdateRequest;
 import sk.uniza.locationservice.bean.UpdateRecord;
+import sk.uniza.locationservice.bean.UpdateRecordFilter;
 import sk.uniza.locationservice.common.openapi.examples.Examples;
 import sk.uniza.locationservice.service.ManualUpdateTriggerService;
 import sk.uniza.locationservice.service.UpdateRecordService;
@@ -56,6 +61,40 @@ public class UpdateRecordController {
 					}))
 			@RequestBody(required = false) RunUpdateRequest request) {
 		UpdateRecord response = manualUpdateTriggerService.triggerUpdate(request);
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/latest")
+	@Operation(
+			summary = "Returns latest data update record.",
+			description = "Returns latest update record location data. Prop"
+	)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					description = "Success.",
+					content = @Content(schema = @Schema(implementation = UpdateRecord.class), examples = {
+							@ExampleObject(name = "Update record.", value = Examples.UPDATE_RECORD_EXAMPLE),
+					}))
+	})
+	public ResponseEntity<?> getLatestUpdateRecord() {
+		UpdateRecord response = updateRecordService.getLatestUpdateRecord();
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping()
+	@Operation(
+			summary = "Returns list of history update records.",
+			description = "Returns list of history update records. Possibility to filter results by specified query parameters."
+	)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200",
+					description = "Success.",
+					content = @Content(schema = @Schema(implementation = List.class), examples = {
+							@ExampleObject(name = "Update record.", value = Examples.UPDATE_RECORDS_EXAMPLE),
+					}))
+	})
+	public ResponseEntity<?> getUpdateRecordsByFilter(@ParameterObject UpdateRecordFilter filter) {
+		List<UpdateRecord> response = updateRecordService.getUpdateRecordsByFilter(filter);
 		return ResponseEntity.ok().body(response);
 	}
 }
