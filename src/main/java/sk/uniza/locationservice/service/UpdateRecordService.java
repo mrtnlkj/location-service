@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import sk.uniza.locationservice.bean.UpdateRecord;
-import sk.uniza.locationservice.bean.UpdateRecordFilter;
+import sk.uniza.locationservice.bean.UpdateRecordsFilter;
 import sk.uniza.locationservice.bean.UpdateWrapperRequest;
 import sk.uniza.locationservice.bean.enums.UpdateStatus;
 import sk.uniza.locationservice.bean.enums.UpdateTrigger;
@@ -28,7 +28,7 @@ public class UpdateRecordService implements UpdateRecordMarker {
 		return updateRecordRepository.getLatestUpdateRecord();
 	}
 
-	public List<UpdateRecord> getUpdateRecordsByFilter(UpdateRecordFilter filter) {
+	public List<UpdateRecord> getUpdateRecordsByFilter(UpdateRecordsFilter filter) {
 		return updateRecordRepository.getUpdateRecords(filter.getStatus(),
 													   filter.getTrigger(),
 													   filter.getUrl());

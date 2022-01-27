@@ -21,7 +21,7 @@ import java.util.List;
 
 import sk.uniza.locationservice.bean.RunUpdateRequest;
 import sk.uniza.locationservice.bean.UpdateRecord;
-import sk.uniza.locationservice.bean.UpdateRecordFilter;
+import sk.uniza.locationservice.bean.UpdateRecordsFilter;
 import sk.uniza.locationservice.common.openapi.examples.Examples;
 import sk.uniza.locationservice.service.ManualUpdateTriggerService;
 import sk.uniza.locationservice.service.UpdateRecordService;
@@ -93,7 +93,7 @@ public class UpdateRecordController {
 							@ExampleObject(name = "Update record.", value = Examples.UPDATE_RECORDS_EXAMPLE),
 					}))
 	})
-	public ResponseEntity<?> getUpdateRecordsByFilter(@ParameterObject UpdateRecordFilter filter) {
+	public ResponseEntity<?> getUpdateRecordsByFilter(@ParameterObject UpdateRecordsFilter filter) {
 		List<UpdateRecord> response = updateRecordService.getUpdateRecordsByFilter(filter);
 		return ResponseEntity.ok().body(response);
 	}

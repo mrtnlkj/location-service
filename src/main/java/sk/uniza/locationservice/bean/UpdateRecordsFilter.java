@@ -17,21 +17,21 @@ import sk.uniza.locationservice.bean.enums.UpdateTrigger;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateRecordFilter {
+public class UpdateRecordsFilter {
 
 	@Nullable
 	@Parameter(example = "FINISHED", schema = @Schema(type = "string", implementation = UpdateStatus.class),
-			description = "Filter update records by specified status.")
+			description = "Filter update records by specified status parameter.")
 	private UpdateStatus status;
 
 	@Nullable
 	@Parameter(example = "MANUAL_UPDATE", schema = @Schema(type = "string", implementation = UpdateTrigger.class),
-			description = "Filter update records by specified trigger.")
+			description = "Filter update records by specified trigger parameter.")
 	private UpdateTrigger trigger;
 
 	@Nullable
 	@Parameter(example = "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf", schema = @Schema(type = "string", example = "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf"),
-			description = "Filter update records by specified URL.")
+			description = "Filter update records by specified URL parameter.")
 	private URL url;
 
 }
