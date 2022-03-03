@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import sk.uniza.locationservice.bean.OverviewResponse;
+import sk.uniza.locationservice.bean.rest.OverviewResponse;
 import sk.uniza.locationservice.bean.UpdateRecord;
 import sk.uniza.locationservice.bean.UpdateRecordsFilter;
 import sk.uniza.locationservice.bean.UpdateWrapperRequest;
@@ -39,10 +39,11 @@ public class UpdateRecordService implements UpdateRecordMarker {
 																				 filter.getTrigger(),
 																				 filter.getUrl());
 
-		return OverviewResponse.<UpdateRecord>builder()
-							   .records(records)
-							   .recordsCount(recordsCount)
-							   .build();
+//		return OverviewResponse.<UpdateRecord>builder()
+//							   .records(records)
+//							   .recordsCount(recordsCount)
+//							   .build();
+		return null;
 	}
 
 	public UpdateRecord save(UpdateRecord update) {

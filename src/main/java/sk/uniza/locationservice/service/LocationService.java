@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import sk.uniza.locationservice.bean.Location;
-import sk.uniza.locationservice.bean.LocationsFilter;
-import sk.uniza.locationservice.bean.OverviewResponse;
+import sk.uniza.locationservice.bean.rest.LocationOverviewResponse;
+import sk.uniza.locationservice.bean.rest.filters.LocationsFilter;
 import sk.uniza.locationservice.repository.LocationRepository;
 
 @Slf4j
@@ -28,10 +28,11 @@ public class LocationService {
 	}
 
 	public Location getLocationById(Long locationId) {
+		log.debug("getLocationById({})", locationId);
 		return locationRepository.getLocationById(locationId);
 	}
 
-	public OverviewResponse<Location> getLocationsOverviewByFilter(LocationsFilter filter) {
+	public LocationOverviewResponse getLocationsOverviewByFilter(LocationsFilter filter) {
 		List<Location> locations = locationRepository.getLocationsByFilter(filter.getLocationId(),
 																		   filter.getNameSk(),
 																		   filter.getNameEn(),
@@ -48,9 +49,10 @@ public class LocationService {
 																		 filter.getAreaTo(),
 																		 filter.getType(),
 																		 filter.getPostalCode());
-		return OverviewResponse.<Location>builder()
-							   .records(locations)
-							   .recordsCount(recordsCount)
-							   .build();
+		log.debug("getLocationsOverviewByFilter({}), records found: {} ", filter, recordsCount);
+		return LocationOverviewResponse.builder()
+									   .records(locations)
+									   .recordsCount(recordsCount)
+									   .build();
 	}
 }

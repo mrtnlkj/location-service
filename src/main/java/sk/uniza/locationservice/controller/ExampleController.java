@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import sk.uniza.locationservice.bean.ExampleResponse;
 import sk.uniza.locationservice.common.openapi.examples.ErrorExamples;
-import sk.uniza.locationservice.common.openapi.examples.Examples;
+import sk.uniza.locationservice.common.openapi.examples.OpenApiExamples;
 import sk.uniza.locationservice.service.ExampleService;
 
 @Slf4j
@@ -40,7 +40,7 @@ public class ExampleController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Success.",
 					content = @Content(schema = @Schema(implementation = ExampleResponse.class), examples = {
-							@ExampleObject(name = "ExampleResponse", value = Examples.EXAMPLE_RESPONSE),
+							@ExampleObject(name = "ExampleResponse", value = OpenApiExamples.EXAMPLE_RESPONSE),
 					})),
 			@ApiResponse(responseCode = "500", description = "Internal Server Error.",
 					content = @Content(schema = @Schema(implementation = String.class), examples = {

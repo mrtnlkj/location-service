@@ -11,6 +11,8 @@ import sk.uniza.locationservice.bean.UpdateRecord;
 import sk.uniza.locationservice.bean.UpdateWrapperRequest;
 import sk.uniza.locationservice.bean.enums.UpdateTrigger;
 import sk.uniza.locationservice.config.UpdateProperties;
+import sk.uniza.locationservice.exception.ErrorType;
+import sk.uniza.locationservice.exception.LocationServiceException;
 
 @Slf4j
 @Component
@@ -27,7 +29,8 @@ public class ManualUpdateExecutor {
 		final UpdateTrigger trigger = UpdateTrigger.MANUAL_UPDATE;
 		log.debug("Data {} triggered, request: {}", trigger, request);
 		if (updateExecutor.isUpdateRunning()) {
-			throw new RuntimeException("DATA UPDATE IS ALREADY IN PROGRESS.");
+			log.warn("Update is already in progress.");
+			throw new LocationServiceException(ErrorType.UPDATE_ALREADY_RUNNING);
 		}
 		UpdateWrapperRequest wrapper = wrapUpdateRequest(trigger, request);
 		UpdateRecord update = updateRecordService.saveRunningUpdate(wrapper);

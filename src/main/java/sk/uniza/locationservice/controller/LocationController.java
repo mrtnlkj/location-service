@@ -11,18 +11,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 import sk.uniza.locationservice.bean.Location;
-import sk.uniza.locationservice.bean.LocationsFilter;
-import sk.uniza.locationservice.bean.OverviewResponse;
-import sk.uniza.locationservice.common.openapi.examples.Examples;
+import sk.uniza.locationservice.bean.rest.LocationOverviewResponse;
+import sk.uniza.locationservice.bean.rest.filters.LocationsFilter;
+import sk.uniza.locationservice.common.openapi.examples.OpenApiExamples;
 import sk.uniza.locationservice.service.LocationService;
 
 @Slf4j
@@ -33,38 +32,52 @@ import sk.uniza.locationservice.service.LocationService;
 public class LocationController {
 
 	public static final String API_TAG = "LocationController";
-	public static final String API_DESCRIPTION = "The main purposes of location controller are locations. " +
-			"Location controller exposing endpoints used to search location by many various parameters and many various ways.";
+	public static final String API_DESCRIPTION = "The main purpose of location controller is providing operations with location resources. " +
+			"It exposes endpoints used for searching locations by many various ways.";
 	private final LocationService locationService;
 
-	@GetMapping()
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@Operation(
-			summary = "Returns list of locations.",
-			description = "Returns list of location records. Possibility to filter results by specified query parameters."
-	)
+			summary = "Get location overview response.",
+			description = "Returns a location overview response with list of location objects and location objects count, " +
+					"with possibility to filter results by refining search criteria with query parameters.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200",
-					description = "Success.",
-					content = @Content(schema = @Schema(implementation = List.class), examples = {
-							@ExampleObject(name = "Locations.", value = Examples.LOCATIONS_OVERVIEW_EXAMPLE),
-					}))
+			@ApiResponse(responseCode = OpenApiExamples.HTTP_200_RESPONSE_CODE,
+					description = "Success response.",
+					content = @Content(schema = @Schema(implementation = LocationOverviewResponse.class),
+							examples = {
+									@ExampleObject(name = "Example Location Overview Response.",
+											description = "Location overview response by refining search criteria is returned.",
+											value = OpenApiExamples.LocationControllerExamples.LOCATIONS_OVERVIEW),
+									@ExampleObject(name = "Example Location Overview Response with no locations found.",
+											description = "No locations by refining search criteria was found. Location overview response with empty locations list is returned",
+											value = OpenApiExamples.LocationControllerExamples.LOCATIONS_OVERVIEW_NOT_FOUND),
+							}
+					)
+			),
 	})
 	public ResponseEntity<?> getLocationsOverviewByFilter(@ParameterObject LocationsFilter filter) {
-		OverviewResponse<Location> response = locationService.getLocationsOverviewByFilter(filter);
+		LocationOverviewResponse response = locationService.getLocationsOverviewByFilter(filter);
 		return ResponseEntity.ok().body(response);
 	}
 
 	@GetMapping("/{locationId}")
 	@Operation(
-			summary = "Returns location by specified id.",
-			description = "Returns location by specified ID extended by boundary GeoJson."
+			summary = "Get location by specified unique ID - locationId.",
+			description = "Returns a single location for provided unique ID - locationId, extended by GeoJson boundary string."
 	)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200",
-					description = "Success.",
-					content = @Content(schema = @Schema(implementation = Location.class), examples = {
-							@ExampleObject(name = "Location.", value = Examples.LOCATION_BY_ID_EXAMPLE),
-					}))
+			@ApiResponse(responseCode = OpenApiExamples.HTTP_200_RESPONSE_CODE,
+					description = "Success response.",
+					content = @Content(schema = @Schema(implementation = Location.class),
+							examples = {
+									@ExampleObject(name = "Example Location.",
+											description = "Location by specified locationId is returned.",
+											value = OpenApiExamples.LocationControllerExamples.LOCATION_BY_ID),
+									@ExampleObject(name = "Example Location for non-existing locationId.",
+											description = "Location by specified locationId is not found. Endpoint returned empty response body.",
+											value = OpenApiExamples.EMPTY_RESPONSE_BODY),
+							}))
 	})
 	public ResponseEntity<?> getLocationById(
 			@Parameter(required = true, description = "Unique ID identifier of the location.", example = "\"969\"") @PathVariable Long locationId) {

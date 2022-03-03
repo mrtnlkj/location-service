@@ -22,4 +22,8 @@ public enum LocationType {
 		}
 		return LocationType.UNKNOWN;
 	}
+
+	public static String fromLocationType(LocationType type){
+		return type.name();
+	}
 }

@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import sk.uniza.locationservice.bean.OverviewResponse;
+import sk.uniza.locationservice.bean.rest.OverviewResponse;
 import sk.uniza.locationservice.bean.RunUpdateRequest;
 import sk.uniza.locationservice.bean.UpdateRecord;
 import sk.uniza.locationservice.bean.UpdateRecordsFilter;
-import sk.uniza.locationservice.common.openapi.examples.Examples;
+import sk.uniza.locationservice.common.openapi.examples.OpenApiExamples;
 import sk.uniza.locationservice.service.ManualUpdateTriggerService;
 import sk.uniza.locationservice.service.UpdateRecordService;
 
@@ -50,15 +50,15 @@ public class UpdateRecordController {
 			@ApiResponse(responseCode = "200",
 					description = "Success, manual update was triggered successfully and location data there will be available new version of location data in few minutes.",
 					content = @Content(schema = @Schema(implementation = UpdateRecord.class), examples = {
-							@ExampleObject(name = "Update record, response of processing manual update.", value = Examples.UPDATE_RECORD_EXAMPLE),
+							@ExampleObject(name = "Update record, response of processing manual update.", value = OpenApiExamples.UPDATE_RECORD_EXAMPLE),
 					}))
 	})
 	public ResponseEntity<?> triggerManualUpdate(
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(required = false,
 					description = "Optional request body that defines additional info to update process.",
 					content = @Content(schema = @Schema(implementation = RunUpdateRequest.class), examples = {
-							@ExampleObject(name = "Run update request with default settings.", value = Examples.RUN_UPDATE_REQUEST_EXAMPLE),
-							@ExampleObject(name = "Run update request with specified custom url.", value = Examples.RUN_UPDATE_REQUEST_WITH_URL_EXAMPLE),
+							@ExampleObject(name = "Run update request with default settings.", value = OpenApiExamples.RUN_UPDATE_REQUEST_EXAMPLE),
+							@ExampleObject(name = "Run update request with specified custom url.", value = OpenApiExamples.RUN_UPDATE_REQUEST_WITH_URL_EXAMPLE),
 					}))
 			@RequestBody(required = false) RunUpdateRequest request) {
 		UpdateRecord response = manualUpdateTriggerService.triggerUpdate(request);
@@ -74,7 +74,7 @@ public class UpdateRecordController {
 			@ApiResponse(responseCode = "200",
 					description = "Success.",
 					content = @Content(schema = @Schema(implementation = UpdateRecord.class), examples = {
-							@ExampleObject(name = "Update record.", value = Examples.UPDATE_RECORD_EXAMPLE),
+							@ExampleObject(name = "Update record.", value = OpenApiExamples.UPDATE_RECORD_EXAMPLE),
 					}))
 	})
 	public ResponseEntity<?> getLatestUpdateRecord() {
@@ -91,7 +91,7 @@ public class UpdateRecordController {
 			@ApiResponse(responseCode = "200",
 					description = "Success.",
 					content = @Content(schema = @Schema(implementation = List.class), examples = {
-							@ExampleObject(name = "Update records overview.", value = Examples.UPDATE_RECORDS_EXAMPLE),
+							@ExampleObject(name = "Update records overview.", value = OpenApiExamples.UPDATE_RECORDS_EXAMPLE),
 					}))
 	})
 	public ResponseEntity<?> getUpdateRecordsByFilter(@ParameterObject UpdateRecordsFilter filter) {
