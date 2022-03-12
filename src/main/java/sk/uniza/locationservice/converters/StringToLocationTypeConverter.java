@@ -2,9 +2,7 @@ package sk.uniza.locationservice.converters;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
-
-import java.net.MalformedURLException;
-import java.net.URL;
+import org.springframework.lang.Nullable;
 
 import sk.uniza.locationservice.bean.enums.LocationType;
 
@@ -12,7 +10,7 @@ import sk.uniza.locationservice.bean.enums.LocationType;
 public class StringToLocationTypeConverter implements Converter<String, LocationType> {
 
 	@Override
-	public LocationType convert(String source) {
+	public LocationType convert(@Nullable String source) {
 		return LocationType.fromString(source);
 	}
 }
