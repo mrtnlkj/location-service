@@ -8,15 +8,15 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.List;
 
-import sk.uniza.locationservice.bean.Location;
-import sk.uniza.locationservice.bean.enums.LocationType;
+import sk.uniza.locationservice.controller.bean.enums.LocationType;
+import sk.uniza.locationservice.entity.Location;
 
 @Repository
 public interface LocationRepository extends CrudRepository<Location, Long> {
 
 	@Query("SELECT COUNT(l.location_id) " +
 			"FROM location l ")
-	public Long getLocationsCount();
+	Long getLocationsCount();
 
 	@Query("SELECT COUNT(l.location_id) " +
 			"FROM location l " +
@@ -31,13 +31,13 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
 			") " +
 			"AND (UPPER(l.type) = UPPER(:type) OR :type IS NULL) " +
 			"AND (REPLACE(l.postal_code, ' ', '') ILIKE REPLACE(:postalCode, ' ', '') OR :postalCode IS NULL) ")
-	public Long getLocationsCountByFilter(@Param("locationId") Long locationId,
-										  @Param("nameSk") String nameSk,
-										  @Param("nameEn") String nameEn,
-										  @Param("areaFrom") BigDecimal areaFrom,
-										  @Param("areaTo") BigDecimal areaTo,
-										  @Param("type") LocationType type,
-										  @Param("postalCode") String postalCode);
+	Long getLocationsCountByFilter(@Param("locationId") Long locationId,
+								   @Param("nameSk") String nameSk,
+								   @Param("nameEn") String nameEn,
+								   @Param("areaFrom") BigDecimal areaFrom,
+								   @Param("areaTo") BigDecimal areaTo,
+								   @Param("type") LocationType type,
+								   @Param("postalCode") String postalCode);
 
 	@Query("SELECT " +
 			"l.location_id AS location_id, " +
@@ -72,15 +72,15 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
 			"AND (REPLACE(l.postal_code, ' ', '') ILIKE REPLACE(:postalCode, ' ', '') OR :postalCode IS NULL) " +
 			"ORDER BY l.location_id ASC " +
 			"LIMIT :limit OFFSET :offset")
-	public List<Location> getLocationsByFilter(@Param("locationId") Long locationId,
-											   @Param("nameSk") String nameSk,
-											   @Param("nameEn") String nameEn,
-											   @Param("areaFrom") BigDecimal areaFrom,
-											   @Param("areaTo") BigDecimal areaTo,
-											   @Param("type") LocationType type,
-											   @Param("postalCode") String postalCode,
-											   @Param("limit") Long limit,
-											   @Param("offset") Long offset);
+	List<Location> getLocationsByFilter(@Param("locationId") Long locationId,
+										@Param("nameSk") String nameSk,
+										@Param("nameEn") String nameEn,
+										@Param("areaFrom") BigDecimal areaFrom,
+										@Param("areaTo") BigDecimal areaTo,
+										@Param("type") LocationType type,
+										@Param("postalCode") String postalCode,
+										@Param("limit") Long limit,
+										@Param("offset") Long offset);
 
 	@Query("SELECT " +
 			"l.location_id AS location_id, " +
@@ -104,8 +104,8 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
 			"FROM location l " +
 			"JOIN location_version lv ON (lv.version_id = l.version_id) " +
 			"WHERE (l.location_id = :locationId) ")
-	public Location getLocationById(@Param("locationId") Long locationId);
+	Location getLocationById(@Param("locationId") Long locationId);
 
 	@Query("CALL insert_location_data_proc(:versionId, 0) ")
-	public Long importLocationDataWithVersionAndGetInsertedRecordsCount(@Param("versionId") Long versionId);
+	Long importLocationDataWithVersionAndGetInsertedRecordsCount(@Param("versionId") Long versionId);
 }

@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import sk.uniza.locationservice.bean.rest.OverviewResponse;
-import sk.uniza.locationservice.bean.RunUpdateRequest;
-import sk.uniza.locationservice.bean.UpdateRecord;
-import sk.uniza.locationservice.bean.UpdateRecordsFilter;
-import sk.uniza.locationservice.common.openapi.examples.OpenApiExamples;
-import sk.uniza.locationservice.service.ManualUpdateTriggerService;
-import sk.uniza.locationservice.service.UpdateRecordService;
+import sk.uniza.locationservice.business.service.UpdateRecordService;
+import sk.uniza.locationservice.business.update.ManualUpdateTriggerService;
+import sk.uniza.locationservice.controller.bean.queryfilters.UpdateRecordsFilter;
+import sk.uniza.locationservice.controller.bean.request.RunUpdateRequest;
+import sk.uniza.locationservice.controller.bean.response.ListResponse;
+import sk.uniza.locationservice.controller.openapi.examples.OpenApiExamples;
+import sk.uniza.locationservice.entity.UpdateRecord;
 
 @Slf4j
 @RestController
@@ -40,6 +40,7 @@ public class UpdateRecordController {
 
 	private final UpdateRecordService updateRecordService;
 	private final ManualUpdateTriggerService manualUpdateTriggerService;
+
 
 	@PostMapping("/run-update")
 	@Operation(
@@ -95,7 +96,7 @@ public class UpdateRecordController {
 					}))
 	})
 	public ResponseEntity<?> getUpdateRecordsByFilter(@ParameterObject UpdateRecordsFilter filter) {
-		OverviewResponse<UpdateRecord> response = updateRecordService.getUpdateRecordsByFilter(filter);
+		ListResponse<UpdateRecord> response = updateRecordService.getUpdateRecordsByFilter(filter);
 		return ResponseEntity.ok().body(response);
 	}
 }

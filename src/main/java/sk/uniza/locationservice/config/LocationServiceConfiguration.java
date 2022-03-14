@@ -7,7 +7,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import sk.uniza.locationservice.common.http.HttpRequestResponseLoggingFilter;
+import sk.uniza.locationservice.common.httplogger.HttpRequestResponseLoggingFilter;
+import sk.uniza.locationservice.config.properties.HttpRequestResponseLoggingFilterProperties;
+import sk.uniza.locationservice.config.properties.UpdateProperties;
 
 @Slf4j
 @Configuration

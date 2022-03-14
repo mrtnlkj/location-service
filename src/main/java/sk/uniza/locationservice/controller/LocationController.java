@@ -18,17 +18,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import sk.uniza.locationservice.bean.Location;
-import sk.uniza.locationservice.bean.rest.LocationOverviewResponse;
-import sk.uniza.locationservice.bean.rest.filters.LocationsFilter;
-import sk.uniza.locationservice.common.openapi.examples.OpenApiExamples;
-import sk.uniza.locationservice.service.LocationService;
+import sk.uniza.locationservice.business.service.LocationService;
+import sk.uniza.locationservice.controller.bean.queryfilters.LocationsFilter;
+import sk.uniza.locationservice.controller.bean.response.GetLocationsResponse;
+import sk.uniza.locationservice.controller.openapi.examples.OpenApiExamples;
+import sk.uniza.locationservice.entity.Location;
+
+import static sk.uniza.locationservice.controller.LocationController.API_DESCRIPTION;
+import static sk.uniza.locationservice.controller.LocationController.API_TAG;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/locations")
 @RequiredArgsConstructor
-@Tag(name = LocationController.API_TAG, description = LocationController.API_DESCRIPTION)
+@Tag(name = API_TAG,
+		description = API_DESCRIPTION)
 public class LocationController {
 
 	public static final String API_TAG = "LocationController";
@@ -44,7 +48,7 @@ public class LocationController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200_RESPONSE_CODE,
 					description = "Success response.",
-					content = @Content(schema = @Schema(implementation = LocationOverviewResponse.class),
+					content = @Content(schema = @Schema(implementation = GetLocationsResponse.class),
 							examples = {
 									@ExampleObject(name = "Example Location Overview Response.",
 											description = "Location overview response by refining search criteria is returned.",
@@ -57,7 +61,7 @@ public class LocationController {
 			),
 	})
 	public ResponseEntity<?> getLocationsOverviewByFilter(@ParameterObject LocationsFilter filter) {
-		LocationOverviewResponse response = locationService.getLocationsOverviewByFilter(filter);
+		GetLocationsResponse response = locationService.getLocationsOverviewByFilter(filter);
 		return ResponseEntity.ok().body(response);
 	}
 
