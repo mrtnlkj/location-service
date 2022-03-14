@@ -9,6 +9,7 @@ import java.util.List;
 import sk.uniza.locationservice.controller.bean.queryfilters.LocationsFilter;
 import sk.uniza.locationservice.controller.bean.response.GetLocationsResponse;
 import sk.uniza.locationservice.entity.Location;
+import sk.uniza.locationservice.mapper.LocationMapper;
 import sk.uniza.locationservice.repository.LocationRepository;
 
 @Slf4j
@@ -17,6 +18,7 @@ import sk.uniza.locationservice.repository.LocationRepository;
 public class LocationService {
 
 	private final LocationRepository locationRepository;
+	private final LocationMapper locationMapper;
 
 	public Long getLocationsCount() {
 		return locationRepository.getLocationsCount();
@@ -51,7 +53,7 @@ public class LocationService {
 																		 filter.getPostalCode());
 		log.debug("getLocationsOverviewByFilter({}), records found: {} ", filter, recordsCount);
 		return GetLocationsResponse.builder()
-								   .records(locations)
+								   .records(locationMapper.map(locations))
 								   .recordsCount(recordsCount)
 								   .build();
 	}
