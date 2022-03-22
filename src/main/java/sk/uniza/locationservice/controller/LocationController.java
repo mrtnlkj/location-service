@@ -9,83 +9,273 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import java.math.BigDecimal;
+
 import sk.uniza.locationservice.business.service.LocationService;
+import sk.uniza.locationservice.controller.bean.queryfilters.CoordinatesFilter;
 import sk.uniza.locationservice.controller.bean.queryfilters.LocationsFilter;
 import sk.uniza.locationservice.controller.bean.response.GetLocationsResponse;
+import sk.uniza.locationservice.controller.bean.response.LocationResponse;
+import sk.uniza.locationservice.controller.error.ErrorResponse;
+import sk.uniza.locationservice.controller.openapi.examples.ErrorExamples;
 import sk.uniza.locationservice.controller.openapi.examples.OpenApiExamples;
 import sk.uniza.locationservice.entity.Location;
 
-import static sk.uniza.locationservice.controller.LocationController.API_DESCRIPTION;
-import static sk.uniza.locationservice.controller.LocationController.API_TAG;
+import static sk.uniza.locationservice.controller.openapi.examples.ErrorExamples.HTTP_400_DESCRIPTION;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/v1/locations")
 @RequiredArgsConstructor
-@Tag(name = API_TAG,
-		description = API_DESCRIPTION)
+@Tag(name = LocationController.API_TAG, description = LocationController.API_DESCRIPTION)
+@Validated
 public class LocationController {
 
 	public static final String API_TAG = "LocationController";
-	public static final String API_DESCRIPTION = "The main purpose of location controller is providing operations with location resources. " +
-			"It exposes endpoints used for searching locations by many various ways.";
+	public static final String API_DESCRIPTION = "The purpose of Location Controller is providing operations with location resources. " +
+			"It exposes API endpoints mainly used for finding / searching locations by many various ways.";
+
 	private final LocationService locationService;
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	@Operation(
-			summary = "Get location overview response.",
-			description = "Returns a location overview response with list of location objects and location objects count, " +
+	@Operation(summary = "1001 - Get locations",
+			description = "Returns a location response defining list of the locations and locations count, sorted by field nameSk in ascending order " +
 					"with possibility to filter results by refining search criteria with query parameters.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = OpenApiExamples.HTTP_200_RESPONSE_CODE,
-					description = "Success response.",
-					content = @Content(schema = @Schema(implementation = GetLocationsResponse.class),
+			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = GetLocationsResponse.class),
 							examples = {
-									@ExampleObject(name = "Example Location Overview Response.",
-											description = "Location overview response by refining search criteria is returned.",
-											value = OpenApiExamples.LocationControllerExamples.LOCATIONS_OVERVIEW),
-									@ExampleObject(name = "Example Location Overview Response with no locations found.",
-											description = "No locations by refining search criteria was found. Location overview response with empty locations list is returned",
-											value = OpenApiExamples.LocationControllerExamples.LOCATIONS_OVERVIEW_NOT_FOUND),
+									@ExampleObject(name = "GetLocationsResponse",
+											description = "Locations found by search criteria",
+											value = OpenApiExamples.LC_GET_LOCATIONS),
+									@ExampleObject(name = "GetLocationsResponse - not found",
+											description = "No locations by search criteria was found",
+											value = OpenApiExamples.LC_GET_LOCATIONS_NOT_FOUND),
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = "LS0001",
+											value = ErrorExamples.LC_GET_LOCATIONS_400),
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = "LS0004",
+											value = ErrorExamples.HTTP_500_EXAMPLE),
 							}
 					)
 			),
 	})
-	public ResponseEntity<?> getLocationsOverviewByFilter(@ParameterObject LocationsFilter filter) {
-		GetLocationsResponse response = locationService.getLocationsOverviewByFilter(filter);
+	public ResponseEntity<?> getLocations(@Valid @ParameterObject LocationsFilter filter) {
+		GetLocationsResponse response = null;
 		return ResponseEntity.ok().body(response);
 	}
 
 	@GetMapping("/{locationId}")
-	@Operation(
-			summary = "Get location by specified unique ID - locationId.",
-			description = "Returns a single location for provided unique ID - locationId, extended by GeoJson boundary string."
-	)
+	@Operation(summary = "1002 - Get location by id",
+			description = "Returns a single location for specified unique identifier - locationId, response extended by GeoJson boundary string.")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = OpenApiExamples.HTTP_200_RESPONSE_CODE,
-					description = "Success response.",
-					content = @Content(schema = @Schema(implementation = Location.class),
+			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = Location.class),
 							examples = {
-									@ExampleObject(name = "Example Location.",
-											description = "Location by specified locationId is returned.",
-											value = OpenApiExamples.LocationControllerExamples.LOCATION_BY_ID),
-									@ExampleObject(name = "Example Location for non-existing locationId.",
-											description = "Location by specified locationId is not found. Endpoint returned empty response body.",
-											value = OpenApiExamples.EMPTY_RESPONSE_BODY),
-							}))
+									@ExampleObject(name = "LocationResponse",
+											description = "Location by specified id",
+											value = OpenApiExamples.LC_GET_LOCATION_BY_ID),
+									@ExampleObject(name = "LocationResponse - not found",
+											description = "No location found for specified id",
+											value = OpenApiExamples.LC_GET_LOCATION_BY_ID_NOT_FOUND),
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = "LS0001",
+											value = ErrorExamples.LC_GET_LOCATIONS_BY_ID_400),
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = "LS0004",
+											value = ErrorExamples.HTTP_500_EXAMPLE),
+							}
+					)
+			),
 	})
 	public ResponseEntity<?> getLocationById(
-			@Parameter(required = true, description = "Unique ID identifier of the location.", example = "\"969\"") @PathVariable Long locationId) {
-		Location response = locationService.getLocationById(locationId);
+			@Parameter(required = true, description = "Unique locationId identifier.", example = "\"969\"")
+			@NotNull @PathVariable(value = "locationId") @Positive Long locationId) {
+		LocationResponse response = null;
 		return ResponseEntity.ok().body(response);
 	}
+
+	@GetMapping("/{locationId}/gps-occurrence")
+	@Operation(summary = "1003 - GPS coordinates occurrence",
+			description = "Endpoint verifies whether the given GPS coordinates occurs in specified location and returns appropriate response.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = Boolean.class),
+							examples = {
+									@ExampleObject(name = "Example response - occurrence found",
+											description = "GPS coordinates occur in given location",
+											value = OpenApiExamples.LC_GPS_OCCURRENCE),
+									@ExampleObject(name = "Example response - occurrence not found",
+											description = "GPS coordinates does not occur in given location",
+											value = OpenApiExamples.LC_GPS_OCCURRENCE_NOT_FOUND),
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = "LS0001",
+											value = ErrorExamples.LC_GPS_OCCURRENCE_400)
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = "LS0004",
+											value = ErrorExamples.HTTP_500_EXAMPLE),
+							}
+					)
+			),
+	})
+	public ResponseEntity<?> checkOccurrenceOfGPSCoordsWithinLocation(
+			@Parameter(required = true, description = "Unique locationId identifier.", example = "\"969\"")
+			@NotNull @PathVariable(value = "locationId") @Positive Long locationId,
+			@Valid @ParameterObject CoordinatesFilter filter) {
+		return ResponseEntity.ok().body(Boolean.TRUE);
+	}
+
+	@GetMapping("/within-distance")
+	@Operation(summary = "1004 - Get locations within specified distance from given GPS coordinates.",
+			description = "Returns a location response defining list of the locations and locations count, sorted by field nameSk in ascending order " +
+					"which meets the search criteria.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = GetLocationsResponse.class),
+							examples = {
+									@ExampleObject(name = "GetLocationsResponse",
+											description = "Locations found by search criteria",
+											value = OpenApiExamples.LC_GET_LOCATIONS_WITHIN_DISTANCE),
+									@ExampleObject(name = "GetLocationsResponse - not found",
+											description = "No locations by search criteria was found",
+											value = OpenApiExamples.LC_GET_LOCATIONS_WITHIN_DISTANCE_NOT_FOUND),
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = "LS0001",
+											value = ErrorExamples.LC_GET_LOCATIONS_WITHIN_DISTANCE_400),
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = "LS0004",
+											value = ErrorExamples.HTTP_500_EXAMPLE),
+							}
+					)
+			),
+	})
+	public ResponseEntity<?> getLocationsWithinSpecifiedDistance(@Valid @ParameterObject CoordinatesFilter filter,
+																 @Parameter(required = true, description = "Distance [m]", example = "\"100.00\"")
+																 @NotNull @RequestParam(value = "distance") @Min(0) BigDecimal distance) {
+		GetLocationsResponse response = null;
+		return ResponseEntity.ok().body(response);
+	}
+
+	@GetMapping("/nearest-by-gps-coords")
+	@Operation(summary = "1005 - Get nearest location by GPS coordinates",
+			description = "Returns a single location that is the nearest to the specified GPS coordinates.")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = Location.class),
+							examples = {
+									@ExampleObject(name = "LocationResponse",
+											description = "Location nearest to the specified GPS coordinates",
+											value = OpenApiExamples.LC_GET_NEAREST_LOCATION),
+									@ExampleObject(name = "LocationResponse - not found",
+											description = "No locations found nearest to the specified GPS coordinates",
+											value = OpenApiExamples.LC_GET_NEAREST_LOCATION_NOT_FOUND),
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = "LS0001",
+											value = ErrorExamples.LC_GET_NEAREST_LOCATION_400)
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = "LS0004",
+											value = ErrorExamples.HTTP_500_EXAMPLE),
+							}
+					)
+			),
+	})
+	public ResponseEntity<?> getNearestLocation(@Valid @ParameterObject CoordinatesFilter filter) {
+		LocationResponse response = null;
+		return ResponseEntity.ok().body(response);
+	}
+
 }

@@ -31,7 +31,7 @@ public class Osm2pgsqlImporter extends AbstractProcessExecutor {
 
 	private File osm2pgsqlFile;
 
-	public int importFile(File file) throws IOException, InterruptedException {
+	public int importFile(File file) {
 		this.osm2pgsqlFile = file;
 		return runCommand();
 	}

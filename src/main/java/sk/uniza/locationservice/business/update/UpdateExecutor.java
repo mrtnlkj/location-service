@@ -60,7 +60,7 @@ public class UpdateExecutor {
 		} catch (Exception e) {
 			status = UpdateStatus.FAILED;
 			log.error("ERROR: ", e);
-			throw new LocationServiceException(ErrorType.DATA_STORE_CONNECTION_FAILURE_ERROR);
+			throw new LocationServiceException(ErrorType.JDBC_CONNECTION_FAILURE_ERROR);
 		} finally {
 			updateRecordMarker.markUpdateRecordAs(update, status);
 			Instant end = Instant.now();

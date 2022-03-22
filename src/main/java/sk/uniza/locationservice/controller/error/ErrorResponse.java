@@ -23,7 +23,7 @@ import static sk.uniza.locationservice.common.util.ErrorResponseUtil.getEnhanced
 @AllArgsConstructor
 public class ErrorResponse {
 
-	public static final String CODE_PREFIX = "ODS_R";
+	public static final String CODE_PREFIX = "LS";
 	private static final String EXAMPLE_REF_ID = "5153c9b9-151d-47e5-93ef-a67ac8663163";
 	private static final RuntimeException EXAMPLE_CAUSE_OF_EXCEPTION = new RuntimeException("Example cause");
 

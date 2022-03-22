@@ -5,6 +5,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -69,18 +70,18 @@ public class LocationServiceExceptionHandler extends ResponseEntityExceptionHand
 		return new ResponseEntity<>(errorResponse, new HttpHeaders(), errorType.getHttpResponseCode());
 	}
 
-	//    /*
-	//     * Cassandra connection failure
-	//     */
-	//    @ExceptionHandler(CassandraConnectionFailureException.class)
-	//    public ResponseEntity<Object> handleCassandraConnectionException(Exception exception, WebRequest request) {
-	//        log.error(EXCEPTION_THROWN, exception);
-	//
-	//        ErrorType errorType = ErrorType.DATA_STORE_CONNECTION_FAILURE_ERROR;
-	//
-	//        ErrorResponse errorResponse = ErrorResponse.fromErrorType(errorType, exception);
-	//        return new ResponseEntity<>(errorResponse, new HttpHeaders(), errorType.getHttpResponseCode());
-	//    }
+	    /*
+	     * PostgreSQL JDBC connection failure
+	     */
+	    @ExceptionHandler(CannotGetJdbcConnectionException.class)
+	    public ResponseEntity<Object> handleCassandraConnectionException(Exception exception, WebRequest request) {
+	        log.error(EXCEPTION_THROWN, exception);
+
+	        ErrorType errorType = ErrorType.JDBC_CONNECTION_FAILURE_ERROR;
+
+	        ErrorResponse errorResponse = ErrorResponse.fromErrorType(errorType, exception);
+	        return new ResponseEntity<>(errorResponse, new HttpHeaders(), errorType.getHttpResponseCode());
+	    }
 
 	@ExceptionHandler({Exception.class})
 	public ResponseEntity<Object> handleDefaultException(Exception exception, WebRequest request) {
