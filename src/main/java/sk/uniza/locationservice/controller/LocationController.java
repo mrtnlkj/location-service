@@ -27,13 +27,14 @@ import java.math.BigDecimal;
 
 import sk.uniza.locationservice.business.service.LocationService;
 import sk.uniza.locationservice.controller.bean.queryfilters.CoordinatesFilter;
+import sk.uniza.locationservice.controller.bean.queryfilters.LimitAndOffsetFilter;
 import sk.uniza.locationservice.controller.bean.queryfilters.LocationsFilter;
 import sk.uniza.locationservice.controller.bean.response.GetLocationsResponse;
 import sk.uniza.locationservice.controller.bean.response.LocationResponse;
 import sk.uniza.locationservice.controller.error.ErrorResponse;
 import sk.uniza.locationservice.controller.openapi.examples.ErrorExamples;
 import sk.uniza.locationservice.controller.openapi.examples.OpenApiExamples;
-import sk.uniza.locationservice.entity.Location;
+import sk.uniza.locationservice.repository.entity.Location;
 
 import static sk.uniza.locationservice.controller.openapi.examples.ErrorExamples.HTTP_400_DESCRIPTION;
 
@@ -91,7 +92,7 @@ public class LocationController {
 			),
 	})
 	public ResponseEntity<?> getLocations(@Valid @ParameterObject LocationsFilter filter) {
-		GetLocationsResponse response = null;
+		GetLocationsResponse response = locationService.getLocationsOverviewByFilter(filter);
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -137,7 +138,7 @@ public class LocationController {
 	public ResponseEntity<?> getLocationById(
 			@Parameter(required = true, description = "Unique locationId identifier.", example = "\"969\"")
 			@NotNull @PathVariable(value = "locationId") @Positive Long locationId) {
-		LocationResponse response = null;
+		LocationResponse response = locationService.getLocationById(locationId);
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -180,11 +181,12 @@ public class LocationController {
 					)
 			),
 	})
-	public ResponseEntity<?> checkOccurrenceOfGPSCoordsWithinLocation(
+	public ResponseEntity<?> gpsCoordsOccurrenceWithinLocation(
 			@Parameter(required = true, description = "Unique locationId identifier.", example = "\"969\"")
 			@NotNull @PathVariable(value = "locationId") @Positive Long locationId,
 			@Valid @ParameterObject CoordinatesFilter filter) {
-		return ResponseEntity.ok().body(Boolean.TRUE);
+		boolean response = locationService.gpsCoordsOccurrenceWithinLocation(locationId, filter);
+		return ResponseEntity.ok().body(response);
 	}
 
 	@GetMapping("/within-distance")
@@ -227,10 +229,11 @@ public class LocationController {
 					)
 			),
 	})
-	public ResponseEntity<?> getLocationsWithinSpecifiedDistance(@Valid @ParameterObject CoordinatesFilter filter,
-																 @Parameter(required = true, description = "Distance [m]", example = "\"100.00\"")
-																 @NotNull @RequestParam(value = "distance") @Min(0) BigDecimal distance) {
-		GetLocationsResponse response = null;
+	public ResponseEntity<?> getLocationsWithinSpecifiedDistance(@Parameter(required = true, description = "Distance [m]", example = "\"100.00\"")
+																 @NotNull @Min(0) @RequestParam BigDecimal distance,
+																 @Valid @ParameterObject CoordinatesFilter coordsFilter,
+																 @Valid @ParameterObject LimitAndOffsetFilter limitAndOffsetFilter) {
+		GetLocationsResponse response = locationService.getLocationsWithinSpecifiedDistance(distance, coordsFilter, limitAndOffsetFilter);
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -274,7 +277,7 @@ public class LocationController {
 			),
 	})
 	public ResponseEntity<?> getNearestLocation(@Valid @ParameterObject CoordinatesFilter filter) {
-		LocationResponse response = null;
+		LocationResponse response = locationService.getNearestLocationByGpsCoords(filter);
 		return ResponseEntity.ok().body(response);
 	}
 

@@ -12,7 +12,7 @@ import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
 import sk.uniza.locationservice.controller.bean.queryfilters.UpdateRecordsFilter;
 import sk.uniza.locationservice.controller.bean.request.UpdateWrapperRequest;
 import sk.uniza.locationservice.controller.bean.response.ListResponse;
-import sk.uniza.locationservice.entity.UpdateRecord;
+import sk.uniza.locationservice.repository.entity.UpdateRecord;
 import sk.uniza.locationservice.repository.UpdateRecordRepository;
 
 import static java.util.Objects.nonNull;

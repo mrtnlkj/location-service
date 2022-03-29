@@ -6,7 +6,7 @@ import org.springframework.lang.Nullable;
 import java.util.List;
 
 import sk.uniza.locationservice.controller.bean.response.LocationResponse;
-import sk.uniza.locationservice.entity.Location;
+import sk.uniza.locationservice.repository.entity.Location;
 
 @Mapper(componentModel = "spring")
 public interface LocationMapper {

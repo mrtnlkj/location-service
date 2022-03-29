@@ -15,7 +15,7 @@ import sk.uniza.locationservice.config.properties.UpdateProperties;
 import sk.uniza.locationservice.controller.bean.enums.UpdateStatus;
 import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
 import sk.uniza.locationservice.controller.bean.request.UpdateWrapperRequest;
-import sk.uniza.locationservice.entity.UpdateRecord;
+import sk.uniza.locationservice.repository.entity.UpdateRecord;
 
 import static java.util.Objects.nonNull;
 

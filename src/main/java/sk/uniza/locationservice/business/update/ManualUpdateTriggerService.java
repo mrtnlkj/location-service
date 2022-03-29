@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import sk.uniza.locationservice.controller.bean.request.RunUpdateRequest;
-import sk.uniza.locationservice.entity.UpdateRecord;
+import sk.uniza.locationservice.repository.entity.UpdateRecord;
 
 @Slf4j
 @Service

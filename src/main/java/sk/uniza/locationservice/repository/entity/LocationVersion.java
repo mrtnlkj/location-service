@@ -1,4 +1,4 @@
-package sk.uniza.locationservice.entity;
+package sk.uniza.locationservice.repository.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import static sk.uniza.locationservice.entity.LocationVersion.TABLE_NAME;
+import static sk.uniza.locationservice.repository.entity.LocationVersion.TABLE_NAME;
 
 @Data
 @Builder(toBuilder = true)

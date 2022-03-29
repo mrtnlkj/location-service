@@ -1,6 +1,6 @@
 package sk.uniza.locationservice.business.service;
 
-import sk.uniza.locationservice.entity.LocationVersion;
+import sk.uniza.locationservice.repository.entity.LocationVersion;
 
 public interface LocationVersionManager {
 

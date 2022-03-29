@@ -4,7 +4,7 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import sk.uniza.locationservice.entity.LocationVersion;
+import sk.uniza.locationservice.repository.entity.LocationVersion;
 
 @Repository
 public interface LocationVersionRepository extends CrudRepository<LocationVersion, Long> {

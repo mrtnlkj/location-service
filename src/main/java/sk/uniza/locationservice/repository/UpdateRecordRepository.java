@@ -10,7 +10,7 @@ import java.util.List;
 
 import sk.uniza.locationservice.controller.bean.enums.UpdateStatus;
 import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
-import sk.uniza.locationservice.entity.UpdateRecord;
+import sk.uniza.locationservice.repository.entity.UpdateRecord;
 
 @Repository
 public interface UpdateRecordRepository extends CrudRepository<UpdateRecord, Long> {

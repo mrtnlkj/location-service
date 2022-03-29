@@ -1,4 +1,4 @@
-package sk.uniza.locationservice.entity;
+package sk.uniza.locationservice.repository.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

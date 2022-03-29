@@ -19,8 +19,8 @@ import sk.uniza.locationservice.common.ErrorType;
 import sk.uniza.locationservice.common.exception.LocationServiceException;
 import sk.uniza.locationservice.controller.bean.enums.UpdateStatus;
 import sk.uniza.locationservice.controller.bean.request.UpdateWrapperRequest;
-import sk.uniza.locationservice.entity.LocationVersion;
-import sk.uniza.locationservice.entity.UpdateRecord;
+import sk.uniza.locationservice.repository.entity.LocationVersion;
+import sk.uniza.locationservice.repository.entity.UpdateRecord;
 
 import static sk.uniza.locationservice.common.util.DurationUtils.durationBetween;
 

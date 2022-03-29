@@ -1,4 +1,4 @@
-package sk.uniza.locationservice.entity;
+package sk.uniza.locationservice.repository.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import java.time.Instant;
 import sk.uniza.locationservice.controller.bean.enums.UpdateStatus;
 import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
 
-import static sk.uniza.locationservice.entity.UpdateRecord.TABLE_NAME;
+import static sk.uniza.locationservice.repository.entity.UpdateRecord.TABLE_NAME;
 
 @Data
 @Builder(toBuilder = true)

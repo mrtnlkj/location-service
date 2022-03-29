@@ -25,7 +25,7 @@ import sk.uniza.locationservice.controller.bean.queryfilters.UpdateRecordsFilter
 import sk.uniza.locationservice.controller.bean.request.RunUpdateRequest;
 import sk.uniza.locationservice.controller.bean.response.ListResponse;
 import sk.uniza.locationservice.controller.openapi.examples.OpenApiExamples;
-import sk.uniza.locationservice.entity.UpdateRecord;
+import sk.uniza.locationservice.repository.entity.UpdateRecord;
 
 @Slf4j
 @RestController

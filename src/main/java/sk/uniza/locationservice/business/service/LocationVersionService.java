@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import sk.uniza.locationservice.entity.LocationVersion;
+import sk.uniza.locationservice.repository.entity.LocationVersion;
 import sk.uniza.locationservice.repository.LocationVersionRepository;
 
 import static java.util.Objects.nonNull;

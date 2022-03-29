@@ -13,7 +13,7 @@ import sk.uniza.locationservice.config.properties.UpdateProperties;
 import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
 import sk.uniza.locationservice.controller.bean.request.RunUpdateRequest;
 import sk.uniza.locationservice.controller.bean.request.UpdateWrapperRequest;
-import sk.uniza.locationservice.entity.UpdateRecord;
+import sk.uniza.locationservice.repository.entity.UpdateRecord;
 
 @Slf4j
 @Component
