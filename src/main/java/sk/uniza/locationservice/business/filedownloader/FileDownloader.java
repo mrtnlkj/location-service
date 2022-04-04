@@ -12,7 +12,7 @@ import java.net.URL;
 import java.time.Instant;
 
 import static java.util.Objects.isNull;
-import static sk.uniza.locationservice.common.util.DurationUtils.durationBetween;
+import static sk.uniza.locationservice.common.util.DurationUtils.prettyPrintDurationBetween;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -29,7 +29,7 @@ public final class FileDownloader {
 		FileUtils.copyURLToFile(url, file, CONNECTION_TIMEOUT_MILLIS, READ_TIMEOUT_MILLIS);
 		Instant end = Instant.now();
 		long sizeInKilobytes = bytesToKilobytes(file.length());
-		log.info("File download FINISHED. Total time elapsed: {}s with file size: {}kb.", durationBetween(start, end), sizeInKilobytes);
+		log.info("File download FINISHED. Total time elapsed: {} with file size: {}kb.", prettyPrintDurationBetween(start, end), sizeInKilobytes);
 		return file;
 	}
 

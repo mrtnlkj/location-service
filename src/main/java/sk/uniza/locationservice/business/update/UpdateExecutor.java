@@ -22,7 +22,7 @@ import sk.uniza.locationservice.controller.bean.request.UpdateWrapperRequest;
 import sk.uniza.locationservice.repository.entity.LocationVersion;
 import sk.uniza.locationservice.repository.entity.UpdateRecord;
 
-import static sk.uniza.locationservice.common.util.DurationUtils.durationBetween;
+import static sk.uniza.locationservice.common.util.DurationUtils.prettyPrintDurationBetween;
 
 @Slf4j
 @Component
@@ -65,7 +65,7 @@ public class UpdateExecutor {
 			updateRecordMarker.markUpdateRecordAs(update, status);
 			Instant end = Instant.now();
 			isUpdateRunning.set(false);
-			log.info("Data update {}. Total time elapsed: {}s.", status, durationBetween(start, end));
+			log.info("Data update {}. Total time elapsed: {}.", status, prettyPrintDurationBetween(start, end));
 		}
 		return CompletableFuture.allOf();
 	}
@@ -82,8 +82,8 @@ public class UpdateExecutor {
 		locationVersionManager.prepareLatestLocationVersion(locationVersion);
 		Instant stop = Instant.now();
 		log.info("Import of location data finished. " +
-						 "Total time elapsed: {}s, " +
-						 "total records inserted count: {}.", durationBetween(start, stop),
+						 "Total time elapsed: {}, " +
+						 "total records inserted count: {}.", prettyPrintDurationBetween(start, stop),
 				 recordsInsertedCount);
 
 	}
