@@ -15,8 +15,8 @@ import sk.uniza.locationservice.controller.bean.enums.LocationType;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(Location.TABLE_NAME)
-public class Location {
+@Table(LocationEntity.TABLE_NAME)
+public class LocationEntity {
 
 	public static final String TABLE_NAME = "location";
 

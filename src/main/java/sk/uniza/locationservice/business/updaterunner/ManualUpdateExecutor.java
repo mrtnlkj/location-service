@@ -1,4 +1,4 @@
-package sk.uniza.locationservice.business.update;
+package sk.uniza.locationservice.business.updaterunner;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +11,11 @@ import sk.uniza.locationservice.common.ErrorType;
 import sk.uniza.locationservice.common.exception.LocationServiceException;
 import sk.uniza.locationservice.config.properties.UpdateProperties;
 import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
-import sk.uniza.locationservice.controller.bean.request.RunUpdateRequest;
+import sk.uniza.locationservice.controller.bean.request.ManualUpdateRequest;
 import sk.uniza.locationservice.controller.bean.request.UpdateWrapperRequest;
-import sk.uniza.locationservice.repository.entity.UpdateRecord;
+import sk.uniza.locationservice.controller.bean.response.UpdateRecordResponse;
+import sk.uniza.locationservice.mapper.UpdateRecordMapper;
+import sk.uniza.locationservice.repository.entity.UpdateRecordEntity;
 
 @Slf4j
 @Component
@@ -24,9 +26,10 @@ public class ManualUpdateExecutor {
 	private final UpdateProperties updateProperties;
 	private final UpdateExecutor updateExecutor;
 	private final UpdateRecordService updateRecordService;
+	private final UpdateRecordMapper updateRecordMapper;
 
 	@Transactional
-	public UpdateRecord triggerUpdate(RunUpdateRequest request) {
+	public UpdateRecordResponse triggerUpdate(ManualUpdateRequest request) {
 		final UpdateTrigger trigger = UpdateTrigger.MANUAL_UPDATE;
 		log.debug("Data {} triggered, request: {}", trigger, request);
 		if (updateExecutor.isUpdateRunning()) {
@@ -34,12 +37,12 @@ public class ManualUpdateExecutor {
 			throw new LocationServiceException(ErrorType.UPDATE_ALREADY_RUNNING);
 		}
 		UpdateWrapperRequest wrapper = wrapUpdateRequest(trigger, request);
-		UpdateRecord update = updateRecordService.saveRunningUpdate(wrapper);
+		UpdateRecordEntity update = updateRecordService.saveRunningUpdate(wrapper);
 		updateExecutor.update(wrapper);
-		return update;
+		return updateRecordMapper.map(update);
 	}
 
-	private UpdateWrapperRequest wrapUpdateRequest(UpdateTrigger trigger, RunUpdateRequest request) {
+	private UpdateWrapperRequest wrapUpdateRequest(UpdateTrigger trigger, ManualUpdateRequest request) {
 		return UpdateWrapperRequest.builder().fromRunUpdateRequest(request, updateProperties.getFileDownloader().getDownloadUrl())
 								   .trigger(trigger)
 								   .build();

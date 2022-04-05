@@ -3,7 +3,6 @@ package sk.uniza.locationservice.controller.bean.queryfilters;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;

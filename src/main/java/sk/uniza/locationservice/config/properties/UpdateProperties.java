@@ -24,6 +24,9 @@ import java.time.Duration;
 public class UpdateProperties {
 
 	@NotNull
+	private Duration maxLivingDuration;
+
+	@NotNull
 	@Valid
 	@NestedConfigurationProperty
 	private StartupUpdateExecutorProperties startupUpdateExecutor = new StartupUpdateExecutorProperties();

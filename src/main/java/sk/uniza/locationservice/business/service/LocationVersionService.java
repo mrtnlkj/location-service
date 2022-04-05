@@ -4,48 +4,46 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import sk.uniza.locationservice.repository.entity.LocationVersion;
 import sk.uniza.locationservice.repository.LocationVersionRepository;
+import sk.uniza.locationservice.repository.entity.LocationVersionEntity;
 
 import static java.util.Objects.nonNull;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class LocationVersionService implements LocationVersionManager {
+public class LocationVersionService {
 
 	private final LocationVersionRepository locationVersionRepository;
 
-	public LocationVersion save(LocationVersion version) {
+	public LocationVersionEntity save(LocationVersionEntity version) {
 		log.debug("save({})", version);
 		return locationVersionRepository.save(version);
 	}
 
-	public LocationVersion getLatestLocationVersion() {
+	public LocationVersionEntity getLatestLocationVersion() {
 		return locationVersionRepository.getLatestValidLocationVersion();
 	}
 
-	@Override
-	public LocationVersion createNewLocationVersionFromFinishedUpdate(Long updateId) {
+	public LocationVersionEntity createNewLocationVersionFromFinishedUpdate(Long updateId) {
 		log.debug("createNewLocationVersionFromFinishedUpdate({})", updateId);
-		LocationVersion locationVersion = LocationVersion.builder().fromFinishedUpdate(updateId).build();
-		return this.save(locationVersion);
+		LocationVersionEntity entity = LocationVersionEntity.builder().fromUpdate(updateId).build();
+		return this.save(entity);
 	}
 
-	@Override
-	public void prepareLatestLocationVersion(LocationVersion locationVersion) {
-		log.debug("prepareLatestLocationVersion({})", locationVersion);
+	public void prepareLatestLocationVersion(LocationVersionEntity entity) {
+		log.debug("prepareLatestLocationVersion({})", entity);
 		this.invalidatePreviousLocationVersion();
-		locationVersion = locationVersion.toBuilder().makeVersionValid().build();
-		this.save(locationVersion);
+		entity = entity.toBuilder().validate().build();
+		this.save(entity);
 	}
 
 	private void invalidatePreviousLocationVersion() {
-		LocationVersion latestLocationVersion = this.getLatestLocationVersion();
-		if (nonNull(latestLocationVersion)) {
-			log.debug("Invalidating previous location version: {}", latestLocationVersion.getVersionId());
-			latestLocationVersion = latestLocationVersion.toBuilder().makeVersionInvalid().build();
-			this.save(latestLocationVersion);
+		LocationVersionEntity entity = this.getLatestLocationVersion();
+		if (nonNull(entity)) {
+			log.debug("Invalidating previous location version: {}", entity.getVersionId());
+			entity = entity.toBuilder().invalidate().build();
+			this.save(entity);
 		}
 	}
 }

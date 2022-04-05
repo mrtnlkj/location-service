@@ -34,7 +34,6 @@ import sk.uniza.locationservice.controller.bean.response.LocationResponse;
 import sk.uniza.locationservice.controller.error.ErrorResponse;
 import sk.uniza.locationservice.controller.openapi.examples.ErrorExamples;
 import sk.uniza.locationservice.controller.openapi.examples.OpenApiExamples;
-import sk.uniza.locationservice.repository.entity.Location;
 
 import static sk.uniza.locationservice.controller.openapi.examples.ErrorExamples.HTTP_400_DESCRIPTION;
 
@@ -46,7 +45,7 @@ import static sk.uniza.locationservice.controller.openapi.examples.ErrorExamples
 public class LocationController {
 
 	public static final String API_TAG = "LocationController";
-	public static final String API_DESCRIPTION = "The purpose of Location Controller is providing operations with location resources. " +
+	public static final String API_DESCRIPTION = "The purposes of Location Controller is providing operations with location resources. " +
 			"It exposes API endpoints mainly used for finding / searching locations by many various ways.";
 
 	private final LocationService locationService;
@@ -75,7 +74,7 @@ public class LocationController {
 							schema = @Schema(
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = "LS0001",
+									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
 											value = ErrorExamples.LC_GET_LOCATIONS_400),
 							}
 					)
@@ -85,7 +84,7 @@ public class LocationController {
 							schema = @Schema(
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = "LS0004",
+									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
 											value = ErrorExamples.HTTP_500_EXAMPLE),
 							}
 					)
@@ -103,7 +102,7 @@ public class LocationController {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
 					content = @Content(
 							schema = @Schema(
-									implementation = Location.class),
+									implementation = LocationResponse.class),
 							examples = {
 									@ExampleObject(name = "LocationResponse",
 											description = "Location by specified id",
@@ -119,8 +118,8 @@ public class LocationController {
 							schema = @Schema(
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = "LS0001",
-											value = ErrorExamples.LC_GET_LOCATIONS_BY_ID_400),
+									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
+											value = ErrorExamples.LC_GET_LOCATION_BY_ID_400),
 							}
 					)
 			),
@@ -129,14 +128,14 @@ public class LocationController {
 							schema = @Schema(
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = "LS0004",
+									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
 											value = ErrorExamples.HTTP_500_EXAMPLE),
 							}
 					)
 			),
 	})
 	public ResponseEntity<?> getLocationById(
-			@Parameter(required = true, description = "Unique locationId identifier.", example = "\"969\"")
+			@Parameter(required = true, description = "Unique locationId identifier.", example = "\"11256\"")
 			@NotNull @PathVariable(value = "locationId") @Positive Long locationId) {
 		LocationResponse response = locationService.getLocationById(locationId);
 		return ResponseEntity.ok().body(response);
@@ -165,7 +164,7 @@ public class LocationController {
 							schema = @Schema(
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = "LS0001",
+									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
 											value = ErrorExamples.LC_GPS_OCCURRENCE_400)
 							}
 					)
@@ -175,14 +174,14 @@ public class LocationController {
 							schema = @Schema(
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = "LS0004",
+									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
 											value = ErrorExamples.HTTP_500_EXAMPLE),
 							}
 					)
 			),
 	})
 	public ResponseEntity<?> gpsCoordsOccurrenceWithinLocation(
-			@Parameter(required = true, description = "Unique locationId identifier.", example = "\"969\"")
+			@Parameter(required = true, description = "Unique locationId identifier.", example = "\"11256\"")
 			@NotNull @PathVariable(value = "locationId") @Positive Long locationId,
 			@Valid @ParameterObject CoordinatesFilter filter) {
 		boolean response = locationService.gpsCoordsOccurrenceWithinLocation(locationId, filter);
@@ -213,7 +212,7 @@ public class LocationController {
 							schema = @Schema(
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = "LS0001",
+									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
 											value = ErrorExamples.LC_GET_LOCATIONS_WITHIN_DISTANCE_400),
 							}
 					)
@@ -223,7 +222,7 @@ public class LocationController {
 							schema = @Schema(
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = "LS0004",
+									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
 											value = ErrorExamples.HTTP_500_EXAMPLE),
 							}
 					)
@@ -244,7 +243,7 @@ public class LocationController {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
 					content = @Content(
 							schema = @Schema(
-									implementation = Location.class),
+									implementation = LocationResponse.class),
 							examples = {
 									@ExampleObject(name = "LocationResponse",
 											description = "Location nearest to the specified GPS coordinates",
@@ -260,7 +259,7 @@ public class LocationController {
 							schema = @Schema(
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = "LS0001",
+									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
 											value = ErrorExamples.LC_GET_NEAREST_LOCATION_400)
 							}
 					)
@@ -270,7 +269,7 @@ public class LocationController {
 							schema = @Schema(
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = "LS0004",
+									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
 											value = ErrorExamples.HTTP_500_EXAMPLE),
 							}
 					)

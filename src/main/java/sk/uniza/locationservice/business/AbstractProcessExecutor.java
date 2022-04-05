@@ -15,6 +15,12 @@ public abstract class AbstractProcessExecutor {
 
 	protected abstract Map<String, String> getCustomEnvProperties();
 
+	private void setCustomEnvProperties(ProcessBuilder processBuilder) {
+		if (!isEmpty(getCustomEnvProperties())) {
+			processBuilder.environment().putAll(getCustomEnvProperties());
+		}
+	}
+
 	protected abstract String getName();
 
 	protected abstract String[] getCommand();
@@ -31,15 +37,10 @@ public abstract class AbstractProcessExecutor {
 			return exitCode;
 		} catch (InterruptedException | IOException e) {
 			log.error("e", e);
+			Thread.currentThread().interrupt();
 			throw new LocationServiceException(ErrorType.JDBC_CONNECTION_FAILURE_ERROR, e);
 		}
 
-	}
-
-	private void setCustomEnvProperties(ProcessBuilder processBuilder) {
-		if (!isEmpty(getCustomEnvProperties())) {
-			processBuilder.environment().putAll(getCustomEnvProperties());
-		}
 	}
 
 }

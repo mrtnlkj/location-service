@@ -1,4 +1,4 @@
-package sk.uniza.locationservice.business.update;
+package sk.uniza.locationservice.business.updaterunner;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class ScheduledUpdateExecutor {
 
 	private UpdateWrapperRequest wrapUpdateRequest(UpdateTrigger trigger) {
 		return UpdateWrapperRequest.builder()
-								   .url(getDefaultDownloadUrl())
+								   .url(getDefaultDownloadUrl().toString())
 								   .trigger(trigger)
 								   .build();
 	}

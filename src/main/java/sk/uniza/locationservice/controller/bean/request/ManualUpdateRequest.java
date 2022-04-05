@@ -4,16 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.net.URL;
+import org.hibernate.validator.constraints.URL;
 
 @Data
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class RunUpdateRequest {
+public class ManualUpdateRequest {
 
-	private URL url;
+	@URL
+	private String url;
 	private String description;
 
 }

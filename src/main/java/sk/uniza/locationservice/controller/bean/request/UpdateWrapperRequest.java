@@ -17,15 +17,15 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class UpdateWrapperRequest extends RunUpdateRequest {
+public class UpdateWrapperRequest extends ManualUpdateRequest {
 
 	private UpdateTrigger trigger;
 
 	public abstract static class UpdateWrapperRequestBuilder<C extends UpdateWrapperRequest, B extends UpdateWrapperRequestBuilder<C, B>>
-			extends RunUpdateRequestBuilder<C, B> {
+			extends ManualUpdateRequestBuilder<C, B> {
 
-		public B fromRunUpdateRequest(RunUpdateRequest request, URL defaultUrl) {
-			return this.url(defaultIfNull(request.getUrl(), defaultUrl))
+		public B fromRunUpdateRequest(ManualUpdateRequest request, URL defaultUrl) {
+			return this.url(defaultIfNull(request.getUrl(), defaultUrl.toString()))
 					   .description(request.getDescription());
 		}
 	}

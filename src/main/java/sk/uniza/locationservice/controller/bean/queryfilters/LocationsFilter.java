@@ -18,7 +18,8 @@ import sk.uniza.locationservice.controller.bean.enums.LocationType;
 @EqualsAndHashCode(callSuper = true)
 public class LocationsFilter extends LimitAndOffsetFilter {
 
-	@Parameter(example = "\"421742\"", schema = @Schema(implementation = Long.class, example = "\"999\""),
+	@Parameter(example = "\"11256\"", schema = @Schema(
+			implementation = Long.class, example = "\"11256\""),
 			description = "Query only location object with specified unique identification parameter.")
 	@Nullable
 	private Long locationId;

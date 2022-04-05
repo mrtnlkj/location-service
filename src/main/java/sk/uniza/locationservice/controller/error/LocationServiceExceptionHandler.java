@@ -70,18 +70,18 @@ public class LocationServiceExceptionHandler extends ResponseEntityExceptionHand
 		return new ResponseEntity<>(errorResponse, new HttpHeaders(), errorType.getHttpResponseCode());
 	}
 
-	    /*
-	     * PostgreSQL JDBC connection failure
-	     */
-	    @ExceptionHandler(CannotGetJdbcConnectionException.class)
-	    public ResponseEntity<Object> handleCassandraConnectionException(Exception exception, WebRequest request) {
-	        log.error(EXCEPTION_THROWN, exception);
+	/*
+	 * PostgreSQL JDBC connection failure
+	 */
+	@ExceptionHandler(CannotGetJdbcConnectionException.class)
+	public ResponseEntity<Object> handleCassandraConnectionException(Exception exception, WebRequest request) {
+		log.error(EXCEPTION_THROWN, exception);
 
-	        ErrorType errorType = ErrorType.JDBC_CONNECTION_FAILURE_ERROR;
+		ErrorType errorType = ErrorType.JDBC_CONNECTION_FAILURE_ERROR;
 
-	        ErrorResponse errorResponse = ErrorResponse.fromErrorType(errorType, exception);
-	        return new ResponseEntity<>(errorResponse, new HttpHeaders(), errorType.getHttpResponseCode());
-	    }
+		ErrorResponse errorResponse = ErrorResponse.fromErrorType(errorType, exception);
+		return new ResponseEntity<>(errorResponse, new HttpHeaders(), errorType.getHttpResponseCode());
+	}
 
 	@ExceptionHandler({Exception.class})
 	public ResponseEntity<Object> handleDefaultException(Exception exception, WebRequest request) {

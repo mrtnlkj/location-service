@@ -17,8 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import sk.uniza.locationservice.repository.converters.StringToLocationTypeConverter;
-import sk.uniza.locationservice.repository.converters.StringToURLConverter;
-import sk.uniza.locationservice.repository.converters.URLToStringConverter;
 
 @Configuration
 @EnableTransactionManagement
@@ -28,6 +26,7 @@ public class JdbcConfiguration extends AbstractJdbcConfiguration {
 	public static final String REPOSITORY_PATH = "sk.uniza.locationservice.repository";
 
 	@Bean
+	@Primary
 	public DataSource getDatasource() {
 		return getDatasourceProperties().initializeDataSourceBuilder()
 										.build();
@@ -52,8 +51,6 @@ public class JdbcConfiguration extends AbstractJdbcConfiguration {
 	@Override
 	protected List<?> userConverters() {
 		return Arrays.asList(
-				new URLToStringConverter(),
-				new StringToURLConverter(),
 				new StringToLocationTypeConverter()
 		);
 	}

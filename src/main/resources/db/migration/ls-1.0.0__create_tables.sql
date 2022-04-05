@@ -16,6 +16,7 @@ CREATE TABLE "ls"."update_record"
     "trigger"           text,
     "data_download_url" text,
     "description"       text,
+    "failed_reason"     text,
     PRIMARY KEY ("update_id")
 );
 

@@ -7,89 +7,103 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import sk.uniza.locationservice.config.properties.UpdateProperties;
 import sk.uniza.locationservice.controller.bean.enums.UpdateStatus;
 import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
 import sk.uniza.locationservice.controller.bean.queryfilters.UpdateRecordsFilter;
 import sk.uniza.locationservice.controller.bean.request.UpdateWrapperRequest;
-import sk.uniza.locationservice.controller.bean.response.ListResponse;
-import sk.uniza.locationservice.repository.entity.UpdateRecord;
+import sk.uniza.locationservice.controller.bean.response.GetUpdateRecordsResponse;
+import sk.uniza.locationservice.controller.bean.response.UpdateRecordResponse;
+import sk.uniza.locationservice.mapper.UpdateRecordMapper;
 import sk.uniza.locationservice.repository.UpdateRecordRepository;
+import sk.uniza.locationservice.repository.entity.UpdateRecordEntity;
 
 import static java.util.Objects.nonNull;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UpdateRecordService implements UpdateRecordMarker {
+public class UpdateRecordService {
 
-	private final UpdateRecordRepository updateRecordRepository;
+	private final UpdateRecordRepository updateRepository;
+	private final UpdateRecordMapper updateRecordMapper;
+	private final UpdateProperties updateProperties;
 
-	@Override
-	public UpdateRecord getLatestUpdateRecord() {
-		return updateRecordRepository.getLatestUpdateRecord();
+	public UpdateRecordResponse getLatestUpdateRecord() {
+		UpdateRecordEntity update = updateRepository.getLatestUpdateRecord();
+		return updateRecordMapper.map(update);
 	}
 
-	public ListResponse<UpdateRecord> getUpdateRecordsByFilter(UpdateRecordsFilter filter) {
-		List<UpdateRecord> records = updateRecordRepository.getUpdateRecordsByFilter(filter.getStatus(),
+	public GetUpdateRecordsResponse getUpdateRecords(UpdateRecordsFilter filter) {
+		List<UpdateRecordEntity> updates = updateRepository.getUpdateRecordsByFilter(filter.getStatus(),
 																					 filter.getTrigger(),
 																					 filter.getUrl(),
+																					 filter.getDateStartedFrom(),
 																					 filter.getLimit(),
 																					 filter.getOffset());
-		Long recordsCount = updateRecordRepository.getUpdateRecordsCountByFilter(filter.getStatus(),
-																				 filter.getTrigger(),
-																				 filter.getUrl());
+		Long count = updateRepository.getUpdateRecordsCountByFilter(filter.getStatus(),
+																	filter.getTrigger(),
+																	filter.getUrl(),
+																	filter.getDateStartedFrom());
 
-		//		return OverviewResponse.<UpdateRecord>builder()
-		//							   .records(records)
-		//							   .recordsCount(recordsCount)
-		//							   .build();
-		return null;
+		return GetUpdateRecordsResponse.builder()
+									   .records(updateRecordMapper.map(updates))
+									   .recordsCount(count)
+									   .build();
 	}
 
-	public UpdateRecord save(UpdateRecord update) {
+	public UpdateRecordEntity save(UpdateRecordEntity update) {
 		log.debug("save({})", update);
-		return updateRecordRepository.save(update);
+		return updateRepository.save(update);
 	}
 
-	public UpdateRecord saveRunningUpdate(UpdateWrapperRequest wrapper) {
+	public UpdateRecordEntity saveRunningUpdate(UpdateWrapperRequest wrapper) {
 		log.debug("saveRunningUpdate({})", wrapper);
 
-		UpdateRecord update = UpdateRecord.builder()
-										  .buildRunningUpdate(wrapper.getUrl(),
-															  wrapper.getTrigger(),
-															  wrapper.getDescription())
-										  .build();
+		UpdateRecordEntity update = UpdateRecordEntity.builder()
+													  .buildRunningUpdate(wrapper.getUrl(),
+																		  wrapper.getTrigger(),
+																		  wrapper.getDescription())
+													  .build();
 		return this.save(update);
 	}
 
-	@Override
-	public UpdateRecord getOrCreateRunningUpdateRecord(UpdateWrapperRequest wrapper) {
+	public UpdateRecordEntity getOrCreateRunningUpdateRecord(UpdateWrapperRequest wrapper) {
 		if (UpdateTrigger.MANUAL_UPDATE != wrapper.getTrigger()) {
 			return this.saveRunningUpdate(wrapper);
 		}
-		UpdateRecord update = this.getLatestUpdateRecord();
+		UpdateRecordEntity update = updateRepository.getLatestUpdateRecord();
 		return nonNull(update)
 					   && UpdateStatus.RUNNING.equals(update.getStatus()) ? update
 																		  : this.saveRunningUpdate(wrapper);
 	}
 
-	@Override
-	public void markUpdateRecordAs(UpdateRecord update, UpdateStatus status) {
+	public void markUpdateRecordAs(UpdateRecordEntity update, UpdateStatus status, String failedReason) {
 		log.debug("markUpdateRecordAs({}, {})", update, status);
 		if (nonNull(update)) {
-			update = update.toBuilder().markUpdateAs(status).build();
+			update = update.toBuilder()
+						   .markUpdateAs(status)
+						   .failedReason(failedReason)
+						   .build();
 			this.save(update);
 		}
 	}
 
-	@Scheduled(fixedDelayString = "PT1H")
-	public void markRunningUpdatesAsFailedAfterXMinutes() {
-		final long xMinutes = 120L;
-		List<UpdateRecord> recordList = updateRecordRepository.getUpdateRecordsWithStatusAndStartedTimeBeforeXMinutes(UpdateStatus.RUNNING,
-																													  xMinutes);
-		recordList.forEach(r -> {
-			r.toBuilder().markUpdateAs(UpdateStatus.FAILED);
-			updateRecordRepository.save(r);
-		});
+	public UpdateRecordEntity getLatestUpdate() {
+		log.debug("getLatestUpdate()");
+		return updateRepository.getLatestUpdateRecord();
+	}
+
+	public UpdateRecordResponse getUpdateRecordById(Long updateId) {
+		log.debug("getUpdateById({})", updateId);
+		UpdateRecordEntity update = updateRepository.getUpdateById(updateId);
+		return updateRecordMapper.map(update);
+	}
+
+	@Scheduled(fixedDelayString = "PT1M")
+	public void markUpdatesAsFailedAfterXMinutes() {
+		long maxLivingUpdateMinutes = updateProperties.getMaxLivingDuration().toMinutes();
+		final String failedReason = "Force kill stuck update - running more than " + maxLivingUpdateMinutes + " minutes.";
+		updateRepository.killStuckUpdatesAndSetFailedReason(maxLivingUpdateMinutes, failedReason, UpdateStatus.FAILED);
 	}
 }

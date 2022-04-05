@@ -4,10 +4,10 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import sk.uniza.locationservice.repository.entity.LocationVersion;
+import sk.uniza.locationservice.repository.entity.LocationVersionEntity;
 
 @Repository
-public interface LocationVersionRepository extends CrudRepository<LocationVersion, Long> {
+public interface LocationVersionRepository extends CrudRepository<LocationVersionEntity, Long> {
 
 	@Query("SELECT lv.* " +
 			"FROM location_version lv " +
@@ -15,5 +15,5 @@ public interface LocationVersionRepository extends CrudRepository<LocationVersio
 			"AND lv.validity_to IS NULL " +
 			"ORDER BY lv.version_id DESC " +
 			"LIMIT 1 ")
-	LocationVersion getLatestValidLocationVersion();
+	LocationVersionEntity getLatestValidLocationVersion();
 }

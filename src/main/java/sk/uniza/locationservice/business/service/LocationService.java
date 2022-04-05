@@ -14,7 +14,7 @@ import sk.uniza.locationservice.controller.bean.response.GetLocationsResponse;
 import sk.uniza.locationservice.controller.bean.response.LocationResponse;
 import sk.uniza.locationservice.mapper.LocationMapper;
 import sk.uniza.locationservice.repository.LocationRepository;
-import sk.uniza.locationservice.repository.entity.Location;
+import sk.uniza.locationservice.repository.entity.LocationEntity;
 
 @Slf4j
 @Service
@@ -24,32 +24,17 @@ public class LocationService {
 	private final LocationRepository locationRepository;
 	private final LocationMapper locationMapper;
 
-	public Long getLocationsCount() {
-		return locationRepository.getLocationsCount();
-	}
-
-	public Long importLocationDataWithVersionAndGetInsertedRecordsCount(Long versionId) {
-		log.debug("importLocationDataWithVersionAndGetInsertedRecordsCount({})", versionId);
-		return locationRepository.importLocationDataWithVersionAndGetInsertedRecordsCount(versionId);
-	}
-
-	public LocationResponse getLocationById(Long locationId) {
-		log.debug("getLocationById({})", locationId);
-		Location location = locationRepository.getLocationById(locationId);
-		return locationMapper.map(location);
-	}
-
 	public GetLocationsResponse getLocationsOverviewByFilter(LocationsFilter filter) {
 		log.debug("getLocationsOverviewByFilter({}) ", filter);
-		List<Location> locations = locationRepository.getLocationsByFilter(filter.getLocationId(),
-																		   filter.getNameSk(),
-																		   filter.getNameEn(),
-																		   filter.getAreaFrom(),
-																		   filter.getAreaTo(),
-																		   filter.getType(),
-																		   filter.getPostalCode(),
-																		   filter.getLimit(),
-																		   filter.getOffset());
+		List<LocationEntity> entities = locationRepository.getLocationsByFilter(filter.getLocationId(),
+																				filter.getNameSk(),
+																				filter.getNameEn(),
+																				filter.getAreaFrom(),
+																				filter.getAreaTo(),
+																				filter.getType(),
+																				filter.getPostalCode(),
+																				filter.getLimit(),
+																				filter.getOffset());
 		Long count = locationRepository.getLocationsCountByFilter(filter.getLocationId(),
 																  filter.getNameSk(),
 																  filter.getNameEn(),
@@ -58,17 +43,27 @@ public class LocationService {
 																  filter.getType(),
 																  filter.getPostalCode());
 		return GetLocationsResponse.builder()
-								   .records(locationMapper.map(locations))
+								   .records(locationMapper.map(entities))
 								   .recordsCount(count)
 								   .build();
+	}
+
+	public Long getLocationsCount() {
+		return locationRepository.getLocationsCount();
+	}
+
+	public LocationResponse getLocationById(Long locationId) {
+		log.debug("getLocationById({})", locationId);
+		LocationEntity entity = locationRepository.getLocationById(locationId);
+		return locationMapper.map(entity);
 	}
 
 	public LocationResponse getNearestLocationByGpsCoords(CoordinatesFilter filter) {
 		log.debug("getNearestLocationByGpsCoords({})", filter);
 
-		Location location = locationRepository.getNearestLocationByGpsCoords(filter.getLat(),
-																			 filter.getLon());
-		return locationMapper.map(location);
+		LocationEntity entity = locationRepository.getNearestLocationByGpsCoords(filter.getLat(),
+																				 filter.getLon());
+		return locationMapper.map(entity);
 	}
 
 	public GetLocationsResponse getLocationsWithinSpecifiedDistance(BigDecimal distance,
@@ -76,26 +71,32 @@ public class LocationService {
 																	LimitAndOffsetFilter limitAndOffsetFilter) {
 
 		log.debug("getLocationsWithinSpecifiedDistance({}, {}, {})", distance, coordsFilter, limitAndOffsetFilter);
-		List<Location> locations = locationRepository.getLocationsWithinSpecifiedDistance(distance,
-																						  coordsFilter.getLat(),
-																						  coordsFilter.getLon(),
-																						  limitAndOffsetFilter.getLimit(),
-																						  limitAndOffsetFilter.getOffset());
+		List<LocationEntity> entities = locationRepository.getLocationsWithinSpecifiedDistance(distance,
+																							   coordsFilter.getLat(),
+																							   coordsFilter.getLon(),
+																							   limitAndOffsetFilter.getLimit(),
+																							   limitAndOffsetFilter.getOffset());
 		Long count = locationRepository.getLocationsWithinSpecifiedDistanceCount(distance,
 																				 coordsFilter.getLat(),
 																				 coordsFilter.getLon(),
 																				 limitAndOffsetFilter.getLimit(),
 																				 limitAndOffsetFilter.getOffset());
 		return GetLocationsResponse.builder()
-								   .records(locationMapper.map(locations))
+								   .records(locationMapper.map(entities))
 								   .recordsCount(count)
 								   .build();
 	}
 
 	public boolean gpsCoordsOccurrenceWithinLocation(Long locationId, CoordinatesFilter filter) {
 		log.debug("gpsCoordsOccurrenceWithinLocation({}, {})", locationId, filter);
-		return locationRepository.gpsCoordsOccurrenceWithinLocation(locationId,
-																	filter.getLat(),
-																	filter.getLon());
+		Long count = locationRepository.getGpsCoordsOccurrenceWithinLocationCount(locationId,
+																				  filter.getLat(),
+																				  filter.getLon());
+		return count.compareTo(0L) <= 0;
+	}
+
+	public Long importLocationDataWithVersionAndGetInsertedRecordsCount(Long versionId) {
+		log.debug("importLocationDataWithVersionAndGetInsertedRecordsCount({})", versionId);
+		return locationRepository.importLocationDataWithVersionAndGetInsertedRecordsCount(versionId);
 	}
 }

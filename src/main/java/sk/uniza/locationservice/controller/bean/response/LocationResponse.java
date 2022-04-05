@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sk.uniza.locationservice.controller.bean.enums.LocationType;
+import sk.uniza.locationservice.mapper.StringToMapSerializer;
 
 @Data
 @Builder
@@ -32,6 +34,7 @@ public class LocationResponse {
 	private LocationType type;
 	private BigDecimal lat;
 	private BigDecimal lon;
+	@JsonSerialize(using = StringToMapSerializer.class)
 	private String boundary;
 
 }

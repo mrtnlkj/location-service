@@ -4,7 +4,8 @@ OR REPLACE PROCEDURE ls.insert_location_data_proc(IN in_version_id int8, INOUT o
 DECLARE
 BEGIN
 
-SET search_path TO "$user", public, "ls";
+SET
+search_path TO "$user", public, "ls";
 
 INSERT INTO ls.location (version_id,
                          name_sk,
@@ -48,10 +49,26 @@ SET district_name_sk = polygon_district.name,
     public.osm_polygon AS polygon_state,
     public.osm_polygon AS polygon_is_in
 WHERE (1 = 1)
-  AND public.ST_intersects(public.ST_SetSRID(public.ST_MakePoint(l.lon, l.lat), 4326), public.ST_Transform(polygon_district.way, 4326))
-  AND public.ST_intersects(public.ST_SetSRID(public.ST_MakePoint(l.lon, l.lat), 4326), public.ST_Transform(polygon_region.way, 4326))
-  AND public.ST_intersects(public.ST_SetSRID(public.ST_MakePoint(l.lon, l.lat), 4326), public.ST_Transform(polygon_state.way, 4326))
-  AND public.ST_intersects(public.ST_SetSRID(public.ST_MakePoint(l.lon, l.lat), 4326), public.ST_Transform(polygon_is_in.way, 4326))
+  AND public.ST_intersects(public.ST_SetSRID(public.ST_MakePoint(l.lon
+    , l.lat)
+    , 4326)
+    , public.ST_Transform(polygon_district.way
+    , 4326))
+  AND public.ST_intersects(public.ST_SetSRID(public.ST_MakePoint(l.lon
+    , l.lat)
+    , 4326)
+    , public.ST_Transform(polygon_region.way
+    , 4326))
+  AND public.ST_intersects(public.ST_SetSRID(public.ST_MakePoint(l.lon
+    , l.lat)
+    , 4326)
+    , public.ST_Transform(polygon_state.way
+    , 4326))
+  AND public.ST_intersects(public.ST_SetSRID(public.ST_MakePoint(l.lon
+    , l.lat)
+    , 4326)
+    , public.ST_Transform(polygon_is_in.way
+    , 4326))
   AND polygon_district.admin_level IN ('8') --district borders (SK: hranica okresu)
   AND polygon_region.admin_level IN ('4')   --region borders (SK: hranica kraja, vyššieho územného celku)
   AND polygon_state.admin_level IN ('2')    --country borders (SK: Slovensko)
