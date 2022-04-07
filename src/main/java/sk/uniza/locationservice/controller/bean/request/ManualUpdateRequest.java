@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.validator.constraints.URL;
+
+import java.net.URL;
 
 @Data
 @SuperBuilder(toBuilder = true)
@@ -12,8 +13,7 @@ import org.hibernate.validator.constraints.URL;
 @NoArgsConstructor
 public class ManualUpdateRequest {
 
-	@URL
-	private String url;
+	private URL url;
 	private String description;
 
 }

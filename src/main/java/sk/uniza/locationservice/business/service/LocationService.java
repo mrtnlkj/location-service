@@ -3,6 +3,7 @@ package sk.uniza.locationservice.business.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -95,8 +96,24 @@ public class LocationService {
 		return count.compareTo(0L) <= 0;
 	}
 
+	@Transactional
 	public Long importLocationDataWithVersionAndGetInsertedRecordsCount(Long versionId) {
 		log.debug("importLocationDataWithVersionAndGetInsertedRecordsCount({})", versionId);
-		return locationRepository.importLocationDataWithVersionAndGetInsertedRecordsCount(versionId);
+		return locationRepository.callInsertLocationDataProc(versionId);
+	}
+
+	@Transactional
+	public void processRegionNames(Long versionId) {
+		locationRepository.callProcessRegionNamesProc(versionId);
+	}
+
+	@Transactional
+	public void processDistrictNames(Long versionId) {
+		locationRepository.callProcessDistrictNamesProc(versionId);
+	}
+
+	@Transactional
+	public void processStateNames(Long versionId) {
+		locationRepository.callProcessStateNamesProc(versionId);
 	}
 }

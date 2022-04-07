@@ -25,12 +25,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
-import sk.uniza.locationservice.business.service.UpdateRecordService;
-import sk.uniza.locationservice.business.updaterunner.ManualUpdateExecutor;
+import sk.uniza.locationservice.business.service.UpdateService;
 import sk.uniza.locationservice.controller.bean.queryfilters.UpdateRecordsFilter;
 import sk.uniza.locationservice.controller.bean.request.ManualUpdateRequest;
 import sk.uniza.locationservice.controller.bean.response.GetUpdateRecordsResponse;
-import sk.uniza.locationservice.controller.bean.response.UpdateRecordResponse;
+import sk.uniza.locationservice.controller.bean.response.SuccessResponse;
+import sk.uniza.locationservice.controller.bean.response.UpdateResponse;
 import sk.uniza.locationservice.controller.error.ErrorResponse;
 import sk.uniza.locationservice.controller.openapi.examples.ErrorExamples;
 import sk.uniza.locationservice.controller.openapi.examples.OpenApiExamples;
@@ -41,15 +41,14 @@ import static sk.uniza.locationservice.controller.openapi.examples.ErrorExamples
 @RestController
 @RequestMapping("/api/v1/update")
 @RequiredArgsConstructor
-@Tag(name = UpdateRecordController.API_TAG, description = UpdateRecordController.API_DESCRIPTION)
+@Tag(name = UpdateController.API_TAG, description = UpdateController.API_DESCRIPTION)
 @Validated
-public class UpdateRecordController {
+public class UpdateController {
 
 	public static final String API_TAG = "UpdateRecordController";
 	public static final String API_DESCRIPTION = "Update Record Controller providing operations with update resources. Mainly, GET operations for listing previous updates, and POST operation for trigger MANUAL UPDATE of location records.";
 
-	private final UpdateRecordService updateRecordService;
-	private final ManualUpdateExecutor manualUpdateExecutor;
+	private final UpdateService updateService;
 
 	@GetMapping
 	@Operation(summary = "1101 - Get update records",
@@ -92,7 +91,7 @@ public class UpdateRecordController {
 			),
 	})
 	public ResponseEntity<?> getUpdateRecords(@Valid @ParameterObject UpdateRecordsFilter filter) {
-		GetUpdateRecordsResponse response = updateRecordService.getUpdateRecords(filter);
+		GetUpdateRecordsResponse response = updateService.getUpdateRecords(filter);
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -103,7 +102,7 @@ public class UpdateRecordController {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
 					content = @Content(
 							schema = @Schema(
-									implementation = UpdateRecordResponse.class),
+									implementation = UpdateResponse.class),
 							examples = {
 									@ExampleObject(name = "UpdateRecordResponse",
 											description = "Update by specified id",
@@ -138,7 +137,7 @@ public class UpdateRecordController {
 	public ResponseEntity<?> getUpdateRecordById(
 			@Parameter(required = true, description = "Unique updateId identifier.", example = "\"11256\"")
 			@NotNull @PathVariable(value = "updateId") @Positive Long updateId) {
-		UpdateRecordResponse response = updateRecordService.getUpdateRecordById(updateId);
+		UpdateResponse response = updateService.getUpdateRecordById(updateId);
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -151,7 +150,7 @@ public class UpdateRecordController {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
 					content = @Content(
 							schema = @Schema(
-									implementation = UpdateRecordResponse.class),
+									implementation = UpdateResponse.class),
 							examples = {
 									@ExampleObject(name = "UpdateRecordResponse",
 											description = "Latest available update",
@@ -174,7 +173,7 @@ public class UpdateRecordController {
 			),
 	})
 	public ResponseEntity<?> getLatestUpdateRecord() {
-		UpdateRecordResponse response = updateRecordService.getLatestUpdateRecord();
+		UpdateResponse response = updateService.getLatestUpdateRecord();
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -186,7 +185,7 @@ public class UpdateRecordController {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
 					content = @Content(
 							schema = @Schema(
-									implementation = UpdateRecordResponse.class),
+									implementation = UpdateResponse.class),
 							examples = {
 									@ExampleObject(name = "Update record, response of processing manual update.",
 											value = OpenApiExamples.UPDATE_RECORD_EXAMPLE),
@@ -214,7 +213,7 @@ public class UpdateRecordController {
 					)
 			),
 	})
-	@ConditionalOnProperty(value = "location-service.update.manual-update-executor.enabled", havingValue = "true")
+	@ConditionalOnProperty(value = "location-service.update.manual-update.enabled", havingValue = "true")
 	public ResponseEntity<?> manualUpdate(
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(required = false,
 					description = "Optional request body that defines additional info to update.",
@@ -228,7 +227,49 @@ public class UpdateRecordController {
 											value = OpenApiExamples.UC_MANUAL_UPDATES_REQUEST_WITH_URL_SPECIFIED),
 							}))
 			@RequestBody(required = false) @Valid ManualUpdateRequest request) {
-		UpdateRecordResponse response = manualUpdateExecutor.triggerUpdate(request);
+		UpdateResponse response = updateService.executeManualUpdate(request);
+		return ResponseEntity.ok().body(response);
+	}
+
+	@PostMapping("/{updateId}/abort")
+	@Operation(summary = "1104 -  Endpoint that aborts running update",
+			description = "Performs a abortion of running update of location data."
+	)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = UpdateResponse.class),
+							examples = {
+									@ExampleObject(name = "Update record, response of processing manual update.",
+											value = OpenApiExamples.UPDATE_RECORD_EXAMPLE),
+							})),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
+											value = ErrorExamples.UC_MANUAL_UPDATE_400),
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
+					content = @Content(
+							schema = @Schema(
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
+											value = ErrorExamples.HTTP_500_EXAMPLE)
+							}
+					)
+			),
+	})
+	@ConditionalOnProperty(value = "location-service.update.manual-update.enabled", havingValue = "true")
+	public ResponseEntity<?> abortUpdate(
+			@Parameter(required = true, description = "Unique updateId identifier.", example = "\"11256\"")
+			@NotNull @PathVariable(value = "updateId") @Positive Long updateId) {
+		SuccessResponse response = updateService.abortUpdate(updateId);
 		return ResponseEntity.ok().body(response);
 	}
 

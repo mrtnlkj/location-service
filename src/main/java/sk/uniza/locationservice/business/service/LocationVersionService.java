@@ -31,7 +31,7 @@ public class LocationVersionService {
 		return this.save(entity);
 	}
 
-	public void prepareLatestLocationVersion(LocationVersionEntity entity) {
+	public void validateLatestLocationVersion(LocationVersionEntity entity) {
 		log.debug("prepareLatestLocationVersion({})", entity);
 		this.invalidatePreviousLocationVersion();
 		entity = entity.toBuilder().validate().build();

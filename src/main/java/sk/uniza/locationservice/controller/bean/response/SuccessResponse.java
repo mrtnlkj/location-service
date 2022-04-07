@@ -5,7 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 @Data
-public class GetUpdateRecordsResponse extends ListResponse<UpdateResponse> {
+public class SuccessResponse extends CustomResponse<Boolean> {
+
 }

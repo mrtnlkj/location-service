@@ -24,33 +24,27 @@ import java.time.Duration;
 public class UpdateProperties {
 
 	@NotNull
-	private Duration maxLivingDuration;
-
+	private Duration timeout;
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
-	private StartupUpdateExecutorProperties startupUpdateExecutor = new StartupUpdateExecutorProperties();
-
+	private UpdateProperties.StartupUpdateProperties startupUpdate = new StartupUpdateProperties();
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
 	private ScheduledUpdateExecutorProperties scheduledUpdateExecutor = new ScheduledUpdateExecutorProperties();
-
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
-	private RetryUpdateExecutorProperties retryUpdateExecutor = new RetryUpdateExecutorProperties();
-
+	private UpdateProperties.RetryTaskProperties retryTaskProperties = new RetryTaskProperties();
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
-	private ManualUpdateExecutorProperties manualUpdateExecutor = new ManualUpdateExecutorProperties();
-
+	private UpdateProperties.ManualUpdateProperties manualUpdate = new ManualUpdateProperties();
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
 	private Osm2pgsqlProperties osm2pgsql = new Osm2pgsqlProperties();
-
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
@@ -64,7 +58,7 @@ public class UpdateProperties {
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public static class StartupUpdateExecutorProperties {
+	public static class StartupUpdateProperties {
 
 		private boolean enabled;
 		private boolean forceUpdateEnabled;
@@ -83,19 +77,17 @@ public class UpdateProperties {
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public static class RetryUpdateExecutorProperties {
+	public static class RetryTaskProperties {
 
 		private boolean enabled;
 		@NotNull
-		private Long maxAttemptsCount;
-		@NotNull
-		private Duration durationBetweenAttempts;
+		private Long maxRetries;
 	}
 
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public static class ManualUpdateExecutorProperties {
+	public static class ManualUpdateProperties {
 
 		private boolean enabled;
 	}

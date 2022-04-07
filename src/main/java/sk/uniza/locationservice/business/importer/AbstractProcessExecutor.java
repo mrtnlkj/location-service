@@ -1,12 +1,9 @@
-package sk.uniza.locationservice.business;
+package sk.uniza.locationservice.business.importer;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.Map;
-
-import sk.uniza.locationservice.common.ErrorType;
-import sk.uniza.locationservice.common.exception.LocationServiceException;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -25,20 +22,25 @@ public abstract class AbstractProcessExecutor {
 
 	protected abstract String[] getCommand();
 
-	public int runCommand() {
+	public void runCommand() throws IOException, InterruptedException {
 		log.info("Process triggered by {} started with command: \"{}\", ", getName(), getCommand());
-		ProcessBuilder processBuilder = new ProcessBuilder().inheritIO();
+		ProcessBuilder processBuilder = new ProcessBuilder();
+		if (log.isDebugEnabled()) {
+			processBuilder.inheritIO();
+		}
 		setCustomEnvProperties(processBuilder);
 		try {
 			int exitCode = processBuilder.command(getCommand())
 										 .start()
 										 .waitFor();
 			log.info("Process triggered by {} finished with exit code: {}.", getName(), exitCode);
-			return exitCode;
+			if (exitCode != 0) {
+				throw new IllegalStateException();
+			}
 		} catch (InterruptedException | IOException e) {
-			log.error("e", e);
+			log.error("AbstractProcessExecutor ERROR: ", e);
 			Thread.currentThread().interrupt();
-			throw new LocationServiceException(ErrorType.JDBC_CONNECTION_FAILURE_ERROR, e);
+			throw e;
 		}
 
 	}

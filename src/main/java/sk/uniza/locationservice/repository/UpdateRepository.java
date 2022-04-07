@@ -9,60 +9,65 @@ import org.springframework.stereotype.Repository;
 import java.time.Instant;
 import java.util.List;
 
-import sk.uniza.locationservice.controller.bean.enums.UpdateStatus;
-import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
-import sk.uniza.locationservice.repository.entity.UpdateRecordEntity;
+import sk.uniza.locationservice.controller.bean.enums.ProcessingStatus;
+import sk.uniza.locationservice.controller.bean.enums.UpdateType;
+import sk.uniza.locationservice.repository.entity.UpdateEntity;
 
 @Repository
-public interface UpdateRecordRepository extends CrudRepository<UpdateRecordEntity, Long> {
+public interface UpdateRepository extends CrudRepository<UpdateEntity, Long> {
 
 	@Query("SELECT ur.* " +
-			"FROM update_record ur " +
+			"FROM update ur " +
 			"ORDER BY ur.update_id DESC " +
 			"LIMIT 1 ")
-	UpdateRecordEntity getLatestUpdateRecord();
+	UpdateEntity getLatestUpdate();
 
 	@Query("SELECT ur.* " +
-			"FROM update_record ur " +
+			"FROM update ur " +
 			"WHERE (ur.status = :status OR :status IS NULL) " +
 			"AND (ur.trigger = :trigger OR :trigger IS NULL) " +
 			"AND (ur.data_download_url ILIKE :url OR :url IS NULL) " +
 			"AND (ur.started_time <= :dateStartedFrom OR :dateStartedFrom::timestamptz IS NULL) " +
 			"ORDER BY ur.started_time DESC " +
 			"LIMIT :limit OFFSET :offset ")
-	List<UpdateRecordEntity> getUpdateRecordsByFilter(@Param("status") UpdateStatus status,
-													  @Param("trigger") UpdateTrigger trigger,
-													  @Param("url") String url,
-													  @Param("dateStartedFrom") Instant dateStartedFrom,
-													  @Param("limit") Long limit,
-													  @Param("offset") Long offset);
+	List<UpdateEntity> getUpdateRecordsByFilter(@Param("status") ProcessingStatus status,
+												@Param("trigger") UpdateType type,
+												@Param("url") String url,
+												@Param("dateStartedFrom") Instant dateStartedFrom,
+												@Param("limit") Long limit,
+												@Param("offset") Long offset);
 
 	@Query("SELECT COUNT(ur.update_id) " +
-			"FROM update_record ur " +
+			"FROM update ur " +
 			"WHERE (ur.status = :status OR :status IS NULL) " +
 			"AND (ur.trigger = :trigger OR :trigger IS NULL) " +
 			"AND (ur.data_download_url ILIKE :url OR :url IS NULL) " +
 			"AND (ur.started_time <= :dateStartedFrom OR :dateStartedFrom::timestamptz IS NULL) ")
-	Long getUpdateRecordsCountByFilter(@Param("status") UpdateStatus status,
-									   @Param("trigger") UpdateTrigger trigger,
+	Long getUpdateRecordsCountByFilter(@Param("status") ProcessingStatus status,
+									   @Param("trigger") UpdateType type,
 									   @Param("url") String url,
 									   @Param("dateStartedFrom") Instant dateStartedFrom);
 
 	@Query("SELECT ur.* " +
-			"FROM update_record ur " +
+			"FROM update ur " +
 			"WHERE (ur.update_id = :updateId) ")
-	UpdateRecordEntity getUpdateById(@Param("updateId") Long updateId);
+	UpdateEntity getUpdateById(@Param("updateId") Long updateId);
+
+	@Query("SELECT ur.* " +
+			"FROM update ur " +
+			"WHERE (ur.update_id = :updateId) " +
+			"AND (ur.status = :status)")
+	UpdateEntity getUpdateByIdAndStatus(@Param("updateId") Long updateId,
+										@Param("status") ProcessingStatus status);
 
 	@Modifying
-	@Query("UPDATE update_record " +
+	@Query("UPDATE update " +
 			"SET " +
 			"failed_reason = :failedReason, " +
 			"status = :status, " +
 			"finished_time = NOW() " +
-			"WHERE ((EXTRACT(EPOCH FROM (NOW() - started_time)) / 60) >= :xMinutes) " +
-			"AND finished_time IS NULL")
-	void killStuckUpdatesAndSetFailedReason(@Param("xMinutes") Long xMinutes,
-											@Param("failedReason") String failedReason,
-											@Param("status") UpdateStatus status);
+			"WHERE finished_time IS NULL")
+	void finishUpdatesWithFailure(@Param("failedReason") String failedReason,
+								  @Param("status") ProcessingStatus status);
 
 }

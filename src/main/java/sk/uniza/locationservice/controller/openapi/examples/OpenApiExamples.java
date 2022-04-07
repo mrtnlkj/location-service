@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class OpenApiExamples {
 
-	public static final String HTTP_200 = "200 OK";
+	public static final String HTTP_200 = "200";
 	public static final String HTTP_200_DESCRIPTION = "Success.";
 	public static final String EMPTY_RESPONSE_BODY = "";
 

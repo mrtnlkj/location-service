@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = "springdoc.paths-to-match=**/api/**")
+@TestPropertySource(properties = "springdoc.paths-to-match=/api/**")
 class OpenApiCreatorTest {
 
 	@Autowired

@@ -106,9 +106,6 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 			"WHERE (l.location_id = :locationId) ")
 	LocationEntity getLocationById(@Param("locationId") Long locationId);
 
-	@Query("CALL insert_location_data_proc(:versionId, 0) ")
-	Long importLocationDataWithVersionAndGetInsertedRecordsCount(@Param("versionId") Long versionId);
-
 	@Query("SELECT " +
 			"l.location_id AS location_id, " +
 			"l.version_id AS version_id, " +
@@ -127,13 +124,14 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 			"l.type AS type, " +
 			"l.lat AS lat, " +
 			"l.lon AS lon, " +
-			"public.ST_AsGeoJSON(l.boundary) AS boundary, " +
+			"public.ST_AsGeoJSON(public.ST_Transform(l.boundary,4326)) AS boundary, " +
 			"public.ST_Distance( " +
 			"public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(:lon, :lat), 4326), 4326), " +
-			"public.ST_AsGeoJSON(public.ST_Transform(l.boundary,4326)) " +
+			"public.ST_Transform(l.boundary, 4326)" +
 			") AS distance " +
 			"FROM location l " +
-			"JOIN location_version lv ON (lv.version_id = l.version_id) AND (l.version_id IN (SELECT MAX(version_id) FROM location_version WHERE validity_from IS NOT NULL)) " +
+			"JOIN location_version lv " +
+			"ON (lv.version_id = l.version_id) AND (l.version_id IN (SELECT MAX(version_id) FROM location_version WHERE validity_from IS NOT NULL)) " +
 			"ORDER BY distance ASC " +
 			"LIMIT 1 ")
 	LocationEntity getNearestLocationByGpsCoords(@Param("lat") BigDecimal lat,
@@ -179,7 +177,8 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 
 	@Query("SELECT COUNT(l.location_id) " +
 			"FROM location l " +
-			"JOIN location_version lv ON (lv.version_id = l.version_id) AND (l.version_id IN (SELECT MAX(version_id) FROM location_version WHERE validity_from IS NOT NULL)) " +
+			"JOIN location_version lv ON (lv.version_id = l.version_id) " +
+			"AND (l.version_id IN (SELECT MAX(version_id) FROM location_version WHERE validity_from IS NOT NULL)) " +
 			"WHERE " +
 			"public.ST_Distance( " +
 			"public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(:lon, :lat), 4326), 4326), " +
@@ -200,4 +199,16 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 	Long getGpsCoordsOccurrenceWithinLocationCount(@Param("locationId") Long locationId,
 												   @Param("lat") BigDecimal lat,
 												   @Param("lon") BigDecimal lon);
+
+	@Query("CALL insert_location_data_proc(:versionId, 0) ")
+	Long callInsertLocationDataProc(@Param("versionId") Long versionId);
+
+	@Query("CALL process_state_names_proc(:versionId, 0) ")
+	Long callProcessStateNamesProc(@Param("versionId") Long versionId);
+
+	@Query("CALL process_region_names_proc(:versionId, 0) ")
+	Long callProcessRegionNamesProc(@Param("versionId") Long versionId);
+
+	@Query("CALL process_district_names_proc(:versionId, 0) ")
+	Long callProcessDistrictNamesProc(@Param("versionId") Long versionId);
 }

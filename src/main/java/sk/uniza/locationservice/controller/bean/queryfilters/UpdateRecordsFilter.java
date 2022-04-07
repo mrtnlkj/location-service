@@ -11,8 +11,8 @@ import org.springframework.lang.Nullable;
 
 import java.time.Instant;
 
-import sk.uniza.locationservice.controller.bean.enums.UpdateStatus;
-import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
+import sk.uniza.locationservice.controller.bean.enums.ProcessingStatus;
+import sk.uniza.locationservice.controller.bean.enums.UpdateType;
 
 @Data
 @Builder
@@ -21,14 +21,15 @@ import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
 @EqualsAndHashCode(callSuper = true)
 public class UpdateRecordsFilter extends LimitAndOffsetFilter {
 
-	@Parameter(example = "FINISHED", schema = @Schema(description = "Final status of the update.", implementation = UpdateStatus.class, example = "FINISHED"))
+	@Parameter(example = "FINISHED",
+			schema = @Schema(description = "Final status of the update.", implementation = ProcessingStatus.class, example = "FINISHED"))
 	@Nullable
-	private UpdateStatus status;
+	private ProcessingStatus status;
 
 	@Parameter(example = "MANUAL_UPDATE",
-			schema = @Schema(description = "Update trigger that started the update.", implementation = UpdateTrigger.class, example = "MANUAL_UPDATE"))
+			schema = @Schema(description = "Update type that started the update.", implementation = UpdateType.class, example = "MANUAL_UPDATE"))
 	@Nullable
-	private UpdateTrigger trigger;
+	private UpdateType type;
 
 	@Parameter(example = "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf",
 			schema = @Schema(description = "URL used for download update file, parameter can be also partial URL string", implementation = String.class,

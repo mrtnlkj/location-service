@@ -15,7 +15,7 @@ import static sk.uniza.locationservice.business.filedownloader.FileDownloader.ge
 
 @Component
 @RequiredArgsConstructor
-public class OsmFileDownloader {
+public class OsmFileDownloaderOld {
 
 	private final UpdateProperties updateProperties;
 

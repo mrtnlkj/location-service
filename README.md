@@ -111,8 +111,8 @@ location-service.update.retry-update-executor.enabled=true
 location-service.update.retry-update-executor.max-attempts-count=5
 location-service.update.retry-update-executor.duration-between-attempts=PT1H
 
-#manual-update-executor properties
-location-service.update.manual-update-executor.enabled=true
+#manual-update properties
+location-service.update.manual-update.enabled=true
 
 #data update - osm2pgsql properties
 location-service.update.osm2pgsql.base-path=C:/osm2pgsql/osm2pgsql-bin

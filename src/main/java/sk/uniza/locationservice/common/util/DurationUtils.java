@@ -19,4 +19,8 @@ public final class DurationUtils {
 	public static String prettyPrintDurationBetween(Instant start, Instant end) {
 		return secondsToPrettyPrintFormat(Duration.between(start, end).toMillis());
 	}
+
+	public static boolean gte(Duration duration, Duration duration2) {
+		return duration.compareTo(duration2) >= 0;
+	}
 }

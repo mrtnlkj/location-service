@@ -1,11 +1,13 @@
 package sk.uniza.locationservice.controller.error;
 
 import lombok.extern.slf4j.Slf4j;
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -73,7 +75,7 @@ public class LocationServiceExceptionHandler extends ResponseEntityExceptionHand
 	/*
 	 * PostgreSQL JDBC connection failure
 	 */
-	@ExceptionHandler(CannotGetJdbcConnectionException.class)
+	@ExceptionHandler({CannotGetJdbcConnectionException.class, PSQLException.class, CannotCreateTransactionException.class})
 	public ResponseEntity<Object> handleCassandraConnectionException(Exception exception, WebRequest request) {
 		log.error(EXCEPTION_THROWN, exception);
 

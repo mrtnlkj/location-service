@@ -6,10 +6,10 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import sk.uniza.locationservice.business.AbstractProcessExecutor;
 import sk.uniza.locationservice.config.properties.UpdateProperties;
 
 import static sk.uniza.locationservice.common.util.JdbcUrlParserUtils.getDatabaseNameFromJdbcUrl;
@@ -30,9 +30,9 @@ public class Osm2pgsqlImporter extends AbstractProcessExecutor {
 
 	private File osm2pgsqlFile;
 
-	public int importFile(File file) {
+	public void importFile(File file) throws IOException, InterruptedException {
 		this.osm2pgsqlFile = file;
-		return runCommand();
+		runCommand();
 	}
 
 	@Override

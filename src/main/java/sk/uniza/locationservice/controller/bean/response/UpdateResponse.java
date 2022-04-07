@@ -6,23 +6,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 
-import sk.uniza.locationservice.controller.bean.enums.UpdateStatus;
-import sk.uniza.locationservice.controller.bean.enums.UpdateTrigger;
+import sk.uniza.locationservice.controller.bean.enums.ProcessingStatus;
+import sk.uniza.locationservice.controller.bean.enums.UpdateType;
 
 @Data
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateRecordResponse {
+public class UpdateResponse {
 
 	private Long updateId;
 	private Instant startedTime;
 	private Instant finishedTime;
 	private String dataDownloadUrl;
-	private UpdateStatus status;
-	private UpdateTrigger trigger;
+	private ProcessingStatus status;
+	private UpdateType type;
 	private String description;
 	private String failedReason;
+	private List<UpdateProcessingTaskResponse> tasks;
 
 }

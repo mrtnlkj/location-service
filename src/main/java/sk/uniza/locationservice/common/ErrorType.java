@@ -16,7 +16,7 @@ public final class ErrorType {
 	public static final ErrorType JDBC_CONNECTION_FAILURE_ERROR = new ErrorType("0004", "PostgreSQL JDBC connection failure.",
 																				HttpStatus.INTERNAL_SERVER_ERROR);
 
-	public static final ErrorType UPDATE_ALREADY_RUNNING = new ErrorType("0101", "Update is already in progress.", HttpStatus.INTERNAL_SERVER_ERROR);
+	public static final ErrorType UPDATE_IN_PROGRESS = new ErrorType("0101", "Update is already in progress.", HttpStatus.INTERNAL_SERVER_ERROR);
 	public static final ErrorType UPDATE_FAILED = new ErrorType("0102", "Data update failed.", HttpStatus.INTERNAL_SERVER_ERROR);
 
 	/**
