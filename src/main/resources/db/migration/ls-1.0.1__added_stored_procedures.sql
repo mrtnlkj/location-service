@@ -71,11 +71,12 @@ UPDATE ls.location l
 SET state_name_sk = polygon.name,
     state_name_en = (polygon.tags::hstore OPERATOR(->) 'name:en') FROM public.osm_polygon AS polygon
 WHERE l.version_id = in_version_id
-  AND public.ST_intersects(public.ST_SetSRID(public.ST_MakePoint(l.lon
-    , l.lat)
-    , 4326)
-    , public.ST_Transform(polygon.way
-    , 4326))
+--no need to check intersects in state polygon - actually importing only Slovak data
+--   AND public.ST_intersects(public.ST_SetSRID(public.ST_MakePoint(l.lon
+--     , l.lat)
+--     , 4326)
+--     , public.ST_Transform(polygon.way
+--     , 4326))
   AND polygon.admin_level IN ('2') --country borders (SK: Slovensko)
 ;
 
