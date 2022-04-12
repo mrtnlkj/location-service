@@ -188,7 +188,7 @@ public class UpdateExecutor {
 
 	private void finishExecutorState() {
 		inProgress = false;
-		//		timeoutEventScheduler.cancelUpdateTimeout();
+		futureHandler.cancelUpdateTimeout();
 	}
 
 	private boolean isRetryUpdateAvailable() {
