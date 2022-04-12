@@ -26,8 +26,8 @@ public class UpdateRecordsFilter extends LimitAndOffsetFilter {
 	@Nullable
 	private ProcessingStatus status;
 
-	@Parameter(example = "MANUAL_UPDATE",
-			schema = @Schema(description = "Update type that started the update.", implementation = UpdateType.class, example = "MANUAL_UPDATE"))
+	@Parameter(example = "MANUAL",
+			schema = @Schema(description = "Update type that started the update.", implementation = UpdateType.class, example = "MANUAL"))
 	@Nullable
 	private UpdateType type;
 

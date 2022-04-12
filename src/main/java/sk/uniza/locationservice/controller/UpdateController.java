@@ -225,6 +225,8 @@ public class UpdateController {
 											value = OpenApiExamples.UC_MANUAL_UPDATES_REQUEST_DEFAULT),
 									@ExampleObject(name = "Manual update request with specified custom url.",
 											value = OpenApiExamples.UC_MANUAL_UPDATES_REQUEST_WITH_URL_SPECIFIED),
+									@ExampleObject(name = "Manual update request with skipping download.",
+											value = OpenApiExamples.UC_MANUAL_UPDATES_REQUEST_WITH_SKIP_DOWNLOAD),
 							}))
 			@RequestBody(required = false) @Valid ManualUpdateRequest request) {
 		UpdateResponse response = updateService.executeManualUpdate(request);

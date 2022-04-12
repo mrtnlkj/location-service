@@ -17,23 +17,32 @@ import static sk.uniza.locationservice.business.filedownloader.FileDownloader.ge
 
 @Component
 @RequiredArgsConstructor
-public class OsmFileDownloadTask implements UpdateTaskExecutable {
+public class OsmFileLoadTask implements UpdateTaskExecutable {
 
 	private final UpdateProperties updateProperties;
 
 	@Override
 	public UpdateWrapper execute(UpdateWrapper request) throws IOException {
-		URL url = request.getUrl();
-		url = getCorrectUrl(url);
-		String downloadPath = buildPathForDownloadedFile(url);
-		File file = download(url, downloadPath);
+		File file = null;
+		if (request.isSkipDownload()) {
+			file = new File(request.getFilePath());
+		} else {
+			file = downloadFile(request);
+		}
 		request.setOsmFile(file);
 		return request;
 	}
 
+	public File downloadFile(UpdateWrapper request) throws IOException {
+		URL url = request.getUrl();
+		url = getCorrectUrl(url);
+		String downloadPath = buildPathForDownloadedFile(url);
+		return download(url, downloadPath);
+	}
+
 	@Override
 	public UpdateProcessingTaskCode getUpdateTaskCode() {
-		return UpdateProcessingTaskCode.OSM_FILE_DOWNLOAD;
+		return UpdateProcessingTaskCode.OSM_FILE_LOAD;
 	}
 
 	private String buildPathForDownloadedFile(URL url) {
@@ -49,6 +58,6 @@ public class OsmFileDownloadTask implements UpdateTaskExecutable {
 
 	@Override
 	public int getOrder() {
-		return UpdateProcessingTaskCode.OSM_FILE_DOWNLOAD.getOrder();
+		return UpdateProcessingTaskCode.OSM_FILE_LOAD.getOrder();
 	}
 }

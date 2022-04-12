@@ -763,5 +763,11 @@ public final class OpenApiExamples {
 			"  \"url\": \"https://download.geofabrik.de/europe/slovakia-latest.osm.pbf\",\n" +
 			"  \"description\": \"Trying to run manual data update of locations data with specified custom URL for OSM data file download.\"\n" +
 			"}";
+	public static final String UC_MANUAL_UPDATES_REQUEST_WITH_SKIP_DOWNLOAD = "{\n" +
+			"    \"url\": null,\n" +
+			"    \"description\": \"Trying to run manual update of locations data. Skipping download and gives a file path.\",\n" +
+			"    \"skipDownload\": true,\n" +
+			"    \"filePath\": \"C:\\\\data\\\\location_service\\\\osm_data\\\\slovakia-latest.osm.pbf\"\n" +
+			"}";
 
 }

@@ -14,4 +14,24 @@ public class HelperRepository {
 		final String query = "DROP TABLE public.osm_point, public.osm_polygon, public.osm_line, public.osm_roads cascade; ";
 		jdbcTemplate.execute(query);
 	}
+
+	public Long importLocationDataWithVersionAndGetInsertedRecordsCount(Long locationId) {
+		final String query = "CALL insert_location_data_proc(" + locationId + ", 0); ";
+		return jdbcTemplate.queryForObject(query, Long.class);
+	}
+
+	public void processStateNames(Long locationId) {
+		final String query = "CALL process_state_names_proc(" + locationId + ", 0); ";
+		jdbcTemplate.execute(query);
+	}
+
+	public void processRegionNames(Long locationId) {
+		final String query = "CALL process_region_names_proc(" + locationId + ", 0); ";
+		jdbcTemplate.execute(query);
+	}
+
+	public void processDistrictNames(Long locationId) {
+		final String query = "CALL process_district_names_proc(" + locationId + ", 0); ";
+		jdbcTemplate.execute(query);
+	}
 }

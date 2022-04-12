@@ -14,6 +14,8 @@ import java.net.URL;
 public class ManualUpdateRequest {
 
 	private URL url;
+	private boolean skipDownload;
+	private String filePath;
 	private String description;
 
 }

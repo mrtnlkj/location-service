@@ -203,7 +203,13 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 	@Query("CALL insert_location_data_proc(:versionId, 0) ")
 	Long callInsertLocationDataProc(@Param("versionId") Long versionId);
 
-	@Query("CALL process_state_names_proc(:versionId, 0) ")
+	@Query("UPDATE ls.location l\n" +
+			"SET state_name_sk = polygon.name, " +
+			"state_name_en = (polygon.tags::public.hstore OPERATOR(public.->) 'name:en') " +
+			"FROM public.osm_polygon AS polygon " +
+			"WHERE l.version_id = :versionId " +
+			"AND polygon.admin_level IN ('2') --country borders (SK: Slovensko) " +
+			";")
 	Long callProcessStateNamesProc(@Param("versionId") Long versionId);
 
 	@Query("CALL process_region_names_proc(:versionId, 0) ")

@@ -52,7 +52,7 @@ public class FutureHandler {
 
 	private void cancelTo(Future<?> f) {
 		if (f != null) {
-			f.cancel(false);
+			f.cancel(true);
 		}
 	}
 }

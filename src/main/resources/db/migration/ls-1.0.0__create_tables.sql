@@ -46,7 +46,7 @@ CREATE TABLE "ls"."update_processing_task"
         FOREIGN KEY ("update_id")
             REFERENCES "update" ("update_id"),
     CONSTRAINT constraint_update_processing_task_check_task_code
-        CHECK ( "task_code" IN ('OSM_FILE_DOWNLOAD',
+        CHECK ( "task_code" IN ('OSM_FILE_LOAD',
                                 'OSM2PGSQL_IMPORT',
                                 'INCREMENT_LOCATION_VERSION',
                                 'LOCATIONS_REMAP',

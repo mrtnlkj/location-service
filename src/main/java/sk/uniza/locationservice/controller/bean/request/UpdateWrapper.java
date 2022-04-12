@@ -32,7 +32,9 @@ public class UpdateWrapper extends ManualUpdateRequest {
 
 		public B fromRunUpdateRequest(ManualUpdateRequest request, URL defaultUrl) {
 			return this.url(defaultIfNull(request.getUrl(), defaultUrl))
-					   .description(request.getDescription());
+					   .description(request.getDescription())
+					   .skipDownload(request.isSkipDownload())
+					   .filePath(request.getFilePath());
 		}
 	}
 
