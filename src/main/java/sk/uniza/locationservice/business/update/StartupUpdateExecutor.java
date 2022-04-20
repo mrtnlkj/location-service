@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.net.URL;
 
 import sk.uniza.locationservice.business.service.LocationService;
@@ -24,7 +25,7 @@ public class StartupUpdateExecutor {
 	private final UpdateExecutor updateExecutor;
 	private final LocationService locationService;
 
-	@Scheduled(fixedDelay = Long.MAX_VALUE)
+	@PostConstruct
 	@Transactional
 	public void execute() {
 		final UpdateType type = UpdateType.SCHEDULED_STARTUP;

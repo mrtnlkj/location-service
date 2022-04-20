@@ -84,7 +84,6 @@ public class UpdateExecutor {
 			log.debug("Data update is already IN PROGRESS. Skipping {} data update.", wrapper.getType());
 			return;
 		}
-
 		try {
 			log.info("{} data update {}.", wrapper.getType(), ProcessingStatus.RUNNING);
 			this.initExecutorState();
@@ -92,23 +91,11 @@ public class UpdateExecutor {
 				wrapper = wrapper.toBuilder().update(createNewUpdate(wrapper)).build();
 			}
 			currentUpdate = wrapper.getUpdate();
-			while (isInProgress()) {
-				if (currentTaskIndex >= updateTaskExecutables.size()) {
-					finishWithSuccess();
-					break;
-				}
-				executor = updateTaskExecutables.get(currentTaskIndex++);
-				log.debug("Execution of step: {} started.", executor.getUpdateTaskCode());
-				startTask(executor, currentUpdate.getUpdateId());
-
-				wrapper = executor.execute(wrapper);
-
-				finishTaskWithSuccess();
-				log.debug("Execution of step: {} finished.", executor.getUpdateTaskCode());
-			}
+			executeTasks(wrapper);
 		} catch (Exception e) {
 			if (isRetryUpdateAvailable()) {
 				log.debug("Trying to execute retry update for {} task, attempt: {}", executor.getUpdateTaskCode(), getAttempt());
+				currentTaskIndex--;
 				execute(wrapper);
 			}
 			finishWithFailure(e);
@@ -117,6 +104,23 @@ public class UpdateExecutor {
 		} finally {
 			log.info("Data update {}. Total time elapsed: {}.", currentUpdate.getStatus(),
 					 prettyPrintDurationBetween(currentUpdate.getStartedTime(), currentUpdate.getFinishedTime()));
+		}
+	}
+
+	private void executeTasks(UpdateWrapper wrapper) throws Exception {
+		while (isInProgress()) {
+			if (currentTaskIndex >= updateTaskExecutables.size()) {
+				finishWithSuccess();
+				break;
+			}
+			executor = updateTaskExecutables.get(currentTaskIndex++);
+			log.debug("Execution of step: {} started.", executor.getUpdateTaskCode());
+			startTask(executor, currentUpdate.getUpdateId());
+
+			wrapper = executor.execute(wrapper);
+
+			finishTaskWithSuccess();
+			log.debug("Execution of step: {} finished.", executor.getUpdateTaskCode());
 		}
 	}
 
