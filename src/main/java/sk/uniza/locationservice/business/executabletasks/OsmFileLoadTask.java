@@ -1,6 +1,7 @@
 package sk.uniza.locationservice.business.executabletasks;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -15,6 +16,7 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static sk.uniza.locationservice.business.filedownloader.FileDownloader.download;
 import static sk.uniza.locationservice.business.filedownloader.FileDownloader.getFileNameFromDownloadURL;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OsmFileLoadTask implements UpdateTaskExecutable {
@@ -25,6 +27,7 @@ public class OsmFileLoadTask implements UpdateTaskExecutable {
 	public UpdateWrapper execute(UpdateWrapper request) throws IOException {
 		File file = null;
 		if (request.isSkipDownload()) {
+			log.debug("Loading osm file from path: {}", request.getFilePath());
 			file = new File(request.getFilePath());
 		} else {
 			file = downloadFile(request);

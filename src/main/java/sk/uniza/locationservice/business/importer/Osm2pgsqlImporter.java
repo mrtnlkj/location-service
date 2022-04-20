@@ -50,19 +50,17 @@ public class Osm2pgsqlImporter extends AbstractProcessExecutor {
 	@Override
 	protected String[] getCommand() {
 		return new String[]{
-				appendFileNameToExtPath(updateProperties.getOsm2pgsql().getExeFileName()),
+//				"/bin/sh",
+//				"-c",
+				updateProperties.getOsm2pgsql().getRunCmd(),
 				"--host", getHostFromJdbcUrl(datasourceProperties.getUrl()),
 				"--port", getPortFromJdbcUrl(datasourceProperties.getUrl()),
 				"--database", getDatabaseNameFromJdbcUrl(datasourceProperties.getUrl()),
 				"--username", datasourceProperties.getUsername(),
 				"--prefix", OSM_TABLE_PREFIX,
-				"--style", appendFileNameToExtPath(updateProperties.getOsm2pgsql().getStyleFileName()),
+				"--style", updateProperties.getOsm2pgsql().getStyleFilePath(),
 				"--hstore",
 				osm2pgsqlFile.getAbsolutePath(),
 				};
-	}
-
-	private String appendFileNameToExtPath(String fileName) {
-		return updateProperties.getOsm2pgsql().getBasePath().concat(File.separator).concat(fileName);
 	}
 }

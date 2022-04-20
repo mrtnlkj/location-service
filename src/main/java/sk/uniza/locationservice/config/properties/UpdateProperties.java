@@ -96,13 +96,11 @@ public class UpdateProperties {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class Osm2pgsqlProperties {
-
+		
 		@NotBlank
-		private String basePath;
+		private String runCmd;
 		@NotBlank
-		private String exeFileName;
-		@NotBlank
-		private String styleFileName;
+		private String styleFilePath;
 	}
 
 	@Data

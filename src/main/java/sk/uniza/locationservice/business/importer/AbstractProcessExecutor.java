@@ -24,10 +24,7 @@ public abstract class AbstractProcessExecutor {
 
 	public void runCommand() throws IOException, InterruptedException {
 		log.info("Process triggered by {} started with command: \"{}\", ", getName(), getCommand());
-		ProcessBuilder processBuilder = new ProcessBuilder();
-		if (log.isDebugEnabled()) {
-			processBuilder.inheritIO();
-		}
+		ProcessBuilder processBuilder = new ProcessBuilder().inheritIO();
 		setCustomEnvProperties(processBuilder);
 		try {
 			int exitCode = processBuilder.command(getCommand())
