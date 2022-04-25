@@ -235,7 +235,7 @@ public class UpdateController {
 
 	@PostMapping("/{updateId}/abort")
 	@Operation(summary = "1104 -  Endpoint that aborts running update",
-			description = "Performs a abortion of running update of location data."
+			description = "Performs an abortion of running update of location data."
 	)
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
@@ -243,19 +243,9 @@ public class UpdateController {
 							schema = @Schema(
 									implementation = UpdateResponse.class),
 							examples = {
-									@ExampleObject(name = "Update record, response of processing manual update.",
-											value = OpenApiExamples.UPDATE_RECORD_EXAMPLE),
+									@ExampleObject(name = "Update aborted.",
+											value = OpenApiExamples.UC_ABORT_UPDATE_EXAMPLE),
 							})),
-			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
-					content = @Content(
-							schema = @Schema(
-									implementation = ErrorResponse.class),
-							examples = {
-									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
-											value = ErrorExamples.UC_MANUAL_UPDATE_400),
-							}
-					)
-			),
 			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
 					content = @Content(
 							schema = @Schema(

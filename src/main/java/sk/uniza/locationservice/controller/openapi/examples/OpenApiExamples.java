@@ -703,8 +703,12 @@ public final class OpenApiExamples {
 	public static final String LC_GET_LOCATIONS_WITHIN_DISTANCE = LC_GET_LOCATIONS;
 	public static final String LC_GET_LOCATIONS_WITHIN_DISTANCE_NOT_FOUND = LC_GET_LOCATIONS_NOT_FOUND;
 
-	public static final String LC_GPS_OCCURRENCE = "true";
-	public static final String LC_GPS_OCCURRENCE_NOT_FOUND = "false";
+	public static final String LC_GPS_OCCURRENCE = "{\n" +
+			"  \"value\": true\n" +
+			"}";
+	public static final String LC_GPS_OCCURRENCE_NOT_FOUND = "{\n" +
+			"  \"value\": false\n" +
+			"}";
 
 	public static final String UC_GET_UPDATES = "{\n" +
 			"  \"records\": [\n" +
@@ -754,6 +758,10 @@ public final class OpenApiExamples {
 			"  \"trigger\": \"MANUAL_UPDATE\",\n" +
 			"  \"description\": \"Trying to run manual update of locations data. Default data updater setting will be applied.\" " +
 			"}\n";
+
+	public static final String UC_ABORT_UPDATE_EXAMPLE = "{\n" +
+			"  \"value\": true\n" +
+			"}";
 
 	public static final String UC_MANUAL_UPDATES_REQUEST_DEFAULT = "{\n" +
 			"  \"url\": null,\n" +

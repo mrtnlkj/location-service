@@ -31,6 +31,7 @@ import sk.uniza.locationservice.controller.bean.queryfilters.LimitAndOffsetFilte
 import sk.uniza.locationservice.controller.bean.queryfilters.LocationsFilter;
 import sk.uniza.locationservice.controller.bean.response.GetLocationsResponse;
 import sk.uniza.locationservice.controller.bean.response.LocationResponse;
+import sk.uniza.locationservice.controller.bean.response.SuccessResponse;
 import sk.uniza.locationservice.controller.error.ErrorResponse;
 import sk.uniza.locationservice.controller.openapi.examples.ErrorExamples;
 import sk.uniza.locationservice.controller.openapi.examples.OpenApiExamples;
@@ -184,7 +185,7 @@ public class LocationController {
 			@Parameter(required = true, description = "Unique locationId identifier.", example = "\"11256\"")
 			@NotNull @PathVariable(value = "locationId") @Positive Long locationId,
 			@Valid @ParameterObject CoordinatesFilter filter) {
-		boolean response = locationService.gpsCoordsOccurrenceWithinLocation(locationId, filter);
+		SuccessResponse response = locationService.gpsCoordsOccurrenceWithinLocation(locationId, filter);
 		return ResponseEntity.ok().body(response);
 	}
 

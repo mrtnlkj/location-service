@@ -13,6 +13,7 @@ import sk.uniza.locationservice.controller.bean.queryfilters.LimitAndOffsetFilte
 import sk.uniza.locationservice.controller.bean.queryfilters.LocationsFilter;
 import sk.uniza.locationservice.controller.bean.response.GetLocationsResponse;
 import sk.uniza.locationservice.controller.bean.response.LocationResponse;
+import sk.uniza.locationservice.controller.bean.response.SuccessResponse;
 import sk.uniza.locationservice.mapper.LocationMapper;
 import sk.uniza.locationservice.repository.LocationRepository;
 import sk.uniza.locationservice.repository.entity.LocationEntity;
@@ -88,12 +89,12 @@ public class LocationService {
 								   .build();
 	}
 
-	public boolean gpsCoordsOccurrenceWithinLocation(Long locationId, CoordinatesFilter filter) {
+	public SuccessResponse gpsCoordsOccurrenceWithinLocation(Long locationId, CoordinatesFilter filter) {
 		log.debug("gpsCoordsOccurrenceWithinLocation({}, {})", locationId, filter);
 		Long count = locationRepository.getGpsCoordsOccurrenceWithinLocationCount(locationId,
 																				  filter.getLat(),
 																				  filter.getLon());
-		return count.compareTo(0L) <= 0;
+		return SuccessResponse.builder().value(count.compareTo(0L) > 0).build();
 	}
 
 	@Transactional
