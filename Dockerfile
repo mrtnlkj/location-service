@@ -1,13 +1,12 @@
 FROM openjdk:8
 
 RUN mkdir /app
+RUN mkdir  /app/osm_data
 
 WORKDIR /app
 
 RUN apt-get update
 RUN apt-get install osm2pgsql -y
-
-RUN mkdir  /app/osm_data
 
 ADD ./target/location-service-*.jar /app/location-service.jar
 
