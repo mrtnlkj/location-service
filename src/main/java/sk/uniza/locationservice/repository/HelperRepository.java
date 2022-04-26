@@ -15,8 +15,11 @@ public class HelperRepository {
 		jdbcTemplate.execute(query);
 	}
 
-	public Long importLocationDataWithVersionAndGetInsertedRecordsCount(Long locationId) {
-		final String query = "CALL insert_location_data_proc(" + locationId + ", 0); ";
+	public Long importLocationDataWithVersionAndGetInsertedRecordsCount(Long locationVersionId) {
+		final String query = "CALL insert_location_data_proc(" + locationVersionId + ", 0); ";
+		jdbcTemplate.execute(query);
+		final String countQuert = "SELECT COUNT(l.location_id) FROM location l " +
+				"WHERE l.version_id = " + locationVersionId + "; ";
 		return jdbcTemplate.queryForObject(query, Long.class);
 	}
 
