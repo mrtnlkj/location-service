@@ -1,0 +1,17 @@
+CREATE USER "ls_api" WITH
+    LOGIN
+    SUPERUSER
+    INHERIT
+    CREATEDB
+    CREATEROLE
+    REPLICATION;
+ALTER USER "ls_api" PASSWORD 'pwd';
+
+CREATE DATABASE "location_service"
+    WITH
+    OWNER = "postgres"
+    ENCODING = 'UTF8'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1;
+
+CREATE SCHEMA IF NOT EXISTS "ls" AUTHORIZATION "ls_api";
