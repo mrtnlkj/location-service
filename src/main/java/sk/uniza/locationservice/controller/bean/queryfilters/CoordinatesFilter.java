@@ -2,6 +2,7 @@ package sk.uniza.locationservice.controller.bean.queryfilters;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
@@ -9,6 +10,7 @@ import org.hibernate.validator.constraints.Range;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

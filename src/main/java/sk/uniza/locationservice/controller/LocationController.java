@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -39,7 +40,7 @@ import sk.uniza.locationservice.controller.openapi.examples.OpenApiExamples;
 import static sk.uniza.locationservice.controller.openapi.examples.ErrorExamples.HTTP_400_DESCRIPTION;
 
 @RestController
-@RequestMapping("/api/v1/locations")
+@RequestMapping(value = "/api/v1/locations", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Tag(name = LocationController.API_TAG, description = LocationController.API_DESCRIPTION)
 @Validated
@@ -142,7 +143,7 @@ public class LocationController {
 		return ResponseEntity.ok().body(response);
 	}
 
-	@GetMapping("/{locationId}/gps-occurrence")
+	@GetMapping("/{locationId}/gps-coords-occurrence")
 	@Operation(summary = "1003 - GPS coordinates occurrence",
 			description = "Endpoint verifies whether the given GPS coordinates occurs in specified location and returns appropriate response.")
 	@ApiResponses(value = {
@@ -237,6 +238,7 @@ public class LocationController {
 		return ResponseEntity.ok().body(response);
 	}
 
+	@ResponseBody
 	@GetMapping("/nearest-by-gps-coords")
 	@Operation(summary = "1005 - Get nearest location by GPS coordinates",
 			description = "Returns a single location that is the nearest to the specified GPS coordinates.")

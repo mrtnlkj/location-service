@@ -39,7 +39,7 @@ import static sk.uniza.locationservice.controller.openapi.examples.ErrorExamples
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/update")
+@RequestMapping("/api/v1/updates")
 @RequiredArgsConstructor
 @Tag(name = UpdateController.API_TAG, description = UpdateController.API_DESCRIPTION)
 @Validated

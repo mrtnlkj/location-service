@@ -10,7 +10,6 @@ info:
     email: "mrtn.lkj@gmail.com"
   license:
     name: "Licensed by Martin Lokaj"
-  version: "0.0.1-SNAPSHOT"
 servers:
 - url: "http://localhost"
   description: "Generated server url"
@@ -43,17 +42,16 @@ paths:
           - "FINISHED"
           - "FAILED"
         example: "FINISHED"
-      - name: "trigger"
+      - name: "type"
         in: "query"
         required: false
         schema:
           type: "string"
           enum:
-          - "SCHEDULED_UPDATE"
-          - "SCHEDULED_STARTUP_UPDATE"
-          - "SCHEDULED_RETRY_UPDATE"
-          - "MANUAL_UPDATE"
-        example: "MANUAL_UPDATE"
+          - "SCHEDULED"
+          - "SCHEDULED_STARTUP"
+          - "MANUAL"
+        example: "MANUAL"
       - name: "url"
         in: "query"
         required: false
@@ -88,6 +86,26 @@ paths:
           format: "int64"
         example: 0
       responses:
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0004:
+                  description: "LS0004"
+                  value:
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
@@ -148,26 +166,6 @@ paths:
                   value:
                     records: []
                     recordsCount: 0
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0004:
-                  description: "LS0004"
-                  value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
     post:
       tags:
       - "UpdateRecordController"
@@ -195,13 +193,21 @@ paths:
                   url: "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf"
                   description: "Trying to run manual data update of locations data\
                     \ with specified custom URL for OSM data file download."
+              Manual update request with skipping download.:
+                description: "Manual update request with skipping download."
+                value:
+                  url: null
+                  description: "Trying to run manual update of locations data. Skipping\
+                    \ download and gives a file path."
+                  skipDownload: true
+                  filePath: "C:\\data\\location_service\\osm_data\\slovakia-latest.osm.pbf"
       responses:
         "200":
           description: "Success."
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/UpdateRecordResponse"
+                $ref: "#/components/schemas/UpdateResponse"
               examples:
                 Update record, response of processing manual update.:
                   description: "Update record, response of processing manual update."
@@ -214,6 +220,34 @@ paths:
                     trigger: "MANUAL_UPDATE"
                     description: "Trying to run manual update of locations data. Default\
                       \ data updater setting will be applied."
+        "400":
+          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
+            \ - Request is not valid</li></ul>"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0001:
+                  description: "LS0001"
+                  value:
+                    errorMessage:
+                      referenceId: "fc3510e1-f8b1-4131-ba78-b02178e83b40"
+                      message: "Constraint violation (cause: Validation failed for\
+                        \ argument [0] in public org.springframework.http.ResponseEntity<?>\
+                        \ sk.uniza.locationservice.controller.UpdateController.manualUpdate(sk.uniza.locationservice.controller.bean.request.ManualUpdateRequest):\
+                        \ [Field error in object 'manualUpdateRequest' on field 'url':\
+                        \ rejected value [httpsinvalid]; codes [URL.manualUpdateRequest.url,URL.url,URL.java.lang.String,URL];\
+                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
+                        \ codes [manualUpdateRequest.url,url]; arguments []; default\
+                        \ message [url],[Ljavax.validation.constraints.Pattern$Flag;@602a3c41,,-1,,.*];\
+                        \ default message [must be a valid URL]] )"
+                    businessExceptions:
+                    - code: "LS0001"
+                      message: "Constraint violation"
+                    fieldValidations:
+                    - field: "url"
+                      message: "must be a valid URL"
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
@@ -244,34 +278,54 @@ paths:
                     - code: "LS0101"
                       message: "Update is already in progress."
                     fieldValidations: []
-        "400":
-          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
-            \ - Request is not valid</li></ul>"
+  /api/v1/update/{updateId}/abort:
+    post:
+      tags:
+      - "UpdateRecordController"
+      summary: "1104 -  Endpoint that aborts running update"
+      description: "Performs an abortion of running update of location data."
+      operationId: "abortUpdate"
+      parameters:
+      - name: "updateId"
+        in: "path"
+        description: "Unique updateId identifier."
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+        example: "11256"
+      responses:
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                LS0001:
-                  description: "LS0001"
+                LS0004:
+                  description: "LS0004"
                   value:
                     errorMessage:
-                      referenceId: "fc3510e1-f8b1-4131-ba78-b02178e83b40"
-                      message: "Constraint violation (cause: Validation failed for\
-                        \ argument [0] in public org.springframework.http.ResponseEntity<?>\
-                        \ sk.uniza.locationservice.controller.UpdateController.manualUpdate(sk.uniza.locationservice.controller.bean.request.ManualUpdateRequest):\
-                        \ [Field error in object 'manualUpdateRequest' on field 'url':\
-                        \ rejected value [httpsinvalid]; codes [URL.manualUpdateRequest.url,URL.url,URL.java.lang.String,URL];\
-                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
-                        \ codes [manualUpdateRequest.url,url]; arguments []; default\
-                        \ message [url],[Ljavax.validation.constraints.Pattern$Flag;@602a3c41,,-1,,.*];\
-                        \ default message [must be a valid URL]] )"
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
                     businessExceptions:
-                    - code: "LS0001"
-                      message: "Constraint violation"
-                    fieldValidations:
-                    - field: "url"
-                      message: "must be a valid URL"
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
+        "200":
+          description: "Success."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UpdateResponse"
+              examples:
+                Update aborted.:
+                  description: "Update aborted."
+                  value:
+                    value: true
   /api/v1/update/{updateId}:
     get:
       tags:
@@ -290,26 +344,6 @@ paths:
           format: "int64"
         example: "11256"
       responses:
-        "200":
-          description: "Success."
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UpdateRecordResponse"
-              examples:
-                UpdateRecordResponse:
-                  description: "Update by specified id"
-                  value:
-                    updateId: 11256
-                    startedTime: "2022-04-05T19:10:17.155325Z"
-                    finishedTime: "2022-04-05T19:51:40.327389Z"
-                    dataDownloadUrl: "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf"
-                    status: "FINISHED"
-                    trigger: "SCHEDULED_STARTUP_UPDATE"
-                    description: null
-                    failedReason: null
-                UpdateRecordResponse - not found:
-                  description: "No update found for specified id"
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
@@ -355,23 +389,15 @@ paths:
                       message: "Failed to convert value of type 'java.lang.String'\
                         \ to required type 'java.lang.Long'; nested exception is java.lang.NumberFormatException:\
                         \ For input string: \"sfasf\""
-  /api/v1/update/latest:
-    get:
-      tags:
-      - "UpdateRecordController"
-      summary: "1103 - Get latest update"
-      description: "Returns latest update record"
-      operationId: "getLatestUpdateRecord"
-      responses:
         "200":
           description: "Success."
           content:
             '*/*':
               schema:
-                $ref: "#/components/schemas/UpdateRecordResponse"
+                $ref: "#/components/schemas/UpdateResponse"
               examples:
                 UpdateRecordResponse:
-                  description: "Latest available update"
+                  description: "Update by specified id"
                   value:
                     updateId: 11256
                     startedTime: "2022-04-05T19:10:17.155325Z"
@@ -382,7 +408,15 @@ paths:
                     description: null
                     failedReason: null
                 UpdateRecordResponse - not found:
-                  description: "No latest update was found"
+                  description: "No update found for specified id"
+  /api/v1/update/latest:
+    get:
+      tags:
+      - "UpdateRecordController"
+      summary: "1103 - Get latest update"
+      description: "Returns latest update record"
+      operationId: "getLatestUpdateRecord"
+      responses:
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
@@ -403,6 +437,26 @@ paths:
                     - code: "LS0004"
                       message: "PostgreSQL JDBC connection failure."
                     fieldValidations: []
+        "200":
+          description: "Success."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UpdateResponse"
+              examples:
+                UpdateRecordResponse:
+                  description: "Latest available update"
+                  value:
+                    updateId: 11256
+                    startedTime: "2022-04-05T19:10:17.155325Z"
+                    finishedTime: "2022-04-05T19:51:40.327389Z"
+                    dataDownloadUrl: "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf"
+                    status: "FINISHED"
+                    trigger: "SCHEDULED_STARTUP_UPDATE"
+                    description: null
+                    failedReason: null
+                UpdateRecordResponse - not found:
+                  description: "No latest update was found"
   /api/v1/locations:
     get:
       tags:
@@ -496,6 +550,26 @@ paths:
           format: "int64"
         example: 0
       responses:
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0004:
+                  description: "LS0004"
+                  value:
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
@@ -629,6 +703,24 @@ paths:
                   value:
                     records: []
                     recordsCount: 0
+  /api/v1/locations/{locationId}:
+    get:
+      tags:
+      - "LocationController"
+      summary: "1002 - Get location by id"
+      description: "Returns a single location for specified unique identifier - locationId,\
+        \ response extended by GeoJson boundary string."
+      operationId: "getLocationById"
+      parameters:
+      - name: "locationId"
+        in: "path"
+        description: "Unique locationId identifier."
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+        example: "11256"
+      responses:
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
@@ -649,29 +741,11 @@ paths:
                     - code: "LS0004"
                       message: "PostgreSQL JDBC connection failure."
                     fieldValidations: []
-  /api/v1/locations/{locationId}:
-    get:
-      tags:
-      - "LocationController"
-      summary: "1002 - Get location by id"
-      description: "Returns a single location for specified unique identifier - locationId,\
-        \ response extended by GeoJson boundary string."
-      operationId: "getLocationById"
-      parameters:
-      - name: "locationId"
-        in: "path"
-        description: "Unique locationId identifier."
-        required: true
-        schema:
-          type: "integer"
-          format: "int64"
-        example: "11256"
-      responses:
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
@@ -695,7 +769,7 @@ paths:
         "200":
           description: "Success."
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/LocationResponse"
               examples:
@@ -998,26 +1072,6 @@ paths:
                           - 48.5978542
                 LocationResponse - not found:
                   description: "No location found for specified id"
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0004:
-                  description: "LS0004"
-                  value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
   /api/v1/locations/{locationId}/gps-occurrence:
     get:
       tags:
@@ -1050,24 +1104,11 @@ paths:
           type: "number"
         example: "18.762886535806317"
       responses:
-        "200":
-          description: "Success."
-          content:
-            '*/*':
-              schema:
-                type: "boolean"
-              examples:
-                Example response - occurrence found:
-                  description: "GPS coordinates occur in given location"
-                  value: true
-                Example response - occurrence not found:
-                  description: "GPS coordinates does not occur in given location"
-                  value: false
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
@@ -1083,11 +1124,26 @@ paths:
                     - code: "LS0004"
                       message: "PostgreSQL JDBC connection failure."
                     fieldValidations: []
+        "200":
+          description: "Success."
+          content:
+            application/json:
+              schema:
+                type: "boolean"
+              examples:
+                Example response - occurrence found:
+                  description: "GPS coordinates occur in given location"
+                  value:
+                    value: true
+                Example response - occurrence not found:
+                  description: "GPS coordinates does not occur in given location"
+                  value:
+                    value: false
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
@@ -1162,10 +1218,56 @@ paths:
           format: "int64"
         example: 0
       responses:
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0004:
+                  description: "LS0004"
+                  value:
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
+        "400":
+          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
+            \ - Request is not valid</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0001:
+                  description: "LS0001"
+                  value:
+                    errorMessage:
+                      referenceId: "f22a73a1-412a-470d-a8fe-ca31430e07a0"
+                      message: "Constraint violation (cause: org.springframework.validation.BeanPropertyBindingResult:\
+                        \ 1 errors\nField error in object 'coordinatesFilter' on field\
+                        \ 'lat': rejected value [200]; codes [Range.coordinatesFilter.lat,Range.lat,Range.java.math.BigDecimal,Range];\
+                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
+                        \ codes [coordinatesFilter.lat,lat]; arguments []; default\
+                        \ message [lat],90,-90]; default message [must be between\
+                        \ -90 and 90])"
+                    businessExceptions:
+                    - code: "LS0001"
+                      message: "Constraint violation"
+                    fieldValidations:
+                    - field: "lat"
+                      message: "must be between -90 and 90"
         "200":
           description: "Success."
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/GetLocationsResponse"
               examples:
@@ -1269,52 +1371,6 @@ paths:
                   value:
                     records: []
                     recordsCount: 0
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0004:
-                  description: "LS0004"
-                  value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
-        "400":
-          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
-            \ - Request is not valid</li></ul>"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0001:
-                  description: "LS0001"
-                  value:
-                    errorMessage:
-                      referenceId: "f22a73a1-412a-470d-a8fe-ca31430e07a0"
-                      message: "Constraint violation (cause: org.springframework.validation.BeanPropertyBindingResult:\
-                        \ 1 errors\nField error in object 'coordinatesFilter' on field\
-                        \ 'lat': rejected value [200]; codes [Range.coordinatesFilter.lat,Range.lat,Range.java.math.BigDecimal,Range];\
-                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
-                        \ codes [coordinatesFilter.lat,lat]; arguments []; default\
-                        \ message [lat],90,-90]; default message [must be between\
-                        \ -90 and 90])"
-                    businessExceptions:
-                    - code: "LS0001"
-                      message: "Constraint violation"
-                    fieldValidations:
-                    - field: "lat"
-                      message: "must be between -90 and 90"
   /api/v1/locations/nearest-by-gps-coords:
     get:
       tags:
@@ -1339,10 +1395,56 @@ paths:
           type: "number"
         example: "18.762886535806317"
       responses:
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0004:
+                  description: "LS0004"
+                  value:
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
+        "400":
+          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
+            \ - Request is not valid</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0001:
+                  description: "LS0001"
+                  value:
+                    errorMessage:
+                      referenceId: "f22a73a1-412a-470d-a8fe-ca31430e07a0"
+                      message: "Constraint violation (cause: org.springframework.validation.BeanPropertyBindingResult:\
+                        \ 1 errors\nField error in object 'coordinatesFilter' on field\
+                        \ 'lat': rejected value [200]; codes [Range.coordinatesFilter.lat,Range.lat,Range.java.math.BigDecimal,Range];\
+                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
+                        \ codes [coordinatesFilter.lat,lat]; arguments []; default\
+                        \ message [lat],90,-90]; default message [must be between\
+                        \ -90 and 90])"
+                    businessExceptions:
+                    - code: "LS0001"
+                      message: "Constraint violation"
+                    fieldValidations:
+                    - field: "lat"
+                      message: "must be between -90 and 90"
         "200":
           description: "Success."
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/LocationResponse"
               examples:
@@ -1645,52 +1747,6 @@ paths:
                           - 48.5978542
                 LocationResponse - not found:
                   description: "No locations found nearest to the specified GPS coordinates"
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0004:
-                  description: "LS0004"
-                  value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
-        "400":
-          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
-            \ - Request is not valid</li></ul>"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0001:
-                  description: "LS0001"
-                  value:
-                    errorMessage:
-                      referenceId: "f22a73a1-412a-470d-a8fe-ca31430e07a0"
-                      message: "Constraint violation (cause: org.springframework.validation.BeanPropertyBindingResult:\
-                        \ 1 errors\nField error in object 'coordinatesFilter' on field\
-                        \ 'lat': rejected value [200]; codes [Range.coordinatesFilter.lat,Range.lat,Range.java.math.BigDecimal,Range];\
-                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
-                        \ codes [coordinatesFilter.lat,lat]; arguments []; default\
-                        \ message [lat],90,-90]; default message [must be between\
-                        \ -90 and 90])"
-                    businessExceptions:
-                    - code: "LS0001"
-                      message: "Constraint violation"
-                    fieldValidations:
-                    - field: "lat"
-                      message: "must be between -90 and 90"
 components:
   schemas:
     ManualUpdateRequest:
@@ -1698,9 +1754,51 @@ components:
       properties:
         url:
           type: "string"
+          format: "url"
+        skipDownload:
+          type: "boolean"
+        filePath:
+          type: "string"
         description:
           type: "string"
-    UpdateRecordResponse:
+    UpdateProcessingTaskResponse:
+      type: "object"
+      properties:
+        processingTaskId:
+          type: "integer"
+          format: "int64"
+        startedTime:
+          type: "string"
+          format: "date-time"
+        finishedTime:
+          type: "string"
+          format: "date-time"
+        status:
+          type: "string"
+          enum:
+          - "RUNNING"
+          - "FINISHED"
+          - "FAILED"
+        taskCode:
+          type: "string"
+          enum:
+          - "OSM_FILE_LOAD"
+          - "OSM2PGSQL_IMPORT"
+          - "INCREMENT_LOCATION_VERSION"
+          - "LOCATIONS_IMPORT"
+          - "PROCESS_STATE_NAMES"
+          - "PROCESS_STATE_NAMES_HELPER"
+          - "PROCESS_REGION_NAMES"
+          - "PROCESS_DISTRICT_NAMES"
+          - "VALIDATE_LOCATION_VERSION"
+          - "FINAL_CLEANUP"
+        updateId:
+          type: "integer"
+          format: "int64"
+        attempt:
+          type: "integer"
+          format: "int64"
+    UpdateResponse:
       type: "object"
       properties:
         updateId:
@@ -1720,17 +1818,20 @@ components:
           - "RUNNING"
           - "FINISHED"
           - "FAILED"
-        trigger:
+        type:
           type: "string"
           enum:
-          - "SCHEDULED_UPDATE"
-          - "SCHEDULED_STARTUP_UPDATE"
-          - "SCHEDULED_RETRY_UPDATE"
-          - "MANUAL_UPDATE"
+          - "SCHEDULED"
+          - "SCHEDULED_STARTUP"
+          - "MANUAL"
         description:
           type: "string"
         failedReason:
           type: "string"
+        tasks:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/UpdateProcessingTaskResponse"
     BusinessException:
       type: "object"
       properties:
@@ -1782,7 +1883,7 @@ components:
           type: "array"
           description: "List of all available requested records."
           items:
-            $ref: "#/components/schemas/UpdateRecordResponse"
+            $ref: "#/components/schemas/UpdateResponse"
         recordsCount:
           type: "integer"
           description: "Total count of available requested records."
