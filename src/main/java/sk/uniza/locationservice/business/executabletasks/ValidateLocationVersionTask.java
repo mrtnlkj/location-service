@@ -9,7 +9,7 @@ import sk.uniza.locationservice.controller.bean.request.UpdateWrapper;
 
 @Component
 @RequiredArgsConstructor
-public class ValidateLocationVersionTask implements UpdateTaskExecutable {
+public class ValidateLocationVersionTask implements ProcessingTask {
 
 	private final LocationVersionService locationVersionService;
 

@@ -9,7 +9,7 @@ import sk.uniza.locationservice.repository.HelperRepository;
 
 @Component
 @RequiredArgsConstructor
-public class FinalCleanupTablesTask implements UpdateTaskExecutable {
+public class FinalCleanupTablesTask implements ProcessingTask {
 
 	private final HelperRepository helperRepository;
 

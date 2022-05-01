@@ -10,7 +10,7 @@ import sk.uniza.locationservice.repository.entity.LocationVersionEntity;
 
 @Component
 @RequiredArgsConstructor
-public class IncrementLocationVersionTask implements UpdateTaskExecutable {
+public class IncrementLocationVersionTask implements ProcessingTask {
 
 	private final LocationVersionService locationVersionService;
 

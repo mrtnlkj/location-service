@@ -12,7 +12,7 @@ import sk.uniza.locationservice.controller.bean.request.UpdateWrapper;
 
 @Component
 @RequiredArgsConstructor
-public class Osm2pgsqlImportTask implements UpdateTaskExecutable {
+public class Osm2pgsqlImportTask implements ProcessingTask {
 
 	private final Osm2pgsqlImporter importer;
 

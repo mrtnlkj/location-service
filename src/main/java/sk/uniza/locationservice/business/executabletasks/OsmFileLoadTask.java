@@ -19,7 +19,7 @@ import static sk.uniza.locationservice.business.filedownloader.FileDownloader.ge
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OsmFileLoadTask implements UpdateTaskExecutable {
+public class OsmFileLoadTask implements ProcessingTask {
 
 	private final UpdateProperties updateProperties;
 

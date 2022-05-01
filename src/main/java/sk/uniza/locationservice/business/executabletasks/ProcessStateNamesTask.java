@@ -9,7 +9,7 @@ import sk.uniza.locationservice.repository.HelperRepository;
 
 @Component
 @RequiredArgsConstructor
-public class ProcessStateNamesTask implements UpdateTaskExecutable {
+public class ProcessStateNamesTask implements ProcessingTask {
 
 	private final HelperRepository helperRepository;
 

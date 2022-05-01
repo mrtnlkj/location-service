@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import sk.uniza.locationservice.business.FutureHandler;
-import sk.uniza.locationservice.business.executabletasks.UpdateTaskExecutable;
+import sk.uniza.locationservice.business.executabletasks.ProcessingTask;
 import sk.uniza.locationservice.business.service.UpdateProcessingTaskService;
 import sk.uniza.locationservice.common.ErrorType;
 import sk.uniza.locationservice.common.exception.LocationServiceException;
@@ -41,21 +41,21 @@ public class UpdateExecutor {
 	private final UpdateProperties properties;
 	private UpdateEntity currentUpdate;
 	private UpdateProcessingTaskEntity currentTask;
-	private UpdateTaskExecutable executor;
+	private ProcessingTask executor;
 	private int currentTaskIndex;
 	@Getter
 	private Instant startedTime;
 	@Getter
 	private boolean inProgress = false;
-	private List<UpdateTaskExecutable> updateTaskExecutables = new LinkedList<>();
+	private List<ProcessingTask> processingTasks = new LinkedList<>();
 
 	private int retryNumber = 0;
 
 	@PostConstruct
 	public void init() {
-		this.updateTaskExecutables = ctx.getBeansOfType(UpdateTaskExecutable.class).values()
-										.stream()
-										.sorted(Comparator.comparing(UpdateTaskExecutable::getOrder)).collect(Collectors.toCollection(LinkedList::new));
+		this.processingTasks = ctx.getBeansOfType(ProcessingTask.class).values()
+								  .stream()
+								  .sorted(Comparator.comparing(ProcessingTask::getOrder)).collect(Collectors.toCollection(LinkedList::new));
 	}
 
 	public void abortManually() {
@@ -109,11 +109,11 @@ public class UpdateExecutor {
 
 	private void executeTasks(UpdateWrapper wrapper) throws Exception {
 		while (isInProgress()) {
-			if (currentTaskIndex >= updateTaskExecutables.size()) {
+			if (currentTaskIndex >= processingTasks.size()) {
 				finishWithSuccess();
 				break;
 			}
-			executor = updateTaskExecutables.get(currentTaskIndex++);
+			executor = processingTasks.get(currentTaskIndex++);
 			log.debug("Execution of step: {} started.", executor.getUpdateTaskCode());
 			startTask(executor, currentUpdate.getUpdateId());
 
@@ -130,7 +130,7 @@ public class UpdateExecutor {
 		return entity;
 	}
 
-	private void startTask(UpdateTaskExecutable handler, Long updateId) {
+	private void startTask(ProcessingTask handler, Long updateId) {
 		currentTask = UpdateProcessingTaskEntity.builder().buildRunningTask(updateId, handler.getUpdateTaskCode(), getAttempt()).build();
 		currentTask = updateProcessingTaskService.save(currentTask);
 	}
@@ -196,6 +196,6 @@ public class UpdateExecutor {
 	}
 
 	private boolean isRetryUpdateAvailable() {
-		return (properties.getRetryTaskProperties().isEnabled() && retryNumber <= properties.getRetryTaskProperties().getMaxRetries());
+		return (properties.getRetryTask().isEnabled() && retryNumber <= properties.getRetryTask().getMaxRetries());
 	}
 }

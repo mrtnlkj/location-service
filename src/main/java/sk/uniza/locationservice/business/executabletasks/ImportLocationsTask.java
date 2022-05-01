@@ -11,7 +11,7 @@ import sk.uniza.locationservice.repository.HelperRepository;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ImportLocationsTask implements UpdateTaskExecutable {
+public class ImportLocationsTask implements ProcessingTask {
 
 	private final HelperRepository locationService;
 

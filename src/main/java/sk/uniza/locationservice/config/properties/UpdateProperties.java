@@ -36,7 +36,7 @@ public class UpdateProperties {
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
-	private UpdateProperties.RetryTaskProperties retryTaskProperties = new RetryTaskProperties();
+	private UpdateProperties.RetryTaskProperties retryTask = new RetryTaskProperties();
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
