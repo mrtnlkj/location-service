@@ -18,6 +18,8 @@ public final class ErrorType {
 
 	public static final ErrorType UPDATE_IN_PROGRESS = new ErrorType("0101", "Update is already in progress.", HttpStatus.INTERNAL_SERVER_ERROR);
 	public static final ErrorType UPDATE_FAILED = new ErrorType("0102", "Data update failed.", HttpStatus.INTERNAL_SERVER_ERROR);
+	public static final ErrorType NO_UPDATE_TO_ABORT = new ErrorType("0103", "Requested update is not IN PROGRESS, unable to abort.", HttpStatus.INTERNAL_SERVER_ERROR);
+
 
 	/**
 	 * Numeric string identification of error code.

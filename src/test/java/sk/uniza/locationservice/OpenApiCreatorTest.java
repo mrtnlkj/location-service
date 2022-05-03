@@ -40,10 +40,14 @@ class OpenApiCreatorTest {
 		MockHttpServletResponse response = action.andReturn().getResponse();
 		String jsonString = response.getContentAsString();
 
+		BufferedWriter writer = new BufferedWriter(new FileWriter("openapi/openapi.json"));
+		writer.write(jsonString);
+		writer.close();
+
 		JsonNode jsonNodeTree = new ObjectMapper().readTree(jsonString);
 		String jsonAsYaml = new YAMLMapper().writeValueAsString(jsonNodeTree);
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter("openapi/openapi.yaml"));
+		writer = new BufferedWriter(new FileWriter("openapi/openapi.yaml"));
 		writer.write(jsonAsYaml);
 		writer.close();
 

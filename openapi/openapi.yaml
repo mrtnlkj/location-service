@@ -10,26 +10,27 @@ info:
     email: "mrtn.lkj@gmail.com"
   license:
     name: "Licensed by Martin Lokaj"
+  version: "1.0.0"
 servers:
 - url: "http://localhost"
   description: "Generated server url"
 tags:
-- name: "UpdateRecordController"
-  description: "Update Record Controller providing operations with update resources.\
-    \ Mainly, GET operations for listing previous updates, and POST operation for\
-    \ trigger MANUAL UPDATE of location records."
 - name: "LocationController"
-  description: "The purposes of Location Controller is providing operations with location\
-    \ resources. It exposes API endpoints mainly used for finding / searching locations\
+  description: "The main purpose of Location Controller is to provide operations with\
+    \ location resources. It exposes API endpoints mainly used for searching locations\
     \ by many various ways."
+- name: "UpdateController"
+  description: "Update Controller provide operations with update resources. Mainly,\
+    \ GET operations for listing previous updates, and POST operation for trigger\
+    \ MANUAL UPDATE of location records or abort currently running update."
 paths:
-  /api/v1/update:
+  /api/v1/updates:
     get:
       tags:
-      - "UpdateRecordController"
+      - "UpdateController"
       summary: "1101 - Get update records"
-      description: "Returns list of history update records. Possibility to filter\
-        \ results by specified query parameters."
+      description: "Returns a update response including a list of the update records\
+        \ and their count.  Possibility to filter results by specified query parameters."
       operationId: "getUpdateRecords"
       parameters:
       - name: "status"
@@ -86,31 +87,11 @@ paths:
           format: "int64"
         example: 0
       responses:
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0004:
-                  description: "LS0004"
-                  value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
@@ -132,10 +113,30 @@ paths:
                     fieldValidations:
                     - field: "limit"
                       message: "must be greater than or equal to 1"
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0004:
+                  description: "LS0004"
+                  value:
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
         "200":
           description: "Success."
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/GetUpdateRecordsResponse"
               examples:
@@ -168,7 +169,7 @@ paths:
                     recordsCount: 0
     post:
       tags:
-      - "UpdateRecordController"
+      - "UpdateController"
       summary: "1104 -  Endpoint that triggers manual update"
       description: "Performs a manual update of location data. This operation arranges\
         \ download of the OSM data file from specified server, import raw OSM data\
@@ -202,57 +203,11 @@ paths:
                   skipDownload: true
                   filePath: "C:\\data\\location_service\\osm_data\\slovakia-latest.osm.pbf"
       responses:
-        "200":
-          description: "Success."
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UpdateResponse"
-              examples:
-                Update record, response of processing manual update.:
-                  description: "Update record, response of processing manual update."
-                  value:
-                    updateId: 1
-                    startedTime: "2022-01-01T12:00:00.000Z"
-                    finishedTime: null
-                    dataDownloadUrl: "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf"
-                    status: "RUNNING"
-                    trigger: "MANUAL_UPDATE"
-                    description: "Trying to run manual update of locations data. Default\
-                      \ data updater setting will be applied."
-        "400":
-          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
-            \ - Request is not valid</li></ul>"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0001:
-                  description: "LS0001"
-                  value:
-                    errorMessage:
-                      referenceId: "fc3510e1-f8b1-4131-ba78-b02178e83b40"
-                      message: "Constraint violation (cause: Validation failed for\
-                        \ argument [0] in public org.springframework.http.ResponseEntity<?>\
-                        \ sk.uniza.locationservice.controller.UpdateController.manualUpdate(sk.uniza.locationservice.controller.bean.request.ManualUpdateRequest):\
-                        \ [Field error in object 'manualUpdateRequest' on field 'url':\
-                        \ rejected value [httpsinvalid]; codes [URL.manualUpdateRequest.url,URL.url,URL.java.lang.String,URL];\
-                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
-                        \ codes [manualUpdateRequest.url,url]; arguments []; default\
-                        \ message [url],[Ljavax.validation.constraints.Pattern$Flag;@602a3c41,,-1,,.*];\
-                        \ default message [must be a valid URL]] )"
-                    businessExceptions:
-                    - code: "LS0001"
-                      message: "Constraint violation"
-                    fieldValidations:
-                    - field: "url"
-                      message: "must be a valid URL"
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
@@ -278,10 +233,56 @@ paths:
                     - code: "LS0101"
                       message: "Update is already in progress."
                     fieldValidations: []
-  /api/v1/update/{updateId}/abort:
+        "201":
+          description: "Created."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateResponse"
+              examples:
+                Update record, response of processing manual update.:
+                  description: "Update record, response of processing manual update."
+                  value:
+                    updateId: 1
+                    startedTime: "2022-01-01T12:00:00.000Z"
+                    finishedTime: null
+                    dataDownloadUrl: "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf"
+                    status: "RUNNING"
+                    trigger: "MANUAL_UPDATE"
+                    description: "Trying to run manual update of locations data. Default\
+                      \ data updater setting will be applied."
+        "400":
+          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
+            \ - Request is not valid</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0001:
+                  description: "LS0001"
+                  value:
+                    errorMessage:
+                      referenceId: "fc3510e1-f8b1-4131-ba78-b02178e83b40"
+                      message: "Constraint violation (cause: Validation failed for\
+                        \ argument [0] in public org.springframework.http.ResponseEntity<?>\
+                        \ sk.uniza.locationservice.controller.UpdateController.manualUpdate(sk.uniza.locationservice.controller.bean.request.ManualUpdateRequest):\
+                        \ [Field error in object 'manualUpdateRequest' on field 'url':\
+                        \ rejected value [httpsinvalid]; codes [URL.manualUpdateRequest.url,URL.url,URL.java.lang.String,URL];\
+                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
+                        \ codes [manualUpdateRequest.url,url]; arguments []; default\
+                        \ message [url],[Ljavax.validation.constraints.Pattern$Flag;@602a3c41,,-1,,.*];\
+                        \ default message [must be a valid URL]] )"
+                    businessExceptions:
+                    - code: "LS0001"
+                      message: "Constraint violation"
+                    fieldValidations:
+                    - field: "url"
+                      message: "must be a valid URL"
+  /api/v1/updates/{updateId}/abort:
     post:
       tags:
-      - "UpdateRecordController"
+      - "UpdateController"
       summary: "1104 -  Endpoint that aborts running update"
       description: "Performs an abortion of running update of location data."
       operationId: "abortUpdate"
@@ -293,13 +294,24 @@ paths:
         schema:
           type: "integer"
           format: "int64"
-        example: "11256"
+        example: 11256
       responses:
+        "200":
+          description: "Success."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateResponse"
+              examples:
+                Update aborted.:
+                  description: "Update aborted."
+                  value:
+                    value: true
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
@@ -315,21 +327,20 @@ paths:
                     - code: "LS0004"
                       message: "PostgreSQL JDBC connection failure."
                     fieldValidations: []
-        "200":
-          description: "Success."
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UpdateResponse"
-              examples:
-                Update aborted.:
-                  description: "Update aborted."
+                LS0103:
+                  description: "LS0103"
                   value:
-                    value: true
-  /api/v1/update/{updateId}:
+                    errorMessage:
+                      referenceId: "0e6f390c-7f6c-48b8-aab0-8a653d6b5920"
+                      message: "Requested update is not IN PROGRESS, unable to abort."
+                    businessExceptions:
+                    - code: "LS0103"
+                      message: "Requested update is not IN PROGRESS, unable to abort."
+                    fieldValidations: []
+  /api/v1/updates/{updateId}:
     get:
       tags:
-      - "UpdateRecordController"
+      - "UpdateController"
       summary: "1102 - Get update record by id"
       description: "Returns a single update record for specified unique identifier\
         \ - updateId, response extended by update step details."
@@ -344,31 +355,11 @@ paths:
           format: "int64"
         example: "11256"
       responses:
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0004:
-                  description: "LS0004"
-                  value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
@@ -389,39 +380,11 @@ paths:
                       message: "Failed to convert value of type 'java.lang.String'\
                         \ to required type 'java.lang.Long'; nested exception is java.lang.NumberFormatException:\
                         \ For input string: \"sfasf\""
-        "200":
-          description: "Success."
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UpdateResponse"
-              examples:
-                UpdateRecordResponse:
-                  description: "Update by specified id"
-                  value:
-                    updateId: 11256
-                    startedTime: "2022-04-05T19:10:17.155325Z"
-                    finishedTime: "2022-04-05T19:51:40.327389Z"
-                    dataDownloadUrl: "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf"
-                    status: "FINISHED"
-                    trigger: "SCHEDULED_STARTUP_UPDATE"
-                    description: null
-                    failedReason: null
-                UpdateRecordResponse - not found:
-                  description: "No update found for specified id"
-  /api/v1/update/latest:
-    get:
-      tags:
-      - "UpdateRecordController"
-      summary: "1103 - Get latest update"
-      description: "Returns latest update record"
-      operationId: "getLatestUpdateRecord"
-      responses:
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
@@ -440,31 +403,68 @@ paths:
         "200":
           description: "Success."
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/UpdateResponse"
               examples:
-                UpdateRecordResponse:
+                UpdateResponse:
+                  description: "Update by specified id"
+                  value: "{\n  \"updateId\": 11256,\n  \"startedTime\": \"2022-04-05T19:10:17.155325Z\"\
+                    ,\n  \"finishedTime\": \"2022-04-05T19:51:40.327389Z\",\n  \"\
+                    dataDownloadUrl\": \"\"https://download.geofabrik.de/europe/slovakia-latest.osm.pbf\"\
+                    \",\n  \"status\": \"FINISHED\",\n  \"trigger\": \"SCHEDULED_STARTUP_UPDATE\"\
+                    ,\n  \"description\": null,\n  \"failedReason\": null\n}"
+  /api/v1/updates/latest:
+    get:
+      tags:
+      - "UpdateController"
+      summary: "1103 - Get latest update"
+      description: "Returns latest update record"
+      operationId: "getLatestUpdateRecord"
+      responses:
+        "200":
+          description: "Success."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateResponse"
+              examples:
+                UpdateResponse:
                   description: "Latest available update"
+                  value: "{\n  \"updateId\": 11256,\n  \"startedTime\": \"2022-04-05T19:10:17.155325Z\"\
+                    ,\n  \"finishedTime\": \"2022-04-05T19:51:40.327389Z\",\n  \"\
+                    dataDownloadUrl\": \"\"https://download.geofabrik.de/europe/slovakia-latest.osm.pbf\"\
+                    \",\n  \"status\": \"FINISHED\",\n  \"trigger\": \"SCHEDULED_STARTUP_UPDATE\"\
+                    ,\n  \"description\": null,\n  \"failedReason\": null\n}"
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0004:
+                  description: "LS0004"
                   value:
-                    updateId: 11256
-                    startedTime: "2022-04-05T19:10:17.155325Z"
-                    finishedTime: "2022-04-05T19:51:40.327389Z"
-                    dataDownloadUrl: "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf"
-                    status: "FINISHED"
-                    trigger: "SCHEDULED_STARTUP_UPDATE"
-                    description: null
-                    failedReason: null
-                UpdateRecordResponse - not found:
-                  description: "No latest update was found"
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
   /api/v1/locations:
     get:
       tags:
       - "LocationController"
       summary: "1001 - Get locations"
-      description: "Returns a location response defining list of the locations and\
-        \ locations count, sorted by field nameSk in ascending order with possibility\
-        \ to filter results by refining search criteria with query parameters."
+      description: "Returns a location response including a list of the locations\
+        \ and their count with the possibility to filter results by refining search\
+        \ criteria with query parameters. Locations are sorted by field **nameSk**\
+        \ in ascending order."
       operationId: "getLocations"
       parameters:
       - name: "locationId"
@@ -475,43 +475,40 @@ paths:
         schema:
           type: "integer"
           format: "int64"
-        example: "11256"
+        example: 11256
       - name: "nameSk"
         in: "query"
-        description: "Filter locations by specified location SK name. Locations with\
-          \ SK name containing specified name will be returned."
+        description: "Filter locations by specified location name in Slovak language."
         required: false
         schema:
           type: "string"
-        example: "Martin"
+        example: "Å½ilina"
       - name: "nameEn"
         in: "query"
-        description: "Query only location objects that have name in EN language greater\
-          \ than specified areaFrom parameter in squared meters."
+        description: "Filter locations by specified location name in English language."
         required: false
         schema:
           type: "string"
-        example: "Martin"
+        example: "Zilina"
       - name: "areaFrom"
         in: "query"
-        description: "Query only location objects that have area greater than specified\
-          \ areaFrom parameter in squared meters. Can be combined with areaTo."
+        description: "Query only locations that have area greater than specified **areaFrom**\
+          \ parameter in squared meters. Can be combined with **areaTo**."
         required: false
         schema:
           type: "number"
-        example: "120.00"
+        example: 120.0
       - name: "areaTo"
         in: "query"
-        description: "Query only location objects that have area smaller than specified\
-          \ areaTo parameter in squared meters. Can be combined with areaFrom."
+        description: "Query only locations that have area smaller than specified **areaTo**\
+          \ parameter in squared meters. Can be combined with **areaFrom**."
         required: false
         schema:
           type: "number"
-        example: "150.00"
+        example: 150.0
       - name: "type"
         in: "query"
-        description: "Query only location objects with type specified areaTo parameter\
-          \ in squared meters."
+        description: "Query only locations with specified **type**  parameter."
         required: false
         schema:
           type: "string"
@@ -523,12 +520,34 @@ paths:
         example: "CITY"
       - name: "postalCode"
         in: "query"
-        description: "Filter locations by specified postal code of location. Locations\
-          \ with specified postal code will be returned."
+        description: "Filter locations by specified postal code of the location."
         required: false
         schema:
           type: "string"
         example: "036 01"
+      - name: "lat"
+        in: "query"
+        description: "Query only locations that include latitude of the given GPS\
+          \ coordinate."
+        required: false
+        schema:
+          type: "number"
+        example: 49.20586596333355
+      - name: "lon"
+        in: "query"
+        description: "Query only locations that include longitude of a given GPS coordinate."
+        required: false
+        schema:
+          type: "number"
+        example: 18.762886535806317
+      - name: "embedGeoJson"
+        in: "query"
+        description: "If set to **true**, locations will include a GeoJson with location\
+          \ boundary."
+        required: false
+        schema:
+          type: "boolean"
+        example: false
       - name: "limit"
         in: "query"
         description: "Limit returned records by specifying number of items to skip\
@@ -550,52 +569,6 @@ paths:
           format: "int64"
         example: 0
       responses:
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0004:
-                  description: "LS0004"
-                  value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
-        "400":
-          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
-            \ - Request is not valid</li></ul>"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0001:
-                  description: "LS0001"
-                  value:
-                    errorMessage:
-                      referenceId: "70b2e0fc-c656-4d6d-9e3e-0a85f43c3b91"
-                      message: "Constraint violation (cause: org.springframework.validation.BeanPropertyBindingResult:\
-                        \ 1 errors\nField error in object 'locationsFilter' on field\
-                        \ 'limit': rejected value [-5]; codes [Min.locationsFilter.limit,Min.limit,Min.java.lang.Long,Min];\
-                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
-                        \ codes [locationsFilter.limit,limit]; arguments []; default\
-                        \ message [limit],1]; default message [must be greater than\
-                        \ or equal to 1])"
-                    businessExceptions:
-                    - code: "LS0001"
-                      message: "Constraint violation"
-                    fieldValidations:
-                    - field: "limit"
-                      message: "must be greater than or equal to 1"
         "200":
           description: "Success."
           content:
@@ -703,24 +676,32 @@ paths:
                   value:
                     records: []
                     recordsCount: 0
-  /api/v1/locations/{locationId}:
-    get:
-      tags:
-      - "LocationController"
-      summary: "1002 - Get location by id"
-      description: "Returns a single location for specified unique identifier - locationId,\
-        \ response extended by GeoJson boundary string."
-      operationId: "getLocationById"
-      parameters:
-      - name: "locationId"
-        in: "path"
-        description: "Unique locationId identifier."
-        required: true
-        schema:
-          type: "integer"
-          format: "int64"
-        example: "11256"
-      responses:
+        "400":
+          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
+            \ - Request is not valid</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0001:
+                  description: "LS0001"
+                  value:
+                    errorMessage:
+                      referenceId: "70b2e0fc-c656-4d6d-9e3e-0a85f43c3b91"
+                      message: "Constraint violation (cause: org.springframework.validation.BeanPropertyBindingResult:\
+                        \ 1 errors\nField error in object 'locationsFilter' on field\
+                        \ 'limit': rejected value [-5]; codes [Min.locationsFilter.limit,Min.limit,Min.java.lang.Long,Min];\
+                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
+                        \ codes [locationsFilter.limit,limit]; arguments []; default\
+                        \ message [limit],1]; default message [must be greater than\
+                        \ or equal to 1])"
+                    businessExceptions:
+                    - code: "LS0001"
+                      message: "Constraint violation"
+                    fieldValidations:
+                    - field: "limit"
+                      message: "must be greater than or equal to 1"
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
@@ -741,6 +722,32 @@ paths:
                     - code: "LS0004"
                       message: "PostgreSQL JDBC connection failure."
                     fieldValidations: []
+  /api/v1/locations/{locationId}:
+    get:
+      tags:
+      - "LocationController"
+      summary: "1002 - Get location by id"
+      description: "Returns a single location for specified unique identifier - locationId,\
+        \ response extended by GeoJson boundary string."
+      operationId: "getLocationById"
+      parameters:
+      - name: "locationId"
+        in: "path"
+        description: "Unique locationId identifier."
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+        example: "11256"
+      - name: "embedGeoJson"
+        in: "query"
+        description: "If set to **true**, response will include a GeoJson with location\
+          \ boundary."
+        required: false
+        schema:
+          type: "boolean"
+        example: false
+      responses:
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
@@ -766,6 +773,26 @@ paths:
                       message: "Failed to convert value of type 'java.lang.String'\
                         \ to required type 'java.lang.Long'; nested exception is java.lang.NumberFormatException:\
                         \ For input string: \"sfasf\""
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0004:
+                  description: "LS0004"
+                  value:
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
         "200":
           description: "Success."
           content:
@@ -793,286 +820,158 @@ paths:
                     type: "VILLAGE"
                     lat: 48.5920569
                     lon: 21.2353988
-                    boundary:
-                      type: "Polygon"
-                      coordinates:
-                      - - - 21.2312014
-                          - 48.5978542
-                        - - 21.231215
-                          - 48.5978345
-                        - - 21.231518
-                          - 48.597396
-                        - - 21.232066
-                          - 48.596558
-                        - - 21.232831
-                          - 48.595421
-                        - - 21.232435
-                          - 48.595373
-                        - - 21.232011
-                          - 48.595317
-                        - - 21.231995
-                          - 48.595314
-                        - - 21.231858
-                          - 48.595288
-                        - - 21.231828
-                          - 48.595282
-                        - - 21.231902
-                          - 48.595052
-                        - - 21.232214
-                          - 48.594085
-                        - - 21.232833
-                          - 48.592165
-                        - - 21.233196
-                          - 48.591073
-                        - - 21.23319
-                          - 48.590907
-                        - - 21.233185
-                          - 48.590765
-                        - - 21.23318
-                          - 48.59063
-                        - - 21.23318
-                          - 48.590589
-                        - - 21.234381
-                          - 48.590767
-                        - - 21.234421
-                          - 48.590685
-                        - - 21.234972
-                          - 48.589558
-                        - - 21.235182
-                          - 48.589127
-                        - - 21.235215
-                          - 48.589063
-                        - - 21.235878
-                          - 48.589163
-                        - - 21.236091
-                          - 48.589196
-                        - - 21.236167
-                          - 48.588769
-                        - - 21.236364
-                          - 48.58767
-                        - - 21.236567
-                          - 48.586606
-                        - - 21.23675
-                          - 48.585511
-                        - - 21.236642
-                          - 48.585207
-                        - - 21.2406394
-                          - 48.5860558
-                        - - 21.2405614
-                          - 48.586113
-                        - - 21.2405122
-                          - 48.5863964
-                        - - 21.2407991
-                          - 48.5865775
-                        - - 21.2409028
-                          - 48.5867248
-                        - - 21.2407754
-                          - 48.5867973
-                        - - 21.2404288
-                          - 48.5867325
-                        - - 21.2403382
-                          - 48.5867612
-                        - - 21.2403301
-                          - 48.5870367
-                        - - 21.2399715
-                          - 48.5873833
-                        - - 21.2399854
-                          - 48.5874424
-                        - - 21.2402315
-                          - 48.5874558
-                        - - 21.2404281
-                          - 48.5876564
-                        - - 21.2397554
-                          - 48.5877739
-                        - - 21.2394504
-                          - 48.5877746
-                        - - 21.2393401
-                          - 48.5878365
-                        - - 21.2393286
-                          - 48.5879036
-                        - - 21.239419
-                          - 48.5880517
-                        - - 21.2393896
-                          - 48.5881519
-                        - - 21.2390552
-                          - 48.5882755
-                        - - 21.2387792
-                          - 48.5881622
-                        - - 21.2385335
-                          - 48.5883087
-                        - - 21.2385338
-                          - 48.5886915
-                        - - 21.238769
-                          - 48.5887932
-                        - - 21.2389723
-                          - 48.5890056
-                        - - 21.2388043
-                          - 48.5891737
-                        - - 21.2384571
-                          - 48.5892327
-                        - - 21.2383763
-                          - 48.5896465
-                        - - 21.2388115
-                          - 48.5903083
-                        - - 21.2388611
-                          - 48.5905271
-                        - - 21.23906
-                          - 48.5906594
-                        - - 21.2390676
-                          - 48.5907486
-                        - - 21.2388654
-                          - 48.5909133
-                        - - 21.2390198
-                          - 48.5910631
-                        - - 21.2387901
-                          - 48.5912045
-                        - - 21.2382567
-                          - 48.5911058
-                        - - 21.2380345
-                          - 48.5911956
-                        - - 21.2379952
-                          - 48.5912845
-                        - - 21.2380501
-                          - 48.5914079
-                        - - 21.2383543
-                          - 48.5916053
-                        - - 21.2382105
-                          - 48.5918494
-                        - - 21.2384536
-                          - 48.5919999
-                        - - 21.2385405
-                          - 48.5921986
-                        - - 21.2386276
-                          - 48.5922147
-                        - - 21.2386548
-                          - 48.5923021
-                        - - 21.2385233
-                          - 48.5922768
-                        - - 21.2383353
-                          - 48.5923554
-                        - - 21.2382761
-                          - 48.592529
-                        - - 21.2381524
-                          - 48.5925443
-                        - - 21.2380479
-                          - 48.5924736
-                        - - 21.2378835
-                          - 48.5924651
-                        - - 21.2374867
-                          - 48.5926372
-                        - - 21.2373515
-                          - 48.5926443
-                        - - 21.2372745
-                          - 48.5927117
-                        - - 21.2374673
-                          - 48.5931229
-                        - - 21.2375794
-                          - 48.5936778
-                        - - 21.2380804
-                          - 48.5940941
-                        - - 21.2380305
-                          - 48.5942826
-                        - - 21.2381968
-                          - 48.5943283
-                        - - 21.2383187
-                          - 48.5944548
-                        - - 21.2385102
-                          - 48.5945114
-                        - - 21.2385501
-                          - 48.5945813
-                        - - 21.2384851
-                          - 48.5949868
-                        - - 21.2383998
-                          - 48.5951924
-                        - - 21.2379019
-                          - 48.5954863
-                        - - 21.237748
-                          - 48.59546
-                        - - 21.2375175
-                          - 48.5952255
-                        - - 21.2373054
-                          - 48.5952234
-                        - - 21.2370008
-                          - 48.5953434
-                        - - 21.2369214
-                          - 48.5954456
-                        - - 21.236641
-                          - 48.5955888
-                        - - 21.2363188
-                          - 48.5957014
-                        - - 21.2362504
-                          - 48.595607
-                        - - 21.2363883
-                          - 48.5955427
-                        - - 21.236143
-                          - 48.5954518
-                        - - 21.2360011
-                          - 48.5955936
-                        - - 21.2358729
-                          - 48.5956269
-                        - - 21.2359283
-                          - 48.5957175
-                        - - 21.2357806
-                          - 48.5958096
-                        - - 21.2359672
-                          - 48.5959562
-                        - - 21.2358245
-                          - 48.5960586
-                        - - 21.2358369
-                          - 48.5962153
-                        - - 21.2356938
-                          - 48.5962875
-                        - - 21.235638
-                          - 48.5966492
-                        - - 21.2355375
-                          - 48.5967329
-                        - - 21.235752
-                          - 48.5969568
-                        - - 21.235282
-                          - 48.597318
-                        - - 21.235294
-                          - 48.5973701
-                        - - 21.2354097
-                          - 48.5974131
-                        - - 21.2354976
-                          - 48.5976026
-                        - - 21.2356284
-                          - 48.5976383
-                        - - 21.2356691
-                          - 48.5977869
-                        - - 21.2357904
-                          - 48.5979112
-                        - - 21.2359066
-                          - 48.5983334
-                        - - 21.2361313
-                          - 48.5986859
-                        - - 21.2361545
-                          - 48.5988397
-                        - - 21.236032
-                          - 48.598863
-                        - - 21.2359798
-                          - 48.5992439
-                        - - 21.2348075
-                          - 48.5988676
-                        - - 21.2335944
-                          - 48.5986552
-                        - - 21.2332815
-                          - 48.5986759
-                        - - 21.2330128
-                          - 48.5984086
-                        - - 21.2329897
-                          - 48.598444
-                        - - 21.2327537
-                          - 48.5983293
-                        - - 21.2313126
-                          - 48.5978882
-                        - - 21.2313241
-                          - 48.5978675
-                        - - 21.2312014
-                          - 48.5978542
-                LocationResponse - not found:
-                  description: "No location found for specified id"
-  /api/v1/locations/{locationId}/gps-occurrence:
+                    boundary: null
+                LocationResponse with embedded GeoJson:
+                  description: "Location by specified id with embedded GeoJson"
+                  value: "{\n  \"locationId\": 123,\n  \"versionId\": 1,\n  \"nameSk\"\
+                    : \"BoÄ\x8diar\",\n  \"nameEn\": 'null',\n  \"area\": 0.47,\n\
+                    \  \"population\": 222,\n  \"districtNameSk\": \"okres KoÅ¡ice\
+                    \ - okolie\",\n  \"districtNameEn\": \"District of KoÅ¡ice - okolie\"\
+                    ,\n  \"regionNameSk\": \"KoÅ¡ickÃ½ kraj\",\n  \"regionNameEn\"\
+                    : \"Region of KoÅ¡ice\",\n  \"stateNameSk\": \"Slovensko\",\n\
+                    \  \"stateNameEn\": \"Slovakia\",\n  \"isIn\": \"VÃ½chodnÃ© Slovensko\"\
+                    ,\n  \"postalCode\": \"044 57\",\n  \"type\": \"VILLAGE\",\n \
+                    \ \"lat\": 48.5920569,\n  \"lon\": 21.2353988,\n  \"boundary\"\
+                    : {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n    \
+                    \  [\n        [\n          21.2312014,\n          48.5978542\n\
+                    \        ],\n        [\n          21.231215,\n          48.5978345\n\
+                    \        ],\n        [\n          21.231518,\n          48.597396\n\
+                    \        ],\n        [\n          21.232066,\n          48.596558\n\
+                    \        ],\n        [\n          21.232831,\n          48.595421\n\
+                    \        ],\n        [\n          21.232435,\n          48.595373\n\
+                    \        ],\n        [\n          21.232011,\n          48.595317\n\
+                    \        ],\n        [\n          21.231995,\n          48.595314\n\
+                    \        ],\n        [\n          21.231858,\n          48.595288\n\
+                    \        ],\n        [\n          21.231828,\n          48.595282\n\
+                    \        ],\n        [\n          21.231902,\n          48.595052\n\
+                    \        ],\n        [\n          21.232214,\n          48.594085\n\
+                    \        ],\n        [\n          21.232833,\n          48.592165\n\
+                    \        ],\n        [\n          21.233196,\n          48.591073\n\
+                    \        ],\n        [\n          21.23319,\n          48.590907\n\
+                    \        ],\n        [\n          21.233185,\n          48.590765\n\
+                    \        ],\n        [\n          21.23318,\n          48.59063\n\
+                    \        ],\n        [\n          21.23318,\n          48.590589\n\
+                    \        ],\n        [\n          21.234381,\n          48.590767\n\
+                    \        ],\n        [\n          21.234421,\n          48.590685\n\
+                    \        ],\n        [\n          21.234972,\n          48.589558\n\
+                    \        ],\n        [\n          21.235182,\n          48.589127\n\
+                    \        ],\n        [\n          21.235215,\n          48.589063\n\
+                    \        ],\n        [\n          21.235878,\n          48.589163\n\
+                    \        ],\n        [\n          21.236091,\n          48.589196\n\
+                    \        ],\n        [\n          21.236167,\n          48.588769\n\
+                    \        ],\n        [\n          21.236364,\n          48.58767\n\
+                    \        ],\n        [\n          21.236567,\n          48.586606\n\
+                    \        ],\n        [\n          21.23675,\n          48.585511\n\
+                    \        ],\n        [\n          21.236642,\n          48.585207\n\
+                    \        ],\n        [\n          21.2406394,\n          48.5860558\n\
+                    \        ],\n        [\n          21.2405614,\n          48.586113\n\
+                    \        ],\n        [\n          21.2405122,\n          48.5863964\n\
+                    \        ],\n        [\n          21.2407991,\n          48.5865775\n\
+                    \        ],\n        [\n          21.2409028,\n          48.5867248\n\
+                    \        ],\n        [\n          21.2407754,\n          48.5867973\n\
+                    \        ],\n        [\n          21.2404288,\n          48.5867325\n\
+                    \        ],\n        [\n          21.2403382,\n          48.5867612\n\
+                    \        ],\n        [\n          21.2403301,\n          48.5870367\n\
+                    \        ],\n        [\n          21.2399715,\n          48.5873833\n\
+                    \        ],\n        [\n          21.2399854,\n          48.5874424\n\
+                    \        ],\n        [\n          21.2402315,\n          48.5874558\n\
+                    \        ],\n        [\n          21.2404281,\n          48.5876564\n\
+                    \        ],\n        [\n          21.2397554,\n          48.5877739\n\
+                    \        ],\n        [\n          21.2394504,\n          48.5877746\n\
+                    \        ],\n        [\n          21.2393401,\n          48.5878365\n\
+                    \        ],\n        [\n          21.2393286,\n          48.5879036\n\
+                    \        ],\n        [\n          21.239419,\n          48.5880517\n\
+                    \        ],\n        [\n          21.2393896,\n          48.5881519\n\
+                    \        ],\n        [\n          21.2390552,\n          48.5882755\n\
+                    \        ],\n        [\n          21.2387792,\n          48.5881622\n\
+                    \        ],\n        [\n          21.2385335,\n          48.5883087\n\
+                    \        ],\n        [\n          21.2385338,\n          48.5886915\n\
+                    \        ],\n        [\n          21.238769,\n          48.5887932\n\
+                    \        ],\n        [\n          21.2389723,\n          48.5890056\n\
+                    \        ],\n        [\n          21.2388043,\n          48.5891737\n\
+                    \        ],\n        [\n          21.2384571,\n          48.5892327\n\
+                    \        ],\n        [\n          21.2383763,\n          48.5896465\n\
+                    \        ],\n        [\n          21.2388115,\n          48.5903083\n\
+                    \        ],\n        [\n          21.2388611,\n          48.5905271\n\
+                    \        ],\n        [\n          21.23906,\n          48.5906594\n\
+                    \        ],\n        [\n          21.2390676,\n          48.5907486\n\
+                    \        ],\n        [\n          21.2388654,\n          48.5909133\n\
+                    \        ],\n        [\n          21.2390198,\n          48.5910631\n\
+                    \        ],\n        [\n          21.2387901,\n          48.5912045\n\
+                    \        ],\n        [\n          21.2382567,\n          48.5911058\n\
+                    \        ],\n        [\n          21.2380345,\n          48.5911956\n\
+                    \        ],\n        [\n          21.2379952,\n          48.5912845\n\
+                    \        ],\n        [\n          21.2380501,\n          48.5914079\n\
+                    \        ],\n        [\n          21.2383543,\n          48.5916053\n\
+                    \        ],\n        [\n          21.2382105,\n          48.5918494\n\
+                    \        ],\n        [\n          21.2384536,\n          48.5919999\n\
+                    \        ],\n        [\n          21.2385405,\n          48.5921986\n\
+                    \        ],\n        [\n          21.2386276,\n          48.5922147\n\
+                    \        ],\n        [\n          21.2386548,\n          48.5923021\n\
+                    \        ],\n        [\n          21.2385233,\n          48.5922768\n\
+                    \        ],\n        [\n          21.2383353,\n          48.5923554\n\
+                    \        ],\n        [\n          21.2382761,\n          48.592529\n\
+                    \        ],\n        [\n          21.2381524,\n          48.5925443\n\
+                    \        ],\n        [\n          21.2380479,\n          48.5924736\n\
+                    \        ],\n        [\n          21.2378835,\n          48.5924651\n\
+                    \        ],\n        [\n          21.2374867,\n          48.5926372\n\
+                    \        ],\n        [\n          21.2373515,\n          48.5926443\n\
+                    \        ],\n        [\n          21.2372745,\n          48.5927117\n\
+                    \        ],\n        [\n          21.2374673,\n          48.5931229\n\
+                    \        ],\n        [\n          21.2375794,\n          48.5936778\n\
+                    \        ],\n        [\n          21.2380804,\n          48.5940941\n\
+                    \        ],\n        [\n          21.2380305,\n          48.5942826\n\
+                    \        ],\n        [\n          21.2381968,\n          48.5943283\n\
+                    \        ],\n        [\n          21.2383187,\n          48.5944548\n\
+                    \        ],\n        [\n          21.2385102,\n          48.5945114\n\
+                    \        ],\n        [\n          21.2385501,\n          48.5945813\n\
+                    \        ],\n        [\n          21.2384851,\n          48.5949868\n\
+                    \        ],\n        [\n          21.2383998,\n          48.5951924\n\
+                    \        ],\n        [\n          21.2379019,\n          48.5954863\n\
+                    \        ],\n        [\n          21.237748,\n          48.59546\n\
+                    \        ],\n        [\n          21.2375175,\n          48.5952255\n\
+                    \        ],\n        [\n          21.2373054,\n          48.5952234\n\
+                    \        ],\n        [\n          21.2370008,\n          48.5953434\n\
+                    \        ],\n        [\n          21.2369214,\n          48.5954456\n\
+                    \        ],\n        [\n          21.236641,\n          48.5955888\n\
+                    \        ],\n        [\n          21.2363188,\n          48.5957014\n\
+                    \        ],\n        [\n          21.2362504,\n          48.595607\n\
+                    \        ],\n        [\n          21.2363883,\n          48.5955427\n\
+                    \        ],\n        [\n          21.236143,\n          48.5954518\n\
+                    \        ],\n        [\n          21.2360011,\n          48.5955936\n\
+                    \        ],\n        [\n          21.2358729,\n          48.5956269\n\
+                    \        ],\n        [\n          21.2359283,\n          48.5957175\n\
+                    \        ],\n        [\n          21.2357806,\n          48.5958096\n\
+                    \        ],\n        [\n          21.2359672,\n          48.5959562\n\
+                    \        ],\n        [\n          21.2358245,\n          48.5960586\n\
+                    \        ],\n        [\n          21.2358369,\n          48.5962153\n\
+                    \        ],\n        [\n          21.2356938,\n          48.5962875\n\
+                    \        ],\n        [\n          21.235638,\n          48.5966492\n\
+                    \        ],\n        [\n          21.2355375,\n          48.5967329\n\
+                    \        ],\n        [\n          21.235752,\n          48.5969568\n\
+                    \        ],\n        [\n          21.235282,\n          48.597318\n\
+                    \        ],\n        [\n          21.235294,\n          48.5973701\n\
+                    \        ],\n        [\n          21.2354097,\n          48.5974131\n\
+                    \        ],\n        [\n          21.2354976,\n          48.5976026\n\
+                    \        ],\n        [\n          21.2356284,\n          48.5976383\n\
+                    \        ],\n        [\n          21.2356691,\n          48.5977869\n\
+                    \        ],\n        [\n          21.2357904,\n          48.5979112\n\
+                    \        ],\n        [\n          21.2359066,\n          48.5983334\n\
+                    \        ],\n        [\n          21.2361313,\n          48.5986859\n\
+                    \        ],\n        [\n          21.2361545,\n          48.5988397\n\
+                    \        ],\n        [\n          21.236032,\n          48.598863\n\
+                    \        ],\n        [\n          21.2359798,\n          48.5992439\n\
+                    \        ],\n        [\n          21.2348075,\n          48.5988676\n\
+                    \        ],\n        [\n          21.2335944,\n          48.5986552\n\
+                    \        ],\n        [\n          21.2332815,\n          48.5986759\n\
+                    \        ],\n        [\n          21.2330128,\n          48.5984086\n\
+                    \        ],\n        [\n          21.2329897,\n          48.598444\n\
+                    \        ],\n        [\n          21.2327537,\n          48.5983293\n\
+                    \        ],\n        [\n          21.2313126,\n          48.5978882\n\
+                    \        ],\n        [\n          21.2313241,\n          48.5978675\n\
+                    \        ],\n        [\n          21.2312014,\n          48.5978542\n\
+                    \        ]\n      ]\n    ]\n  }\n}"
+  /api/v1/locations/{locationId}/gps-coords-occurrence:
     get:
       tags:
       - "LocationController"
@@ -1088,57 +987,22 @@ paths:
         schema:
           type: "integer"
           format: "int64"
-        example: "11256"
+        example: 11256
       - name: "lat"
         in: "query"
         description: "Latitude of the given GPS coordinate."
         required: true
         schema:
           type: "number"
-        example: "49.20586596333355"
+        example: 49.20586596333355
       - name: "lon"
         in: "query"
         description: "Longitude of a given GPS coordinate."
         required: true
         schema:
           type: "number"
-        example: "18.762886535806317"
+        example: 18.762886535806317
       responses:
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0004:
-                  description: "LS0004"
-                  value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
-        "200":
-          description: "Success."
-          content:
-            application/json:
-              schema:
-                type: "boolean"
-              examples:
-                Example response - occurrence found:
-                  description: "GPS coordinates occur in given location"
-                  value:
-                    value: true
-                Example response - occurrence not found:
-                  description: "GPS coordinates does not occur in given location"
-                  value:
-                    value: false
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
@@ -1165,6 +1029,41 @@ paths:
                     fieldValidations:
                     - field: "lat"
                       message: "must be between -90 and 90"
+        "200":
+          description: "Success."
+          content:
+            application/json:
+              schema:
+                type: "boolean"
+              examples:
+                Example response - occurrence found:
+                  description: "GPS coordinates occur in given location"
+                  value:
+                    value: true
+                Example response - occurrence not found:
+                  description: "GPS coordinates does not occur in given location"
+                  value:
+                    value: false
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0004:
+                  description: "LS0004"
+                  value:
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
   /api/v1/locations/within-distance:
     get:
       tags:
@@ -1182,21 +1081,21 @@ paths:
         schema:
           minimum: 0
           type: "number"
-        example: "100.00"
+        example: 100.0
       - name: "lat"
         in: "query"
         description: "Latitude of the given GPS coordinate."
         required: true
         schema:
           type: "number"
-        example: "49.20586596333355"
+        example: 49.20586596333355
       - name: "lon"
         in: "query"
         description: "Longitude of a given GPS coordinate."
         required: true
         schema:
           type: "number"
-        example: "18.762886535806317"
+        example: 18.762886535806317
       - name: "limit"
         in: "query"
         description: "Limit returned records by specifying number of items to skip\
@@ -1217,53 +1116,15 @@ paths:
           type: "integer"
           format: "int64"
         example: 0
+      - name: "embedGeoJson"
+        in: "query"
+        description: "If set to **true**, response will include a GeoJson with location\
+          \ boundary."
+        required: false
+        schema:
+          type: "boolean"
+        example: false
       responses:
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0004:
-                  description: "LS0004"
-                  value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
-        "400":
-          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
-            \ - Request is not valid</li></ul>"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0001:
-                  description: "LS0001"
-                  value:
-                    errorMessage:
-                      referenceId: "f22a73a1-412a-470d-a8fe-ca31430e07a0"
-                      message: "Constraint violation (cause: org.springframework.validation.BeanPropertyBindingResult:\
-                        \ 1 errors\nField error in object 'coordinatesFilter' on field\
-                        \ 'lat': rejected value [200]; codes [Range.coordinatesFilter.lat,Range.lat,Range.java.math.BigDecimal,Range];\
-                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
-                        \ codes [coordinatesFilter.lat,lat]; arguments []; default\
-                        \ message [lat],90,-90]; default message [must be between\
-                        \ -90 and 90])"
-                    businessExceptions:
-                    - code: "LS0001"
-                      message: "Constraint violation"
-                    fieldValidations:
-                    - field: "lat"
-                      message: "must be between -90 and 90"
         "200":
           description: "Success."
           content:
@@ -1371,30 +1232,32 @@ paths:
                   value:
                     records: []
                     recordsCount: 0
-  /api/v1/locations/nearest-by-gps-coords:
-    get:
-      tags:
-      - "LocationController"
-      summary: "1005 - Get nearest location by GPS coordinates"
-      description: "Returns a single location that is the nearest to the specified\
-        \ GPS coordinates."
-      operationId: "getNearestLocation"
-      parameters:
-      - name: "lat"
-        in: "query"
-        description: "Latitude of the given GPS coordinate."
-        required: true
-        schema:
-          type: "number"
-        example: "49.20586596333355"
-      - name: "lon"
-        in: "query"
-        description: "Longitude of a given GPS coordinate."
-        required: true
-        schema:
-          type: "number"
-        example: "18.762886535806317"
-      responses:
+        "400":
+          description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
+            \ - Request is not valid</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0001:
+                  description: "LS0001"
+                  value:
+                    errorMessage:
+                      referenceId: "f22a73a1-412a-470d-a8fe-ca31430e07a0"
+                      message: "Constraint violation (cause: org.springframework.validation.BeanPropertyBindingResult:\
+                        \ 1 errors\nField error in object 'coordinatesFilter' on field\
+                        \ 'lat': rejected value [200]; codes [Range.coordinatesFilter.lat,Range.lat,Range.java.math.BigDecimal,Range];\
+                        \ arguments [org.springframework.context.support.DefaultMessageSourceResolvable:\
+                        \ codes [coordinatesFilter.lat,lat]; arguments []; default\
+                        \ message [lat],90,-90]; default message [must be between\
+                        \ -90 and 90])"
+                    businessExceptions:
+                    - code: "LS0001"
+                      message: "Constraint violation"
+                    fieldValidations:
+                    - field: "lat"
+                      message: "must be between -90 and 90"
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
@@ -1415,6 +1278,38 @@ paths:
                     - code: "LS0004"
                       message: "PostgreSQL JDBC connection failure."
                     fieldValidations: []
+  /api/v1/locations/nearest-by-gps-coords:
+    get:
+      tags:
+      - "LocationController"
+      summary: "1005 - Get nearest location by GPS coordinates"
+      description: "Returns a single location that is the nearest to the specified\
+        \ GPS coordinates."
+      operationId: "getNearestLocation"
+      parameters:
+      - name: "lat"
+        in: "query"
+        description: "Latitude of the given GPS coordinate."
+        required: true
+        schema:
+          type: "number"
+        example: 49.20586596333355
+      - name: "lon"
+        in: "query"
+        description: "Longitude of a given GPS coordinate."
+        required: true
+        schema:
+          type: "number"
+        example: 18.762886535806317
+      - name: "embedGeoJson"
+        in: "query"
+        description: "If set to **true**, response will include a GeoJson with location\
+          \ boundary."
+        required: false
+        schema:
+          type: "boolean"
+        example: false
+      responses:
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
@@ -1468,285 +1363,178 @@ paths:
                     type: "VILLAGE"
                     lat: 48.5920569
                     lon: 21.2353988
-                    boundary:
-                      type: "Polygon"
-                      coordinates:
-                      - - - 21.2312014
-                          - 48.5978542
-                        - - 21.231215
-                          - 48.5978345
-                        - - 21.231518
-                          - 48.597396
-                        - - 21.232066
-                          - 48.596558
-                        - - 21.232831
-                          - 48.595421
-                        - - 21.232435
-                          - 48.595373
-                        - - 21.232011
-                          - 48.595317
-                        - - 21.231995
-                          - 48.595314
-                        - - 21.231858
-                          - 48.595288
-                        - - 21.231828
-                          - 48.595282
-                        - - 21.231902
-                          - 48.595052
-                        - - 21.232214
-                          - 48.594085
-                        - - 21.232833
-                          - 48.592165
-                        - - 21.233196
-                          - 48.591073
-                        - - 21.23319
-                          - 48.590907
-                        - - 21.233185
-                          - 48.590765
-                        - - 21.23318
-                          - 48.59063
-                        - - 21.23318
-                          - 48.590589
-                        - - 21.234381
-                          - 48.590767
-                        - - 21.234421
-                          - 48.590685
-                        - - 21.234972
-                          - 48.589558
-                        - - 21.235182
-                          - 48.589127
-                        - - 21.235215
-                          - 48.589063
-                        - - 21.235878
-                          - 48.589163
-                        - - 21.236091
-                          - 48.589196
-                        - - 21.236167
-                          - 48.588769
-                        - - 21.236364
-                          - 48.58767
-                        - - 21.236567
-                          - 48.586606
-                        - - 21.23675
-                          - 48.585511
-                        - - 21.236642
-                          - 48.585207
-                        - - 21.2406394
-                          - 48.5860558
-                        - - 21.2405614
-                          - 48.586113
-                        - - 21.2405122
-                          - 48.5863964
-                        - - 21.2407991
-                          - 48.5865775
-                        - - 21.2409028
-                          - 48.5867248
-                        - - 21.2407754
-                          - 48.5867973
-                        - - 21.2404288
-                          - 48.5867325
-                        - - 21.2403382
-                          - 48.5867612
-                        - - 21.2403301
-                          - 48.5870367
-                        - - 21.2399715
-                          - 48.5873833
-                        - - 21.2399854
-                          - 48.5874424
-                        - - 21.2402315
-                          - 48.5874558
-                        - - 21.2404281
-                          - 48.5876564
-                        - - 21.2397554
-                          - 48.5877739
-                        - - 21.2394504
-                          - 48.5877746
-                        - - 21.2393401
-                          - 48.5878365
-                        - - 21.2393286
-                          - 48.5879036
-                        - - 21.239419
-                          - 48.5880517
-                        - - 21.2393896
-                          - 48.5881519
-                        - - 21.2390552
-                          - 48.5882755
-                        - - 21.2387792
-                          - 48.5881622
-                        - - 21.2385335
-                          - 48.5883087
-                        - - 21.2385338
-                          - 48.5886915
-                        - - 21.238769
-                          - 48.5887932
-                        - - 21.2389723
-                          - 48.5890056
-                        - - 21.2388043
-                          - 48.5891737
-                        - - 21.2384571
-                          - 48.5892327
-                        - - 21.2383763
-                          - 48.5896465
-                        - - 21.2388115
-                          - 48.5903083
-                        - - 21.2388611
-                          - 48.5905271
-                        - - 21.23906
-                          - 48.5906594
-                        - - 21.2390676
-                          - 48.5907486
-                        - - 21.2388654
-                          - 48.5909133
-                        - - 21.2390198
-                          - 48.5910631
-                        - - 21.2387901
-                          - 48.5912045
-                        - - 21.2382567
-                          - 48.5911058
-                        - - 21.2380345
-                          - 48.5911956
-                        - - 21.2379952
-                          - 48.5912845
-                        - - 21.2380501
-                          - 48.5914079
-                        - - 21.2383543
-                          - 48.5916053
-                        - - 21.2382105
-                          - 48.5918494
-                        - - 21.2384536
-                          - 48.5919999
-                        - - 21.2385405
-                          - 48.5921986
-                        - - 21.2386276
-                          - 48.5922147
-                        - - 21.2386548
-                          - 48.5923021
-                        - - 21.2385233
-                          - 48.5922768
-                        - - 21.2383353
-                          - 48.5923554
-                        - - 21.2382761
-                          - 48.592529
-                        - - 21.2381524
-                          - 48.5925443
-                        - - 21.2380479
-                          - 48.5924736
-                        - - 21.2378835
-                          - 48.5924651
-                        - - 21.2374867
-                          - 48.5926372
-                        - - 21.2373515
-                          - 48.5926443
-                        - - 21.2372745
-                          - 48.5927117
-                        - - 21.2374673
-                          - 48.5931229
-                        - - 21.2375794
-                          - 48.5936778
-                        - - 21.2380804
-                          - 48.5940941
-                        - - 21.2380305
-                          - 48.5942826
-                        - - 21.2381968
-                          - 48.5943283
-                        - - 21.2383187
-                          - 48.5944548
-                        - - 21.2385102
-                          - 48.5945114
-                        - - 21.2385501
-                          - 48.5945813
-                        - - 21.2384851
-                          - 48.5949868
-                        - - 21.2383998
-                          - 48.5951924
-                        - - 21.2379019
-                          - 48.5954863
-                        - - 21.237748
-                          - 48.59546
-                        - - 21.2375175
-                          - 48.5952255
-                        - - 21.2373054
-                          - 48.5952234
-                        - - 21.2370008
-                          - 48.5953434
-                        - - 21.2369214
-                          - 48.5954456
-                        - - 21.236641
-                          - 48.5955888
-                        - - 21.2363188
-                          - 48.5957014
-                        - - 21.2362504
-                          - 48.595607
-                        - - 21.2363883
-                          - 48.5955427
-                        - - 21.236143
-                          - 48.5954518
-                        - - 21.2360011
-                          - 48.5955936
-                        - - 21.2358729
-                          - 48.5956269
-                        - - 21.2359283
-                          - 48.5957175
-                        - - 21.2357806
-                          - 48.5958096
-                        - - 21.2359672
-                          - 48.5959562
-                        - - 21.2358245
-                          - 48.5960586
-                        - - 21.2358369
-                          - 48.5962153
-                        - - 21.2356938
-                          - 48.5962875
-                        - - 21.235638
-                          - 48.5966492
-                        - - 21.2355375
-                          - 48.5967329
-                        - - 21.235752
-                          - 48.5969568
-                        - - 21.235282
-                          - 48.597318
-                        - - 21.235294
-                          - 48.5973701
-                        - - 21.2354097
-                          - 48.5974131
-                        - - 21.2354976
-                          - 48.5976026
-                        - - 21.2356284
-                          - 48.5976383
-                        - - 21.2356691
-                          - 48.5977869
-                        - - 21.2357904
-                          - 48.5979112
-                        - - 21.2359066
-                          - 48.5983334
-                        - - 21.2361313
-                          - 48.5986859
-                        - - 21.2361545
-                          - 48.5988397
-                        - - 21.236032
-                          - 48.598863
-                        - - 21.2359798
-                          - 48.5992439
-                        - - 21.2348075
-                          - 48.5988676
-                        - - 21.2335944
-                          - 48.5986552
-                        - - 21.2332815
-                          - 48.5986759
-                        - - 21.2330128
-                          - 48.5984086
-                        - - 21.2329897
-                          - 48.598444
-                        - - 21.2327537
-                          - 48.5983293
-                        - - 21.2313126
-                          - 48.5978882
-                        - - 21.2313241
-                          - 48.5978675
-                        - - 21.2312014
-                          - 48.5978542
-                LocationResponse - not found:
-                  description: "No locations found nearest to the specified GPS coordinates"
+                    boundary: null
+                LocationResponse with embedded GeoJson:
+                  description: "Location nearest to the specified GPS coordinates\
+                    \ including embedded GeoJson"
+                  value: "{\n  \"locationId\": 123,\n  \"versionId\": 1,\n  \"nameSk\"\
+                    : \"BoÄ\x8diar\",\n  \"nameEn\": 'null',\n  \"area\": 0.47,\n\
+                    \  \"population\": 222,\n  \"districtNameSk\": \"okres KoÅ¡ice\
+                    \ - okolie\",\n  \"districtNameEn\": \"District of KoÅ¡ice - okolie\"\
+                    ,\n  \"regionNameSk\": \"KoÅ¡ickÃ½ kraj\",\n  \"regionNameEn\"\
+                    : \"Region of KoÅ¡ice\",\n  \"stateNameSk\": \"Slovensko\",\n\
+                    \  \"stateNameEn\": \"Slovakia\",\n  \"isIn\": \"VÃ½chodnÃ© Slovensko\"\
+                    ,\n  \"postalCode\": \"044 57\",\n  \"type\": \"VILLAGE\",\n \
+                    \ \"lat\": 48.5920569,\n  \"lon\": 21.2353988,\n  \"boundary\"\
+                    : {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n    \
+                    \  [\n        [\n          21.2312014,\n          48.5978542\n\
+                    \        ],\n        [\n          21.231215,\n          48.5978345\n\
+                    \        ],\n        [\n          21.231518,\n          48.597396\n\
+                    \        ],\n        [\n          21.232066,\n          48.596558\n\
+                    \        ],\n        [\n          21.232831,\n          48.595421\n\
+                    \        ],\n        [\n          21.232435,\n          48.595373\n\
+                    \        ],\n        [\n          21.232011,\n          48.595317\n\
+                    \        ],\n        [\n          21.231995,\n          48.595314\n\
+                    \        ],\n        [\n          21.231858,\n          48.595288\n\
+                    \        ],\n        [\n          21.231828,\n          48.595282\n\
+                    \        ],\n        [\n          21.231902,\n          48.595052\n\
+                    \        ],\n        [\n          21.232214,\n          48.594085\n\
+                    \        ],\n        [\n          21.232833,\n          48.592165\n\
+                    \        ],\n        [\n          21.233196,\n          48.591073\n\
+                    \        ],\n        [\n          21.23319,\n          48.590907\n\
+                    \        ],\n        [\n          21.233185,\n          48.590765\n\
+                    \        ],\n        [\n          21.23318,\n          48.59063\n\
+                    \        ],\n        [\n          21.23318,\n          48.590589\n\
+                    \        ],\n        [\n          21.234381,\n          48.590767\n\
+                    \        ],\n        [\n          21.234421,\n          48.590685\n\
+                    \        ],\n        [\n          21.234972,\n          48.589558\n\
+                    \        ],\n        [\n          21.235182,\n          48.589127\n\
+                    \        ],\n        [\n          21.235215,\n          48.589063\n\
+                    \        ],\n        [\n          21.235878,\n          48.589163\n\
+                    \        ],\n        [\n          21.236091,\n          48.589196\n\
+                    \        ],\n        [\n          21.236167,\n          48.588769\n\
+                    \        ],\n        [\n          21.236364,\n          48.58767\n\
+                    \        ],\n        [\n          21.236567,\n          48.586606\n\
+                    \        ],\n        [\n          21.23675,\n          48.585511\n\
+                    \        ],\n        [\n          21.236642,\n          48.585207\n\
+                    \        ],\n        [\n          21.2406394,\n          48.5860558\n\
+                    \        ],\n        [\n          21.2405614,\n          48.586113\n\
+                    \        ],\n        [\n          21.2405122,\n          48.5863964\n\
+                    \        ],\n        [\n          21.2407991,\n          48.5865775\n\
+                    \        ],\n        [\n          21.2409028,\n          48.5867248\n\
+                    \        ],\n        [\n          21.2407754,\n          48.5867973\n\
+                    \        ],\n        [\n          21.2404288,\n          48.5867325\n\
+                    \        ],\n        [\n          21.2403382,\n          48.5867612\n\
+                    \        ],\n        [\n          21.2403301,\n          48.5870367\n\
+                    \        ],\n        [\n          21.2399715,\n          48.5873833\n\
+                    \        ],\n        [\n          21.2399854,\n          48.5874424\n\
+                    \        ],\n        [\n          21.2402315,\n          48.5874558\n\
+                    \        ],\n        [\n          21.2404281,\n          48.5876564\n\
+                    \        ],\n        [\n          21.2397554,\n          48.5877739\n\
+                    \        ],\n        [\n          21.2394504,\n          48.5877746\n\
+                    \        ],\n        [\n          21.2393401,\n          48.5878365\n\
+                    \        ],\n        [\n          21.2393286,\n          48.5879036\n\
+                    \        ],\n        [\n          21.239419,\n          48.5880517\n\
+                    \        ],\n        [\n          21.2393896,\n          48.5881519\n\
+                    \        ],\n        [\n          21.2390552,\n          48.5882755\n\
+                    \        ],\n        [\n          21.2387792,\n          48.5881622\n\
+                    \        ],\n        [\n          21.2385335,\n          48.5883087\n\
+                    \        ],\n        [\n          21.2385338,\n          48.5886915\n\
+                    \        ],\n        [\n          21.238769,\n          48.5887932\n\
+                    \        ],\n        [\n          21.2389723,\n          48.5890056\n\
+                    \        ],\n        [\n          21.2388043,\n          48.5891737\n\
+                    \        ],\n        [\n          21.2384571,\n          48.5892327\n\
+                    \        ],\n        [\n          21.2383763,\n          48.5896465\n\
+                    \        ],\n        [\n          21.2388115,\n          48.5903083\n\
+                    \        ],\n        [\n          21.2388611,\n          48.5905271\n\
+                    \        ],\n        [\n          21.23906,\n          48.5906594\n\
+                    \        ],\n        [\n          21.2390676,\n          48.5907486\n\
+                    \        ],\n        [\n          21.2388654,\n          48.5909133\n\
+                    \        ],\n        [\n          21.2390198,\n          48.5910631\n\
+                    \        ],\n        [\n          21.2387901,\n          48.5912045\n\
+                    \        ],\n        [\n          21.2382567,\n          48.5911058\n\
+                    \        ],\n        [\n          21.2380345,\n          48.5911956\n\
+                    \        ],\n        [\n          21.2379952,\n          48.5912845\n\
+                    \        ],\n        [\n          21.2380501,\n          48.5914079\n\
+                    \        ],\n        [\n          21.2383543,\n          48.5916053\n\
+                    \        ],\n        [\n          21.2382105,\n          48.5918494\n\
+                    \        ],\n        [\n          21.2384536,\n          48.5919999\n\
+                    \        ],\n        [\n          21.2385405,\n          48.5921986\n\
+                    \        ],\n        [\n          21.2386276,\n          48.5922147\n\
+                    \        ],\n        [\n          21.2386548,\n          48.5923021\n\
+                    \        ],\n        [\n          21.2385233,\n          48.5922768\n\
+                    \        ],\n        [\n          21.2383353,\n          48.5923554\n\
+                    \        ],\n        [\n          21.2382761,\n          48.592529\n\
+                    \        ],\n        [\n          21.2381524,\n          48.5925443\n\
+                    \        ],\n        [\n          21.2380479,\n          48.5924736\n\
+                    \        ],\n        [\n          21.2378835,\n          48.5924651\n\
+                    \        ],\n        [\n          21.2374867,\n          48.5926372\n\
+                    \        ],\n        [\n          21.2373515,\n          48.5926443\n\
+                    \        ],\n        [\n          21.2372745,\n          48.5927117\n\
+                    \        ],\n        [\n          21.2374673,\n          48.5931229\n\
+                    \        ],\n        [\n          21.2375794,\n          48.5936778\n\
+                    \        ],\n        [\n          21.2380804,\n          48.5940941\n\
+                    \        ],\n        [\n          21.2380305,\n          48.5942826\n\
+                    \        ],\n        [\n          21.2381968,\n          48.5943283\n\
+                    \        ],\n        [\n          21.2383187,\n          48.5944548\n\
+                    \        ],\n        [\n          21.2385102,\n          48.5945114\n\
+                    \        ],\n        [\n          21.2385501,\n          48.5945813\n\
+                    \        ],\n        [\n          21.2384851,\n          48.5949868\n\
+                    \        ],\n        [\n          21.2383998,\n          48.5951924\n\
+                    \        ],\n        [\n          21.2379019,\n          48.5954863\n\
+                    \        ],\n        [\n          21.237748,\n          48.59546\n\
+                    \        ],\n        [\n          21.2375175,\n          48.5952255\n\
+                    \        ],\n        [\n          21.2373054,\n          48.5952234\n\
+                    \        ],\n        [\n          21.2370008,\n          48.5953434\n\
+                    \        ],\n        [\n          21.2369214,\n          48.5954456\n\
+                    \        ],\n        [\n          21.236641,\n          48.5955888\n\
+                    \        ],\n        [\n          21.2363188,\n          48.5957014\n\
+                    \        ],\n        [\n          21.2362504,\n          48.595607\n\
+                    \        ],\n        [\n          21.2363883,\n          48.5955427\n\
+                    \        ],\n        [\n          21.236143,\n          48.5954518\n\
+                    \        ],\n        [\n          21.2360011,\n          48.5955936\n\
+                    \        ],\n        [\n          21.2358729,\n          48.5956269\n\
+                    \        ],\n        [\n          21.2359283,\n          48.5957175\n\
+                    \        ],\n        [\n          21.2357806,\n          48.5958096\n\
+                    \        ],\n        [\n          21.2359672,\n          48.5959562\n\
+                    \        ],\n        [\n          21.2358245,\n          48.5960586\n\
+                    \        ],\n        [\n          21.2358369,\n          48.5962153\n\
+                    \        ],\n        [\n          21.2356938,\n          48.5962875\n\
+                    \        ],\n        [\n          21.235638,\n          48.5966492\n\
+                    \        ],\n        [\n          21.2355375,\n          48.5967329\n\
+                    \        ],\n        [\n          21.235752,\n          48.5969568\n\
+                    \        ],\n        [\n          21.235282,\n          48.597318\n\
+                    \        ],\n        [\n          21.235294,\n          48.5973701\n\
+                    \        ],\n        [\n          21.2354097,\n          48.5974131\n\
+                    \        ],\n        [\n          21.2354976,\n          48.5976026\n\
+                    \        ],\n        [\n          21.2356284,\n          48.5976383\n\
+                    \        ],\n        [\n          21.2356691,\n          48.5977869\n\
+                    \        ],\n        [\n          21.2357904,\n          48.5979112\n\
+                    \        ],\n        [\n          21.2359066,\n          48.5983334\n\
+                    \        ],\n        [\n          21.2361313,\n          48.5986859\n\
+                    \        ],\n        [\n          21.2361545,\n          48.5988397\n\
+                    \        ],\n        [\n          21.236032,\n          48.598863\n\
+                    \        ],\n        [\n          21.2359798,\n          48.5992439\n\
+                    \        ],\n        [\n          21.2348075,\n          48.5988676\n\
+                    \        ],\n        [\n          21.2335944,\n          48.5986552\n\
+                    \        ],\n        [\n          21.2332815,\n          48.5986759\n\
+                    \        ],\n        [\n          21.2330128,\n          48.5984086\n\
+                    \        ],\n        [\n          21.2329897,\n          48.598444\n\
+                    \        ],\n        [\n          21.2327537,\n          48.5983293\n\
+                    \        ],\n        [\n          21.2313126,\n          48.5978882\n\
+                    \        ],\n        [\n          21.2313241,\n          48.5978675\n\
+                    \        ],\n        [\n          21.2312014,\n          48.5978542\n\
+                    \        ]\n      ]\n    ]\n  }\n}"
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0004:
+                  description: "LS0004"
+                  value:
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
 components:
   schemas:
     ManualUpdateRequest:
@@ -1755,12 +1543,54 @@ components:
         url:
           type: "string"
           format: "url"
-        skipDownload:
-          type: "boolean"
         filePath:
           type: "string"
         description:
           type: "string"
+    BusinessException:
+      type: "object"
+      properties:
+        code:
+          type: "string"
+          example: "LSXXXX"
+        message:
+          type: "string"
+          example: "Error message"
+    ErrorMessage:
+      type: "object"
+      properties:
+        referenceId:
+          type: "string"
+          example: "5153c9b9-151d-47e5-93ef-a67ac8663163"
+        message:
+          type: "string"
+          example: "Error message (cause: Cause of this error if available)"
+    ErrorResponse:
+      required:
+      - "businessExceptions"
+      - "errorMessage"
+      - "fieldValidations"
+      type: "object"
+      properties:
+        errorMessage:
+          $ref: "#/components/schemas/ErrorMessage"
+        businessExceptions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/BusinessException"
+        fieldValidations:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/FieldValidation"
+    FieldValidation:
+      type: "object"
+      properties:
+        field:
+          type: "string"
+          example: "Field name"
+        message:
+          type: "string"
+          example: "Reason why field validation failed"
     UpdateProcessingTaskResponse:
       type: "object"
       properties:
@@ -1832,50 +1662,6 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/UpdateProcessingTaskResponse"
-    BusinessException:
-      type: "object"
-      properties:
-        code:
-          type: "string"
-          example: "LSXXXX"
-        message:
-          type: "string"
-          example: "Error message"
-    ErrorMessage:
-      type: "object"
-      properties:
-        referenceId:
-          type: "string"
-          example: "5153c9b9-151d-47e5-93ef-a67ac8663163"
-        message:
-          type: "string"
-          example: "Error message (cause: Cause of this error if available)"
-    ErrorResponse:
-      required:
-      - "businessExceptions"
-      - "errorMessage"
-      - "fieldValidations"
-      type: "object"
-      properties:
-        errorMessage:
-          $ref: "#/components/schemas/ErrorMessage"
-        businessExceptions:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/BusinessException"
-        fieldValidations:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/FieldValidation"
-    FieldValidation:
-      type: "object"
-      properties:
-        field:
-          type: "string"
-          example: "Field name"
-        message:
-          type: "string"
-          example: "Reason why field validation failed"
     GetUpdateRecordsResponse:
       type: "object"
       properties:

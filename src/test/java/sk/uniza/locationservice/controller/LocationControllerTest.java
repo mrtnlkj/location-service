@@ -16,13 +16,10 @@ import sk.uniza.locationservice.common.ErrorType;
 import sk.uniza.locationservice.controller.bean.queryfilters.CoordinatesFilter;
 import sk.uniza.locationservice.controller.bean.response.LocationResponse;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -35,8 +32,6 @@ class LocationControllerTest {
 
 	private static final BigDecimal LAT = new BigDecimal("49.2234674");
 	private static final BigDecimal LON = new BigDecimal("18.7393139");
-	private static final BigDecimal INVALID_LAT = new BigDecimal("1049.2234674");
-	private static final BigDecimal INVALID_LON = new BigDecimal("1018.7393139");
 	private final LocationResponse expectedLocationResponse = LocationResponse.builder().locationId(ID).build();
 
 	@Autowired
@@ -53,7 +48,6 @@ class LocationControllerTest {
 														  .lat(LAT)
 														  .lon(LON)
 														  .build();
-		when(locationService.getNearestLocationByGpsCoords(any(CoordinatesFilter.class))).thenReturn(expectedLocationResponse);
 
 		mockMvc.perform(get(NEAREST_BY_GPS_COORDS_PATH)
 								.queryParam("lat", LAT.toString())
@@ -63,15 +57,13 @@ class LocationControllerTest {
 			   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			   .andExpect(content().json(mapper.writeValueAsString(expectedLocationResponse)));
 
-		verify(locationService).getNearestLocationByGpsCoords(filter);
+		verify(locationService).getNearestLocationByGpsCoords(filter, false);
 	}
 
 	@Test
-	void getNearestLocation_givenCorrectParams_shouldReturn400HttpCode() throws Exception {
+	void getNearestLocation_missingParams_shouldReturn400HttpCode() throws Exception {
 
-		mockMvc.perform(get(NEAREST_BY_GPS_COORDS_PATH)
-								.queryParam("lat", INVALID_LAT.toString())
-								.queryParam("lon", INVALID_LON.toString()))
+		mockMvc.perform(get(NEAREST_BY_GPS_COORDS_PATH))
 			   .andDo(print())
 			   .andExpect(status().isBadRequest())
 			   .andExpect(content().contentType(MediaType.APPLICATION_JSON))

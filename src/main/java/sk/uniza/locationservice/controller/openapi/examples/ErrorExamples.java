@@ -10,6 +10,7 @@ public class ErrorExamples {
 	public static final String LS0001_ERROR_CODE = "LS0001";
 	public static final String LS0004_ERROR_CODE = "LS0004";
 	public static final String LS0101_ERROR_CODE = "LS0101";
+	public static final String LS0003_ERROR_CODE = "LS0103";
 	public static final String HTTP_400 = "400";
 	public static final String HTTP_500 = "500";
 
@@ -144,6 +145,19 @@ public class ErrorExamples {
 			"    {\n" +
 			"      \"code\": \"LS0101\",\n" +
 			"      \"message\": \"Update is already in progress.\"\n" +
+			"    }\n" +
+			"  ],\n" +
+			"  \"fieldValidations\": []\n" +
+			"}";
+	public static final String UC_ABORT_UPDATE_500 = "{\n" +
+			"  \"errorMessage\": {\n" +
+			"    \"referenceId\": \"0e6f390c-7f6c-48b8-aab0-8a653d6b5920\",\n" +
+			"    \"message\": \"Requested update is not IN PROGRESS, unable to abort.\"\n" +
+			"  },\n" +
+			"  \"businessExceptions\": [\n" +
+			"    {\n" +
+			"      \"code\": \"LS0103\",\n" +
+			"      \"message\": \"Requested update is not IN PROGRESS, unable to abort.\"\n" +
 			"    }\n" +
 			"  ],\n" +
 			"  \"fieldValidations\": []\n" +

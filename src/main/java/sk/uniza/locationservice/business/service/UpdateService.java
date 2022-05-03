@@ -65,12 +65,12 @@ public class UpdateService {
 			if (entity != null) {
 				log.debug("Aborting running update with id: {}.", entity.getUpdateId());
 				updateExecutor.abortManually();
+				return SuccessResponse.builder()
+									  .value(Boolean.TRUE)
+									  .build();
 			}
 		}
-
-		return SuccessResponse.builder()
-							  .value(Boolean.TRUE)
-							  .build();
+		throw new LocationServiceException(ErrorType.NO_UPDATE_TO_ABORT);
 	}
 
 	public GetUpdateRecordsResponse getUpdateRecords(UpdateRecordsFilter filter) {

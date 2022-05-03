@@ -25,13 +25,13 @@ public interface UpdateRepository extends CrudRepository<UpdateEntity, Long> {
 	@Query("SELECT ur.* " +
 			"FROM update ur " +
 			"WHERE (ur.status = :status OR :status IS NULL) " +
-			"AND (ur.trigger = :trigger OR :trigger IS NULL) " +
+			"AND (ur.type = :type OR :type IS NULL) " +
 			"AND (ur.data_download_url ILIKE :url OR :url IS NULL) " +
 			"AND (ur.started_time <= :dateStartedFrom OR :dateStartedFrom::timestamptz IS NULL) " +
 			"ORDER BY ur.started_time DESC " +
 			"LIMIT :limit OFFSET :offset ")
 	List<UpdateEntity> getUpdateRecordsByFilter(@Param("status") ProcessingStatus status,
-												@Param("trigger") UpdateType type,
+												@Param("type") UpdateType type,
 												@Param("url") String url,
 												@Param("dateStartedFrom") Instant dateStartedFrom,
 												@Param("limit") Long limit,
@@ -40,11 +40,11 @@ public interface UpdateRepository extends CrudRepository<UpdateEntity, Long> {
 	@Query("SELECT COUNT(ur.update_id) " +
 			"FROM update ur " +
 			"WHERE (ur.status = :status OR :status IS NULL) " +
-			"AND (ur.trigger = :trigger OR :trigger IS NULL) " +
+			"AND (ur.type = :type OR :type IS NULL) " +
 			"AND (ur.data_download_url ILIKE :url OR :url IS NULL) " +
 			"AND (ur.started_time <= :dateStartedFrom OR :dateStartedFrom::timestamptz IS NULL) ")
 	Long getUpdateRecordsCountByFilter(@Param("status") ProcessingStatus status,
-									   @Param("trigger") UpdateType type,
+									   @Param("type") UpdateType type,
 									   @Param("url") String url,
 									   @Param("dateStartedFrom") Instant dateStartedFrom);
 

@@ -25,13 +25,7 @@ public class OsmFileLoadTask implements ProcessingTask {
 
 	@Override
 	public UpdateWrapper execute(UpdateWrapper request) throws IOException {
-		File file = null;
-		if (request.isSkipDownload()) {
-			log.debug("Loading osm file from path: {}", request.getFilePath());
-			file = new File(request.getFilePath());
-		} else {
-			file = downloadFile(request);
-		}
+		File file =  downloadFile(request);
 		request.setOsmFile(file);
 		return request;
 	}

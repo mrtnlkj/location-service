@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,30 +36,32 @@ import sk.uniza.locationservice.controller.bean.response.UpdateResponse;
 import sk.uniza.locationservice.controller.error.ErrorResponse;
 import sk.uniza.locationservice.controller.openapi.examples.ErrorExamples;
 import sk.uniza.locationservice.controller.openapi.examples.OpenApiExamples;
+import sk.uniza.locationservice.controller.openapi.examples.SchemaType;
 
 import static sk.uniza.locationservice.controller.openapi.examples.ErrorExamples.HTTP_400_DESCRIPTION;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/updates")
+@RequestMapping(value = "/api/v1/updates", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Tag(name = UpdateController.API_TAG, description = UpdateController.API_DESCRIPTION)
 @Validated
 public class UpdateController {
 
-	public static final String API_TAG = "UpdateRecordController";
-	public static final String API_DESCRIPTION = "Update Record Controller providing operations with update resources. Mainly, GET operations for listing previous updates, and POST operation for trigger MANUAL UPDATE of location records.";
+	public static final String API_TAG = "UpdateController";
+	public static final String API_DESCRIPTION = "Update Controller provide operations with update resources. Mainly, GET operations for listing previous updates, and POST operation for trigger MANUAL UPDATE of location records or abort currently running update.";
 
 	private final UpdateService updateService;
 
 	@GetMapping
 	@Operation(summary = "1101 - Get update records",
-			description = "Returns list of history update records. Possibility to filter results by specified query parameters."
+			description = "Returns a update response including a list of the update records and their count.  Possibility to filter results by specified query parameters."
 	)
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = GetUpdateRecordsResponse.class),
 							examples = {
 									@ExampleObject(name = "GetUpdateRecordsResponse",
@@ -71,7 +75,8 @@ public class UpdateController {
 			),
 			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ErrorResponse.class),
 							examples = {
 									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
@@ -81,7 +86,8 @@ public class UpdateController {
 			),
 			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ErrorResponse.class),
 							examples = {
 									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
@@ -101,21 +107,20 @@ public class UpdateController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = UpdateResponse.class),
 							examples = {
-									@ExampleObject(name = "UpdateRecordResponse",
+									@ExampleObject(name = "UpdateResponse",
 											description = "Update by specified id",
 											value = OpenApiExamples.UC_GET_UPDATE_BY_ID),
-									@ExampleObject(name = "UpdateRecordResponse - not found",
-											description = "No update found for specified id",
-											value = OpenApiExamples.UC_GET_UPDATE_BY_ID_NOT_FOUND),
 							}
 					)
 			),
 			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ErrorResponse.class),
 							examples = {
 									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
@@ -125,7 +130,8 @@ public class UpdateController {
 			),
 			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ErrorResponse.class),
 							examples = {
 									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
@@ -149,21 +155,20 @@ public class UpdateController {
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = UpdateResponse.class),
 							examples = {
-									@ExampleObject(name = "UpdateRecordResponse",
+									@ExampleObject(name = "UpdateResponse",
 											description = "Latest available update",
 											value = OpenApiExamples.UC_GET_UPDATE_BY_ID),
-									@ExampleObject(name = "UpdateRecordResponse - not found",
-											description = "No latest update was found",
-											value = OpenApiExamples.UC_GET_UPDATE_BY_ID_NOT_FOUND),
 							}
 					)
 			),
 			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ErrorResponse.class),
 							examples = {
 									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
@@ -182,9 +187,9 @@ public class UpdateController {
 			description = "Performs a manual update of location data. This operation arranges download of the OSM data file from specified server, import raw OSM data to DB with osm2pgsql and prepare new version of location data."
 	)
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
+			@ApiResponse(responseCode = OpenApiExamples.HTTP_201, description = OpenApiExamples.HTTP_201_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = UpdateResponse.class),
 							examples = {
 									@ExampleObject(name = "Update record, response of processing manual update.",
@@ -192,7 +197,7 @@ public class UpdateController {
 							})),
 			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ErrorResponse.class),
 							examples = {
 									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
@@ -202,7 +207,7 @@ public class UpdateController {
 			),
 			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ErrorResponse.class),
 							examples = {
 									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
@@ -218,7 +223,8 @@ public class UpdateController {
 			@io.swagger.v3.oas.annotations.parameters.RequestBody(required = false,
 					description = "Optional request body that defines additional info to update.",
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ManualUpdateRequest.class),
 							examples = {
 									@ExampleObject(name = "Manual update request with default settings.",
@@ -230,17 +236,18 @@ public class UpdateController {
 							}))
 			@RequestBody(required = false) @Valid ManualUpdateRequest request) {
 		UpdateResponse response = updateService.executeManualUpdate(request);
-		return ResponseEntity.ok().body(response);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 	@PostMapping("/{updateId}/abort")
 	@Operation(summary = "1104 -  Endpoint that aborts running update",
-			description = "Performs an abortion of running update of location data."
+			description = "Performs an abortion of given running update of location data."
 	)
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = OpenApiExamples.HTTP_200, description = OpenApiExamples.HTTP_200_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = UpdateResponse.class),
 							examples = {
 									@ExampleObject(name = "Update aborted.",
@@ -248,18 +255,21 @@ public class UpdateController {
 							})),
 			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
 					content = @Content(
-							schema = @Schema(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ErrorResponse.class),
 							examples = {
 									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
-											value = ErrorExamples.HTTP_500_EXAMPLE)
+											value = ErrorExamples.HTTP_500_EXAMPLE),
+									@ExampleObject(name = ErrorExamples.LS0003_ERROR_CODE,
+											value = ErrorExamples.UC_ABORT_UPDATE_500)
 							}
 					)
 			),
 	})
 	@ConditionalOnProperty(value = "location-service.update.manual-update.enabled", havingValue = "true")
 	public ResponseEntity<?> abortUpdate(
-			@Parameter(required = true, description = "Unique updateId identifier.", example = "\"11256\"")
+			@Parameter(required = true, description = "Unique updateId identifier.", example = "11256")
 			@NotNull @PathVariable(value = "updateId") @Positive Long updateId) {
 		SuccessResponse response = updateService.abortUpdate(updateId);
 		return ResponseEntity.ok().body(response);

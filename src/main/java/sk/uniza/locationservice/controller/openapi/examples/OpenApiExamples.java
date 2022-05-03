@@ -8,8 +8,10 @@ import lombok.NoArgsConstructor;
 public final class OpenApiExamples {
 
 	public static final String HTTP_200 = "200";
+	public static final String HTTP_201 = "201";
 	public static final String HTTP_200_DESCRIPTION = "Success.";
-	public static final String EMPTY_RESPONSE_BODY = "";
+	public static final String HTTP_201_DESCRIPTION = "Created.";
+	public static final String EMPTY_RESPONSE_BODY = " ";
 
 	public static final String LC_GET_LOCATIONS = "{\n" +
 			"  \"records\": [\n" +
@@ -125,6 +127,26 @@ public final class OpenApiExamples {
 			"  \"versionId\": 1,\n" +
 			"  \"nameSk\": \"Bočiar\",\n" +
 			"  \"nameEn\": null,\n" +
+			"  \"area\": 0.47,\n" +
+			"  \"population\": 222,\n" +
+			"  \"districtNameSk\": \"okres Košice - okolie\",\n" +
+			"  \"districtNameEn\": \"District of Košice - okolie\",\n" +
+			"  \"regionNameSk\": \"Košický kraj\",\n" +
+			"  \"regionNameEn\": \"Region of Košice\",\n" +
+			"  \"stateNameSk\": \"Slovensko\",\n" +
+			"  \"stateNameEn\": \"Slovakia\",\n" +
+			"  \"isIn\": \"Východné Slovensko\",\n" +
+			"  \"postalCode\": \"044 57\",\n" +
+			"  \"type\": \"VILLAGE\",\n" +
+			"  \"lat\": 48.5920569,\n" +
+			"  \"lon\": 21.2353988,\n" +
+			"  \"boundary\": null " +
+			"}";
+	public static final String LC_GET_LOCATION_BY_ID_EMBED_GEO_JSON = "{\n" +
+			"  \"locationId\": 123,\n" +
+			"  \"versionId\": 1,\n" +
+			"  \"nameSk\": \"Bočiar\",\n" +
+			"  \"nameEn\": 'null',\n" +
 			"  \"area\": 0.47,\n" +
 			"  \"population\": 222,\n" +
 			"  \"districtNameSk\": \"okres Košice - okolie\",\n" +
@@ -694,6 +716,7 @@ public final class OpenApiExamples {
 			"    ]\n" +
 			"  }\n" +
 			"}";
+	public static final String LC_GET_NEAREST_LOCATION_EMBED_GEO_JSON = LC_GET_LOCATION_BY_ID_EMBED_GEO_JSON;
 	public static final String LC_GET_NEAREST_LOCATION = LC_GET_LOCATION_BY_ID;
 
 	public static final String LC_GET_LOCATION_BY_ID_NOT_FOUND = EMPTY_RESPONSE_BODY;
@@ -739,7 +762,7 @@ public final class OpenApiExamples {
 			"  \"updateId\": 11256,\n" +
 			"  \"startedTime\": \"2022-04-05T19:10:17.155325Z\",\n" +
 			"  \"finishedTime\": \"2022-04-05T19:51:40.327389Z\",\n" +
-			"  \"dataDownloadUrl\": \"https://download.geofabrik.de/europe/slovakia-latest.osm.pbf\",\n" +
+			"  \"dataDownloadUrl\": \"\"https://download.geofabrik.de/europe/slovakia-latest.osm.pbf\"\",\n" +
 			"  \"status\": \"FINISHED\",\n" +
 			"  \"trigger\": \"SCHEDULED_STARTUP_UPDATE\",\n" +
 			"  \"description\": null,\n" +

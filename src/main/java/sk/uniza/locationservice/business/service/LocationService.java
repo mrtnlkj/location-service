@@ -3,7 +3,6 @@ package sk.uniza.locationservice.business.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -35,6 +34,9 @@ public class LocationService {
 																				filter.getAreaTo(),
 																				filter.getType(),
 																				filter.getPostalCode(),
+																				filter.getLat(),
+																				filter.getLon(),
+																				filter.getEmbedGeoJson(),
 																				filter.getLimit(),
 																				filter.getOffset());
 		Long count = locationRepository.getLocationsCountByFilter(filter.getLocationId(),
@@ -43,7 +45,9 @@ public class LocationService {
 																  filter.getAreaFrom(),
 																  filter.getAreaTo(),
 																  filter.getType(),
-																  filter.getPostalCode());
+																  filter.getPostalCode(),
+																  filter.getLat(),
+																  filter.getLon());
 		return GetLocationsResponse.builder()
 								   .records(locationMapper.map(entities))
 								   .recordsCount(count)
@@ -54,28 +58,31 @@ public class LocationService {
 		return locationRepository.getLocationsCount();
 	}
 
-	public LocationResponse getLocationById(Long locationId) {
+	public LocationResponse getLocationById(Long locationId, Boolean embedGeoJson) {
 		log.debug("getLocationById({})", locationId);
-		LocationEntity entity = locationRepository.getLocationById(locationId);
+		LocationEntity entity = locationRepository.getLocationById(locationId, embedGeoJson);
 		return locationMapper.map(entity);
 	}
 
-	public LocationResponse getNearestLocationByGpsCoords(CoordinatesFilter filter) {
+	public LocationResponse getNearestLocationByGpsCoords(CoordinatesFilter filter, Boolean embedGeoJson) {
 		log.debug("getNearestLocationByGpsCoords({})", filter);
 
 		LocationEntity entity = locationRepository.getNearestLocationByGpsCoords(filter.getLat(),
-																				 filter.getLon());
+																				 filter.getLon(),
+																				 embedGeoJson);
 		return locationMapper.map(entity);
 	}
 
 	public GetLocationsResponse getLocationsWithinSpecifiedDistance(BigDecimal distance,
 																	CoordinatesFilter coordsFilter,
-																	LimitAndOffsetFilter limitAndOffsetFilter) {
+																	LimitAndOffsetFilter limitAndOffsetFilter,
+																	Boolean embedGeoJson) {
 
 		log.debug("getLocationsWithinSpecifiedDistance({}, {}, {})", distance, coordsFilter, limitAndOffsetFilter);
 		List<LocationEntity> entities = locationRepository.getLocationsWithinSpecifiedDistance(distance,
 																							   coordsFilter.getLat(),
 																							   coordsFilter.getLon(),
+																							   embedGeoJson,
 																							   limitAndOffsetFilter.getLimit(),
 																							   limitAndOffsetFilter.getOffset());
 		Long count = locationRepository.getLocationsWithinSpecifiedDistanceCount(distance,
@@ -95,26 +102,5 @@ public class LocationService {
 																				  filter.getLat(),
 																				  filter.getLon());
 		return SuccessResponse.builder().value(count.compareTo(0L) > 0).build();
-	}
-
-	@Transactional
-	public Long importLocationDataWithVersionAndGetInsertedRecordsCount(Long versionId) {
-		log.debug("importLocationDataWithVersionAndGetInsertedRecordsCount({})", versionId);
-		return locationRepository.callInsertLocationDataProc(versionId);
-	}
-
-	@Transactional
-	public void processRegionNames(Long versionId) {
-		locationRepository.callProcessRegionNamesProc(versionId);
-	}
-
-	@Transactional
-	public void processDistrictNames(Long versionId) {
-		locationRepository.callProcessDistrictNamesProc(versionId);
-	}
-
-	@Transactional
-	public void processStateNames(Long versionId) {
-		locationRepository.callProcessStateNamesProc(versionId);
 	}
 }

@@ -16,11 +16,11 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CoordinatesFilter {
 
-	@Parameter(required = true, description = "Latitude of the given GPS coordinate.", example = "\"49.20586596333355\"")
+	@Parameter(required = true, description = "Latitude of the given GPS coordinate.", example = "49.20586596333355")
 	@NotNull
 	@Range(min = -90, max = +90)
 	private BigDecimal lat;
-	@Parameter(required = true, description = "Longitude of a given GPS coordinate.", example = "\"18.762886535806317\"")
+	@Parameter(required = true, description = "Longitude of a given GPS coordinate.", example = "18.762886535806317")
 	@NotNull
 	@Range(min = -180, max = +180)
 	private BigDecimal lon;

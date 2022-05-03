@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import java.math.BigDecimal;
 
@@ -20,6 +21,7 @@ public class LocationResponse {
 	private Long locationId;
 	private Long versionId;
 	private String nameSk;
+	@Nullable
 	private String nameEn;
 	private BigDecimal area;
 	private Long population;

@@ -30,14 +30,20 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 			" OR (l.area BETWEEN :areaFrom AND :areaTo) " +
 			") " +
 			"AND ((l.type = :type) OR :type IS NULL) " +
-			"AND ((REPLACE(l.postal_code, ' ', '') ILIKE REPLACE(:postalCode, ' ', '')) OR :postalCode IS NULL) ")
+			"AND ((REPLACE(l.postal_code, ' ', '') ILIKE REPLACE(:postalCode, ' ', '')) OR :postalCode IS NULL) " +
+			"AND ( " +
+			"(public.ST_Intersects(public.ST_SetSRID(public.ST_MakePoint(:lon, :lat), 4326), public.ST_Transform(l.boundary, 4326))) " +
+			"OR (:lat IS NULL AND :lon IS NULL) " +
+			") ")
 	Long getLocationsCountByFilter(@Param("locationId") Long locationId,
 								   @Param("nameSk") String nameSk,
 								   @Param("nameEn") String nameEn,
 								   @Param("areaFrom") BigDecimal areaFrom,
 								   @Param("areaTo") BigDecimal areaTo,
 								   @Param("type") LocationType type,
-								   @Param("postalCode") String postalCode);
+								   @Param("postalCode") String postalCode,
+								   @Param("lat") BigDecimal lat,
+								   @Param("lon") BigDecimal lon);
 
 	@Query("SELECT " +
 			"l.location_id AS location_id, " +
@@ -57,7 +63,14 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 			"l.type AS type, " +
 			"l.lat AS lat, " +
 			"l.lon AS lon, " +
-			"NULL AS boundary " +
+			"CASE " +
+			"WHEN :embedGeoJson IS NULL OR :embedGeoJson IS FALSE " +
+			"THEN NULL " +
+			"WHEN :embedGeoJson IS NOT NULL AND :embedGeoJson IS TRUE " +
+			"THEN public.ST_AsGeoJSON(public.ST_Transform(l.boundary,4326)) " +
+			"ELSE NULL " +
+			"END " +
+			"AS boundary " +
 			"FROM location l " +
 			"JOIN location_version lv ON (lv.version_id = l.version_id) AND (l.version_id IN (SELECT MAX(version_id) FROM location_version WHERE validity_from IS NOT NULL)) " +
 			"WHERE ((l.location_id = :locationId) OR :locationId IS NULL) " +
@@ -68,8 +81,12 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 			" AND ((l.area <= :areaTo) OR :areaTo IS NULL)) " +
 			" OR (l.area BETWEEN :areaFrom AND :areaTo) " +
 			") " +
-			"AND ((l.type = :type) OR :type IS NULL) " +
+			"AND ((UPPER(l.type) = :type) OR :type IS NULL) " +
 			"AND ((REPLACE(l.postal_code, ' ', '') ILIKE REPLACE(:postalCode, ' ', '')) OR :postalCode IS NULL) " +
+			"AND ( " +
+			"(public.ST_Intersects(public.ST_SetSRID(public.ST_MakePoint(:lon, :lat), 4326), public.ST_Transform(l.boundary, 4326))) " +
+			"OR (:lat IS NULL AND :lon IS NULL) " +
+			") " +
 			"ORDER BY l.location_id ASC " +
 			"LIMIT :limit OFFSET :offset")
 	List<LocationEntity> getLocationsByFilter(@Param("locationId") Long locationId,
@@ -79,6 +96,9 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 											  @Param("areaTo") BigDecimal areaTo,
 											  @Param("type") LocationType type,
 											  @Param("postalCode") String postalCode,
+											  @Param("lat") BigDecimal lat,
+											  @Param("lon") BigDecimal lon,
+											  @Param("embedGeoJson") Boolean embedGeoJson,
 											  @Param("limit") Long limit,
 											  @Param("offset") Long offset);
 
@@ -100,11 +120,19 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 			"l.type AS type, " +
 			"l.lat AS lat, " +
 			"l.lon AS lon, " +
-			"public.ST_AsGeoJSON(public.ST_Transform(l.boundary,4326)) AS boundary " +
+			"CASE " +
+			"WHEN :embedGeoJson IS NULL OR :embedGeoJson IS FALSE " +
+			"THEN NULL " +
+			"WHEN :embedGeoJson IS NOT NULL AND :embedGeoJson IS TRUE " +
+			"THEN public.ST_AsGeoJSON(public.ST_Transform(l.boundary,4326)) " +
+			"ELSE NULL " +
+			"END " +
+			"AS boundary " +
 			"FROM location l " +
 			"JOIN location_version lv ON (lv.version_id = l.version_id) AND (l.version_id IN (SELECT MAX(version_id) FROM location_version WHERE validity_from IS NOT NULL)) " +
 			"WHERE (l.location_id = :locationId) ")
-	LocationEntity getLocationById(@Param("locationId") Long locationId);
+	LocationEntity getLocationById(@Param("locationId") Long locationId,
+								   @Param("embedGeoJson") Boolean embedGeoJson);
 
 	@Query("SELECT " +
 			"l.location_id AS location_id, " +
@@ -124,7 +152,14 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 			"l.type AS type, " +
 			"l.lat AS lat, " +
 			"l.lon AS lon, " +
-			"public.ST_AsGeoJSON(public.ST_Transform(l.boundary,4326)) AS boundary, " +
+			"CASE " +
+			"WHEN :embedGeoJson IS NULL OR :embedGeoJson IS FALSE " +
+			"THEN NULL " +
+			"WHEN :embedGeoJson IS NOT NULL AND :embedGeoJson IS TRUE " +
+			"THEN public.ST_AsGeoJSON(public.ST_Transform(l.boundary,4326)) " +
+			"ELSE NULL " +
+			"END " +
+			"AS boundary, " +
 			"public.ST_Distance( " +
 			"public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(:lon, :lat), 4326), 4326), " +
 			"public.ST_Transform(l.boundary, 4326)" +
@@ -135,7 +170,8 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 			"ORDER BY distance ASC " +
 			"LIMIT 1 ")
 	LocationEntity getNearestLocationByGpsCoords(@Param("lat") BigDecimal lat,
-												 @Param("lon") BigDecimal lon);
+												 @Param("lon") BigDecimal lon,
+												 @Param("embedGeoJson") Boolean embedGeoJson);
 
 	@Query("SELECT " +
 			"l.location_id AS location_id, " +
@@ -155,7 +191,14 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 			"l.type AS type, " +
 			"l.lat AS lat, " +
 			"l.lon AS lon, " +
-			"NULL AS boundary, " +
+			"CASE " +
+			"WHEN :embedGeoJson IS NULL OR :embedGeoJson IS FALSE " +
+			"THEN NULL " +
+			"WHEN :embedGeoJson IS NOT NULL AND :embedGeoJson IS TRUE " +
+			"THEN public.ST_AsGeoJSON(public.ST_Transform(l.boundary,4326)) " +
+			"ELSE NULL " +
+			"END " +
+			"AS boundary, " +
 			"public.ST_Distance( " +
 			"public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(:lon, :lat), 4326), 4326), " +
 			"public.ST_Transform(l.boundary, 4326) " +
@@ -172,6 +215,7 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 	List<LocationEntity> getLocationsWithinSpecifiedDistance(@Param("distance") BigDecimal distance,
 															 @Param("lat") BigDecimal lat,
 															 @Param("lon") BigDecimal lon,
+															 @Param("embedGeoJson") Boolean embedGeoJson,
 															 @Param("limit") Long limit,
 															 @Param("offset") Long offset);
 
@@ -199,22 +243,4 @@ public interface LocationRepository extends CrudRepository<LocationEntity, Long>
 	Long getGpsCoordsOccurrenceWithinLocationCount(@Param("locationId") Long locationId,
 												   @Param("lat") BigDecimal lat,
 												   @Param("lon") BigDecimal lon);
-
-	@Query("CALL insert_location_data_proc(:versionId, 0) ")
-	Long callInsertLocationDataProc(@Param("versionId") Long versionId);
-
-	@Query("UPDATE ls.location l\n" +
-			"SET state_name_sk = polygon.name, " +
-			"state_name_en = (polygon.tags::public.hstore OPERATOR(public.->) 'name:en') " +
-			"FROM public.osm_polygon AS polygon " +
-			"WHERE l.version_id = :versionId " +
-			"AND polygon.admin_level IN ('2') --country borders (SK: Slovensko) " +
-			";")
-	Long callProcessStateNamesProc(@Param("versionId") Long versionId);
-
-	@Query("CALL process_region_names_proc(:versionId, 0) ")
-	Long callProcessRegionNamesProc(@Param("versionId") Long versionId);
-
-	@Query("CALL process_district_names_proc(:versionId, 0) ")
-	Long callProcessDistrictNamesProc(@Param("versionId") Long versionId);
 }

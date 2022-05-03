@@ -32,7 +32,7 @@ public class UpdateProperties {
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
-	private ScheduledUpdateExecutorProperties scheduledUpdateExecutor = new ScheduledUpdateExecutorProperties();
+	private ScheduledUpdateExecutorProperties scheduledUpdate = new ScheduledUpdateExecutorProperties();
 	@NotNull
 	@Valid
 	@NestedConfigurationProperty
