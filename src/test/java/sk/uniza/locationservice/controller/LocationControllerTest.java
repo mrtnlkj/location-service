@@ -16,7 +16,9 @@ import sk.uniza.locationservice.common.ErrorType;
 import sk.uniza.locationservice.controller.bean.queryfilters.CoordinatesFilter;
 import sk.uniza.locationservice.controller.bean.response.LocationResponse;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -49,9 +51,12 @@ class LocationControllerTest {
 														  .lon(LON)
 														  .build();
 
+		when(locationService.getNearestLocationByGpsCoords(any(), any())).thenReturn(expectedLocationResponse);
+
 		mockMvc.perform(get(NEAREST_BY_GPS_COORDS_PATH)
 								.queryParam("lat", LAT.toString())
-								.queryParam("lon", LON.toString()))
+								.queryParam("lon", LON.toString())
+								.queryParam("embedGeoJson", Boolean.FALSE.toString()))
 			   .andDo(print())
 			   .andExpect(status().isOk())
 			   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -63,7 +68,9 @@ class LocationControllerTest {
 	@Test
 	void getNearestLocation_missingParams_shouldReturn400HttpCode() throws Exception {
 
-		mockMvc.perform(get(NEAREST_BY_GPS_COORDS_PATH))
+		mockMvc.perform(get(NEAREST_BY_GPS_COORDS_PATH)
+								.queryParam("lat", (String) null)
+								.queryParam("lon", (String) null))
 			   .andDo(print())
 			   .andExpect(status().isBadRequest())
 			   .andExpect(content().contentType(MediaType.APPLICATION_JSON))

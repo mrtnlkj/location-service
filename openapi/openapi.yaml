@@ -2,14 +2,13 @@
 openapi: "3.0.1"
 info:
   title: "Location Service API"
-  description: "Location service provides a REST API mainly for purposes of searching\
-    \ localities across Slovak Republic based on GPS coordinates, with possibility\
-    \ of extending searched area by other countries in the future."
+  description: "Location Service provides a REST API mainly for purposes of searching\
+    \ localities across Slovak Republic by GPS coordinates and many other various\
+    \ ways.\n\n\nThe Location-Service API data comes from the OpenStreetMap database\
+    \ and their usage is restricted by ODbl - Open Database licence: https://opendatacommons.org/licenses/odbl/1-0/"
   contact:
-    url: "https://sk.linkedin.com/in/martin-lokaj-94a679154"
+    name: "Martin Lokaj"
     email: "mrtn.lkj@gmail.com"
-  license:
-    name: "Licensed by Martin Lokaj"
   version: "1.0.0"
 servers:
 - url: "http://localhost"
@@ -35,6 +34,7 @@ paths:
       parameters:
       - name: "status"
         in: "query"
+        description: "Final status of the update."
         required: false
         schema:
           type: "string"
@@ -45,6 +45,7 @@ paths:
         example: "FINISHED"
       - name: "type"
         in: "query"
+        description: "Type of the update."
         required: false
         schema:
           type: "string"
@@ -55,12 +56,16 @@ paths:
         example: "MANUAL"
       - name: "url"
         in: "query"
+        description: "URL used for download update file, parameter can be also partial\
+          \ URL string"
         required: false
         schema:
           type: "string"
         example: "https://download.geofabrik.de/europe/slovakia-latest.osm.pbf"
       - name: "dateStartedFrom"
         in: "query"
+        description: "dateStartedFrom in ISO 8601 UTC - filter updates only AFTER\
+          \ this date"
         required: false
         schema:
           type: "string"
@@ -284,7 +289,7 @@ paths:
       tags:
       - "UpdateController"
       summary: "1104 -  Endpoint that aborts running update"
-      description: "Performs an abortion of running update of location data."
+      description: "Performs an abortion of given running update of location data."
       operationId: "abortUpdate"
       parameters:
       - name: "updateId"
@@ -296,17 +301,6 @@ paths:
           format: "int64"
         example: 11256
       responses:
-        "200":
-          description: "Success."
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UpdateResponse"
-              examples:
-                Update aborted.:
-                  description: "Update aborted."
-                  value:
-                    value: true
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
@@ -337,6 +331,17 @@ paths:
                     - code: "LS0103"
                       message: "Requested update is not IN PROGRESS, unable to abort."
                     fieldValidations: []
+        "200":
+          description: "Success."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateResponse"
+              examples:
+                Update aborted.:
+                  description: "Update aborted."
+                  value:
+                    value: true
   /api/v1/updates/{updateId}:
     get:
       tags:
@@ -422,20 +427,6 @@ paths:
       description: "Returns latest update record"
       operationId: "getLatestUpdateRecord"
       responses:
-        "200":
-          description: "Success."
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UpdateResponse"
-              examples:
-                UpdateResponse:
-                  description: "Latest available update"
-                  value: "{\n  \"updateId\": 11256,\n  \"startedTime\": \"2022-04-05T19:10:17.155325Z\"\
-                    ,\n  \"finishedTime\": \"2022-04-05T19:51:40.327389Z\",\n  \"\
-                    dataDownloadUrl\": \"\"https://download.geofabrik.de/europe/slovakia-latest.osm.pbf\"\
-                    \",\n  \"status\": \"FINISHED\",\n  \"trigger\": \"SCHEDULED_STARTUP_UPDATE\"\
-                    ,\n  \"description\": null,\n  \"failedReason\": null\n}"
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
@@ -456,6 +447,20 @@ paths:
                     - code: "LS0004"
                       message: "PostgreSQL JDBC connection failure."
                     fieldValidations: []
+        "200":
+          description: "Success."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateResponse"
+              examples:
+                UpdateResponse:
+                  description: "Latest available update"
+                  value: "{\n  \"updateId\": 11256,\n  \"startedTime\": \"2022-04-05T19:10:17.155325Z\"\
+                    ,\n  \"finishedTime\": \"2022-04-05T19:51:40.327389Z\",\n  \"\
+                    dataDownloadUrl\": \"\"https://download.geofabrik.de/europe/slovakia-latest.osm.pbf\"\
+                    \",\n  \"status\": \"FINISHED\",\n  \"trigger\": \"SCHEDULED_STARTUP_UPDATE\"\
+                    ,\n  \"description\": null,\n  \"failedReason\": null\n}"
   /api/v1/locations:
     get:
       tags:
@@ -482,7 +487,7 @@ paths:
         required: false
         schema:
           type: "string"
-        example: "Å½ilina"
+        example: "??ilina"
       - name: "nameEn"
         in: "query"
         description: "Filter locations by specified location name in English language."
@@ -569,113 +574,26 @@ paths:
           format: "int64"
         example: 0
       responses:
-        "200":
-          description: "Success."
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetLocationsResponse"
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
-                GetLocationsResponse:
-                  description: "Locations found by search criteria"
+                LS0004:
+                  description: "LS0004"
                   value:
-                    records:
-                    - locationId: 36689
-                      versionId: 149847
-                      nameSk: "Ã\x81belovÃ¡"
-                      nameEn: null
-                      area: 52.18
-                      population: 231
-                      districtNameSk: null
-                      districtNameEn: null
-                      regionNameSk: null
-                      regionNameEn: null
-                      stateNameSk: "Slovensko"
-                      stateNameEn: "Slovakia"
-                      isIn: "StrednÃ© Slovensko"
-                      postalCode: "985 13"
-                      type: "VILLAGE"
-                      lat: 48.4107111
-                      lon: 19.4324517
-                      boundary: null
-                    - locationId: 36690
-                      versionId: 149847
-                      nameSk: "Abovce"
-                      nameEn: null
-                      area: 8.16
-                      population: 617
-                      districtNameSk: null
-                      districtNameEn: null
-                      regionNameSk: null
-                      regionNameEn: null
-                      stateNameSk: "Slovensko"
-                      stateNameEn: "Slovakia"
-                      isIn: "StrednÃ© Slovensko"
-                      postalCode: "980 44"
-                      type: "VILLAGE"
-                      lat: 48.3192231
-                      lon: 20.3376889
-                      boundary: null
-                    - locationId: 36691
-                      versionId: 149847
-                      nameSk: "AbrahÃ¡m"
-                      nameEn: null
-                      area: 15.79
-                      population: 1078
-                      districtNameSk: null
-                      districtNameEn: null
-                      regionNameSk: null
-                      regionNameEn: null
-                      stateNameSk: "Slovensko"
-                      stateNameEn: "Slovakia"
-                      isIn: "ZÃ¡padnÃ© Slovensko"
-                      postalCode: "925 45"
-                      type: "VILLAGE"
-                      lat: 48.2479831
-                      lon: 17.6194193
-                      boundary: null
-                    - locationId: 36692
-                      versionId: 149847
-                      nameSk: "AbrahÃ¡movce"
-                      nameEn: null
-                      area: 5.9
-                      population: null
-                      districtNameSk: null
-                      districtNameEn: null
-                      regionNameSk: null
-                      regionNameEn: null
-                      stateNameSk: "Slovensko"
-                      stateNameEn: "Slovakia"
-                      isIn: "VÃ½chodnÃ© Slovensko"
-                      postalCode: "086 41"
-                      type: "VILLAGE"
-                      lat: 49.1616223
-                      lon: 21.3426096
-                      boundary: null
-                    - locationId: 36693
-                      versionId: 149847
-                      nameSk: "AbrahÃ¡movce"
-                      nameEn: null
-                      area: 6.65
-                      population: null
-                      districtNameSk: null
-                      districtNameEn: null
-                      regionNameSk: null
-                      regionNameEn: null
-                      stateNameSk: "Slovensko"
-                      stateNameEn: "Slovakia"
-                      isIn: "VÃ½chodnÃ© Slovensko"
-                      postalCode: "059 72"
-                      type: "VILLAGE"
-                      lat: 49.0438759
-                      lon: 20.4416395
-                      boundary: null
-                    recordsCount: 2815
-                GetLocationsResponse - not found:
-                  description: "No locations by search criteria was found"
-                  value:
-                    records: []
-                    recordsCount: 0
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
@@ -702,26 +620,113 @@ paths:
                     fieldValidations:
                     - field: "limit"
                       message: "must be greater than or equal to 1"
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
+        "200":
+          description: "Success."
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/GetLocationsResponse"
               examples:
-                LS0004:
-                  description: "LS0004"
+                GetLocationsResponse:
+                  description: "Locations found by search criteria"
                   value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
+                    records:
+                    - locationId: 36689
+                      versionId: 149847
+                      nameSk: "?\x81belov??"
+                      nameEn: null
+                      area: 52.18
+                      population: 231
+                      districtNameSk: null
+                      districtNameEn: null
+                      regionNameSk: null
+                      regionNameEn: null
+                      stateNameSk: "Slovensko"
+                      stateNameEn: "Slovakia"
+                      isIn: "Stredn?� Slovensko"
+                      postalCode: "985 13"
+                      type: "VILLAGE"
+                      lat: 48.4107111
+                      lon: 19.4324517
+                      boundary: null
+                    - locationId: 36690
+                      versionId: 149847
+                      nameSk: "Abovce"
+                      nameEn: null
+                      area: 8.16
+                      population: 617
+                      districtNameSk: null
+                      districtNameEn: null
+                      regionNameSk: null
+                      regionNameEn: null
+                      stateNameSk: "Slovensko"
+                      stateNameEn: "Slovakia"
+                      isIn: "Stredn?� Slovensko"
+                      postalCode: "980 44"
+                      type: "VILLAGE"
+                      lat: 48.3192231
+                      lon: 20.3376889
+                      boundary: null
+                    - locationId: 36691
+                      versionId: 149847
+                      nameSk: "Abrah??m"
+                      nameEn: null
+                      area: 15.79
+                      population: 1078
+                      districtNameSk: null
+                      districtNameEn: null
+                      regionNameSk: null
+                      regionNameEn: null
+                      stateNameSk: "Slovensko"
+                      stateNameEn: "Slovakia"
+                      isIn: "Z??padn?� Slovensko"
+                      postalCode: "925 45"
+                      type: "VILLAGE"
+                      lat: 48.2479831
+                      lon: 17.6194193
+                      boundary: null
+                    - locationId: 36692
+                      versionId: 149847
+                      nameSk: "Abrah??movce"
+                      nameEn: null
+                      area: 5.9
+                      population: null
+                      districtNameSk: null
+                      districtNameEn: null
+                      regionNameSk: null
+                      regionNameEn: null
+                      stateNameSk: "Slovensko"
+                      stateNameEn: "Slovakia"
+                      isIn: "V??chodn?� Slovensko"
+                      postalCode: "086 41"
+                      type: "VILLAGE"
+                      lat: 49.1616223
+                      lon: 21.3426096
+                      boundary: null
+                    - locationId: 36693
+                      versionId: 149847
+                      nameSk: "Abrah??movce"
+                      nameEn: null
+                      area: 6.65
+                      population: null
+                      districtNameSk: null
+                      districtNameEn: null
+                      regionNameSk: null
+                      regionNameEn: null
+                      stateNameSk: "Slovensko"
+                      stateNameEn: "Slovakia"
+                      isIn: "V??chodn?� Slovensko"
+                      postalCode: "059 72"
+                      type: "VILLAGE"
+                      lat: 49.0438759
+                      lon: 20.4416395
+                      boundary: null
+                    recordsCount: 2815
+                GetLocationsResponse - not found:
+                  description: "No locations by search criteria was found"
+                  value:
+                    records: []
+                    recordsCount: 0
   /api/v1/locations/{locationId}:
     get:
       tags:
@@ -773,26 +778,6 @@ paths:
                       message: "Failed to convert value of type 'java.lang.String'\
                         \ to required type 'java.lang.Long'; nested exception is java.lang.NumberFormatException:\
                         \ For input string: \"sfasf\""
-        "500":
-          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
-            \ - PostgreSQL JDBC connection failure</li></ul>"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                LS0004:
-                  description: "LS0004"
-                  value:
-                    errorMessage:
-                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
-                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
-                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
-                        \ FATAL: database \"xyz\" does not exist)"
-                    businessExceptions:
-                    - code: "LS0004"
-                      message: "PostgreSQL JDBC connection failure."
-                    fieldValidations: []
         "200":
           description: "Success."
           content:
@@ -805,17 +790,17 @@ paths:
                   value:
                     locationId: 123
                     versionId: 1
-                    nameSk: "BoÄ\x8diar"
+                    nameSk: "Bo�\x8diar"
                     nameEn: null
                     area: 0.47
                     population: 222
-                    districtNameSk: "okres KoÅ¡ice - okolie"
-                    districtNameEn: "District of KoÅ¡ice - okolie"
-                    regionNameSk: "KoÅ¡ickÃ½ kraj"
-                    regionNameEn: "Region of KoÅ¡ice"
+                    districtNameSk: "okres Ko??ice - okolie"
+                    districtNameEn: "District of Ko??ice - okolie"
+                    regionNameSk: "Ko??ick?? kraj"
+                    regionNameEn: "Region of Ko??ice"
                     stateNameSk: "Slovensko"
                     stateNameEn: "Slovakia"
-                    isIn: "VÃ½chodnÃ© Slovensko"
+                    isIn: "V??chodn?� Slovensko"
                     postalCode: "044 57"
                     type: "VILLAGE"
                     lat: 48.5920569
@@ -824,12 +809,12 @@ paths:
                 LocationResponse with embedded GeoJson:
                   description: "Location by specified id with embedded GeoJson"
                   value: "{\n  \"locationId\": 123,\n  \"versionId\": 1,\n  \"nameSk\"\
-                    : \"BoÄ\x8diar\",\n  \"nameEn\": 'null',\n  \"area\": 0.47,\n\
-                    \  \"population\": 222,\n  \"districtNameSk\": \"okres KoÅ¡ice\
-                    \ - okolie\",\n  \"districtNameEn\": \"District of KoÅ¡ice - okolie\"\
-                    ,\n  \"regionNameSk\": \"KoÅ¡ickÃ½ kraj\",\n  \"regionNameEn\"\
-                    : \"Region of KoÅ¡ice\",\n  \"stateNameSk\": \"Slovensko\",\n\
-                    \  \"stateNameEn\": \"Slovakia\",\n  \"isIn\": \"VÃ½chodnÃ© Slovensko\"\
+                    : \"Bo�\x8diar\",\n  \"nameEn\": 'null',\n  \"area\": 0.47,\n\
+                    \  \"population\": 222,\n  \"districtNameSk\": \"okres Ko??ice\
+                    \ - okolie\",\n  \"districtNameEn\": \"District of Ko??ice - okolie\"\
+                    ,\n  \"regionNameSk\": \"Ko??ick?? kraj\",\n  \"regionNameEn\"\
+                    : \"Region of Ko??ice\",\n  \"stateNameSk\": \"Slovensko\",\n\
+                    \  \"stateNameEn\": \"Slovakia\",\n  \"isIn\": \"V??chodn?� Slovensko\"\
                     ,\n  \"postalCode\": \"044 57\",\n  \"type\": \"VILLAGE\",\n \
                     \ \"lat\": 48.5920569,\n  \"lon\": 21.2353988,\n  \"boundary\"\
                     : {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n    \
@@ -971,6 +956,26 @@ paths:
                     \        ],\n        [\n          21.2313241,\n          48.5978675\n\
                     \        ],\n        [\n          21.2312014,\n          48.5978542\n\
                     \        ]\n      ]\n    ]\n  }\n}"
+        "500":
+          description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
+            \ - PostgreSQL JDBC connection failure</li></ul>"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                LS0004:
+                  description: "LS0004"
+                  value:
+                    errorMessage:
+                      referenceId: "efee2335-7e32-4be8-bd3b-65f2d06b6970"
+                      message: "PostgreSQL JDBC connection failure. (cause: Failed\
+                        \ to obtain JDBC Connection; nested exception is org.postgresql.util.PSQLException:\
+                        \ FATAL: database \"xyz\" does not exist)"
+                    businessExceptions:
+                    - code: "LS0004"
+                      message: "PostgreSQL JDBC connection failure."
+                    fieldValidations: []
   /api/v1/locations/{locationId}/gps-coords-occurrence:
     get:
       tags:
@@ -1003,6 +1008,21 @@ paths:
           type: "number"
         example: 18.762886535806317
       responses:
+        "200":
+          description: "Success."
+          content:
+            application/json:
+              schema:
+                type: "boolean"
+              examples:
+                Example response - occurrence found:
+                  description: "GPS coordinates occur in given location"
+                  value:
+                    value: true
+                Example response - occurrence not found:
+                  description: "GPS coordinates does not occur in given location"
+                  value:
+                    value: false
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
@@ -1029,21 +1049,6 @@ paths:
                     fieldValidations:
                     - field: "lat"
                       message: "must be between -90 and 90"
-        "200":
-          description: "Success."
-          content:
-            application/json:
-              schema:
-                type: "boolean"
-              examples:
-                Example response - occurrence found:
-                  description: "GPS coordinates occur in given location"
-                  value:
-                    value: true
-                Example response - occurrence not found:
-                  description: "GPS coordinates does not occur in given location"
-                  value:
-                    value: false
         "500":
           description: "Internal server error.\n List of possible error codes:<ul><li>LS0004\
             \ - PostgreSQL JDBC connection failure</li></ul>"
@@ -1069,9 +1074,9 @@ paths:
       tags:
       - "LocationController"
       summary: "1004 - Get locations within specified distance from given GPS coordinates."
-      description: "Returns a location response defining list of the locations and\
-        \ locations count, sorted by field nameSk in ascending order which meets the\
-        \ search criteria."
+      description: "Returns a location response including a list of the locations\
+        \ and their count by search criteria. Locations are sorted by distance between\
+        \ location and given GPS coordinates in ascending order."
       operationId: "getLocationsWithinSpecifiedDistance"
       parameters:
       - name: "distance"
@@ -1125,113 +1130,6 @@ paths:
           type: "boolean"
         example: false
       responses:
-        "200":
-          description: "Success."
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetLocationsResponse"
-              examples:
-                GetLocationsResponse:
-                  description: "Locations found by search criteria"
-                  value:
-                    records:
-                    - locationId: 36689
-                      versionId: 149847
-                      nameSk: "Ã\x81belovÃ¡"
-                      nameEn: null
-                      area: 52.18
-                      population: 231
-                      districtNameSk: null
-                      districtNameEn: null
-                      regionNameSk: null
-                      regionNameEn: null
-                      stateNameSk: "Slovensko"
-                      stateNameEn: "Slovakia"
-                      isIn: "StrednÃ© Slovensko"
-                      postalCode: "985 13"
-                      type: "VILLAGE"
-                      lat: 48.4107111
-                      lon: 19.4324517
-                      boundary: null
-                    - locationId: 36690
-                      versionId: 149847
-                      nameSk: "Abovce"
-                      nameEn: null
-                      area: 8.16
-                      population: 617
-                      districtNameSk: null
-                      districtNameEn: null
-                      regionNameSk: null
-                      regionNameEn: null
-                      stateNameSk: "Slovensko"
-                      stateNameEn: "Slovakia"
-                      isIn: "StrednÃ© Slovensko"
-                      postalCode: "980 44"
-                      type: "VILLAGE"
-                      lat: 48.3192231
-                      lon: 20.3376889
-                      boundary: null
-                    - locationId: 36691
-                      versionId: 149847
-                      nameSk: "AbrahÃ¡m"
-                      nameEn: null
-                      area: 15.79
-                      population: 1078
-                      districtNameSk: null
-                      districtNameEn: null
-                      regionNameSk: null
-                      regionNameEn: null
-                      stateNameSk: "Slovensko"
-                      stateNameEn: "Slovakia"
-                      isIn: "ZÃ¡padnÃ© Slovensko"
-                      postalCode: "925 45"
-                      type: "VILLAGE"
-                      lat: 48.2479831
-                      lon: 17.6194193
-                      boundary: null
-                    - locationId: 36692
-                      versionId: 149847
-                      nameSk: "AbrahÃ¡movce"
-                      nameEn: null
-                      area: 5.9
-                      population: null
-                      districtNameSk: null
-                      districtNameEn: null
-                      regionNameSk: null
-                      regionNameEn: null
-                      stateNameSk: "Slovensko"
-                      stateNameEn: "Slovakia"
-                      isIn: "VÃ½chodnÃ© Slovensko"
-                      postalCode: "086 41"
-                      type: "VILLAGE"
-                      lat: 49.1616223
-                      lon: 21.3426096
-                      boundary: null
-                    - locationId: 36693
-                      versionId: 149847
-                      nameSk: "AbrahÃ¡movce"
-                      nameEn: null
-                      area: 6.65
-                      population: null
-                      districtNameSk: null
-                      districtNameEn: null
-                      regionNameSk: null
-                      regionNameEn: null
-                      stateNameSk: "Slovensko"
-                      stateNameEn: "Slovakia"
-                      isIn: "VÃ½chodnÃ© Slovensko"
-                      postalCode: "059 72"
-                      type: "VILLAGE"
-                      lat: 49.0438759
-                      lon: 20.4416395
-                      boundary: null
-                    recordsCount: 2815
-                GetLocationsResponse - not found:
-                  description: "No locations by search criteria was found"
-                  value:
-                    records: []
-                    recordsCount: 0
         "400":
           description: "Bad request.\n List of possible error codes: <ul><li>LS0001\
             \ - Request is not valid</li></ul>"
@@ -1278,6 +1176,113 @@ paths:
                     - code: "LS0004"
                       message: "PostgreSQL JDBC connection failure."
                     fieldValidations: []
+        "200":
+          description: "Success."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetLocationsResponse"
+              examples:
+                GetLocationsResponse:
+                  description: "Locations found by search criteria"
+                  value:
+                    records:
+                    - locationId: 36689
+                      versionId: 149847
+                      nameSk: "?\x81belov??"
+                      nameEn: null
+                      area: 52.18
+                      population: 231
+                      districtNameSk: null
+                      districtNameEn: null
+                      regionNameSk: null
+                      regionNameEn: null
+                      stateNameSk: "Slovensko"
+                      stateNameEn: "Slovakia"
+                      isIn: "Stredn?� Slovensko"
+                      postalCode: "985 13"
+                      type: "VILLAGE"
+                      lat: 48.4107111
+                      lon: 19.4324517
+                      boundary: null
+                    - locationId: 36690
+                      versionId: 149847
+                      nameSk: "Abovce"
+                      nameEn: null
+                      area: 8.16
+                      population: 617
+                      districtNameSk: null
+                      districtNameEn: null
+                      regionNameSk: null
+                      regionNameEn: null
+                      stateNameSk: "Slovensko"
+                      stateNameEn: "Slovakia"
+                      isIn: "Stredn?� Slovensko"
+                      postalCode: "980 44"
+                      type: "VILLAGE"
+                      lat: 48.3192231
+                      lon: 20.3376889
+                      boundary: null
+                    - locationId: 36691
+                      versionId: 149847
+                      nameSk: "Abrah??m"
+                      nameEn: null
+                      area: 15.79
+                      population: 1078
+                      districtNameSk: null
+                      districtNameEn: null
+                      regionNameSk: null
+                      regionNameEn: null
+                      stateNameSk: "Slovensko"
+                      stateNameEn: "Slovakia"
+                      isIn: "Z??padn?� Slovensko"
+                      postalCode: "925 45"
+                      type: "VILLAGE"
+                      lat: 48.2479831
+                      lon: 17.6194193
+                      boundary: null
+                    - locationId: 36692
+                      versionId: 149847
+                      nameSk: "Abrah??movce"
+                      nameEn: null
+                      area: 5.9
+                      population: null
+                      districtNameSk: null
+                      districtNameEn: null
+                      regionNameSk: null
+                      regionNameEn: null
+                      stateNameSk: "Slovensko"
+                      stateNameEn: "Slovakia"
+                      isIn: "V??chodn?� Slovensko"
+                      postalCode: "086 41"
+                      type: "VILLAGE"
+                      lat: 49.1616223
+                      lon: 21.3426096
+                      boundary: null
+                    - locationId: 36693
+                      versionId: 149847
+                      nameSk: "Abrah??movce"
+                      nameEn: null
+                      area: 6.65
+                      population: null
+                      districtNameSk: null
+                      districtNameEn: null
+                      regionNameSk: null
+                      regionNameEn: null
+                      stateNameSk: "Slovensko"
+                      stateNameEn: "Slovakia"
+                      isIn: "V??chodn?� Slovensko"
+                      postalCode: "059 72"
+                      type: "VILLAGE"
+                      lat: 49.0438759
+                      lon: 20.4416395
+                      boundary: null
+                    recordsCount: 2815
+                GetLocationsResponse - not found:
+                  description: "No locations by search criteria was found"
+                  value:
+                    records: []
+                    recordsCount: 0
   /api/v1/locations/nearest-by-gps-coords:
     get:
       tags:
@@ -1348,17 +1353,17 @@ paths:
                   value:
                     locationId: 123
                     versionId: 1
-                    nameSk: "BoÄ\x8diar"
+                    nameSk: "Bo�\x8diar"
                     nameEn: null
                     area: 0.47
                     population: 222
-                    districtNameSk: "okres KoÅ¡ice - okolie"
-                    districtNameEn: "District of KoÅ¡ice - okolie"
-                    regionNameSk: "KoÅ¡ickÃ½ kraj"
-                    regionNameEn: "Region of KoÅ¡ice"
+                    districtNameSk: "okres Ko??ice - okolie"
+                    districtNameEn: "District of Ko??ice - okolie"
+                    regionNameSk: "Ko??ick?? kraj"
+                    regionNameEn: "Region of Ko??ice"
                     stateNameSk: "Slovensko"
                     stateNameEn: "Slovakia"
-                    isIn: "VÃ½chodnÃ© Slovensko"
+                    isIn: "V??chodn?� Slovensko"
                     postalCode: "044 57"
                     type: "VILLAGE"
                     lat: 48.5920569
@@ -1368,12 +1373,12 @@ paths:
                   description: "Location nearest to the specified GPS coordinates\
                     \ including embedded GeoJson"
                   value: "{\n  \"locationId\": 123,\n  \"versionId\": 1,\n  \"nameSk\"\
-                    : \"BoÄ\x8diar\",\n  \"nameEn\": 'null',\n  \"area\": 0.47,\n\
-                    \  \"population\": 222,\n  \"districtNameSk\": \"okres KoÅ¡ice\
-                    \ - okolie\",\n  \"districtNameEn\": \"District of KoÅ¡ice - okolie\"\
-                    ,\n  \"regionNameSk\": \"KoÅ¡ickÃ½ kraj\",\n  \"regionNameEn\"\
-                    : \"Region of KoÅ¡ice\",\n  \"stateNameSk\": \"Slovensko\",\n\
-                    \  \"stateNameEn\": \"Slovakia\",\n  \"isIn\": \"VÃ½chodnÃ© Slovensko\"\
+                    : \"Bo�\x8diar\",\n  \"nameEn\": 'null',\n  \"area\": 0.47,\n\
+                    \  \"population\": 222,\n  \"districtNameSk\": \"okres Ko??ice\
+                    \ - okolie\",\n  \"districtNameEn\": \"District of Ko??ice - okolie\"\
+                    ,\n  \"regionNameSk\": \"Ko??ick?? kraj\",\n  \"regionNameEn\"\
+                    : \"Region of Ko??ice\",\n  \"stateNameSk\": \"Slovensko\",\n\
+                    \  \"stateNameEn\": \"Slovakia\",\n  \"isIn\": \"V??chodn?� Slovensko\"\
                     ,\n  \"postalCode\": \"044 57\",\n  \"type\": \"VILLAGE\",\n \
                     \ \"lat\": 48.5920569,\n  \"lon\": 21.2353988,\n  \"boundary\"\
                     : {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n    \

@@ -257,7 +257,6 @@ public class LocationController {
 		return ResponseEntity.ok().body(response);
 	}
 
-	@ResponseBody
 	@GetMapping("/nearest-by-gps-coords")
 	@Operation(summary = "1005 - Get nearest location by GPS coordinates",
 			description = "Returns a single location that is the nearest to the specified GPS coordinates.")
