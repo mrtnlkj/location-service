@@ -24,6 +24,18 @@ public class ErrorExamples {
 			"<ul>" +
 			"<li>LS0004 - PostgreSQL JDBC connection failure</li>" +
 			"</ul>";
+	public static final String UC_MANUAL_UPDATE_HTTP_500_DESCRIPTION = "Internal server error.\n " +
+			"List of possible error codes:" +
+			"<ul>" +
+			"<li>LS0101 - Update is already in progress</li>" +
+			"<li>LS0004 - PostgreSQL JDBC connection failure</li>" +
+			"</ul>";
+	public static final String UC_ABORT_UPDATE_HTTP_500_DESCRIPTION = "Internal server error.\n " +
+			"List of possible error codes:" +
+			"<ul>" +
+			"<li>LS0103 - Requested update is not IN PROGRESS, unable to abort</li>" +
+			"<li>LS0004 - PostgreSQL JDBC connection failure</li>" +
+			"</ul>";
 	public static final String HTTP_500_EXAMPLE = "{\n" +
 			"  \"errorMessage\": {\n" +
 			"    \"referenceId\": \"efee2335-7e32-4be8-bd3b-65f2d06b6970\",\n" +
@@ -94,7 +106,7 @@ public class ErrorExamples {
 			"        }\n" +
 			"    ]\n" +
 			"}";
-
+	public static final String UC_ABORT_400 = LC_GET_LOCATION_BY_ID_400;
 	public static final String LC_GET_LOCATIONS_WITHIN_DISTANCE_400 = LC_GET_NEAREST_LOCATION_400;
 	public static final String LC_GPS_OCCURRENCE_400 = LC_GET_NEAREST_LOCATION_400;
 

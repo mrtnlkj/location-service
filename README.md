@@ -92,35 +92,26 @@ finally, updating data in location table.
 
 Data update process must be configured by following properties:
 
-//TODO add description for following properties
-
 Example:
 
 ```
 #update properties
 #startup-update-executor properties
-location-service.update.startup-update-executor.enabled=true
-location-service.update.startup-update-executor.force-update-enabled=false
-
+location-service.update.timeout=PT3H
+location-service.update.startup-update.enabled=true
+location-service.update.startup-update.force-update-enabled=false
 #scheduled-update-executor properties
-location-service.update.scheduled-update-executor.enabled=true
-location-service.update.scheduled-update-executor.cron=0 30 03 * * *
-
+location-service.update.scheduled-update.enabled=true
+location-service.update.scheduled-update.cron=0 30 01 1 * *
 #retry-update-executor properties
-location-service.update.retry-update-executor.enabled=true
-location-service.update.retry-update-executor.max-attempts-count=5
-location-service.update.retry-update-executor.duration-between-attempts=PT1H
-
+location-service.update.retry-task.enabled=true
+location-service.update.retry-task.max-retries=3
 #manual-update properties
 location-service.update.manual-update.enabled=true
-
 #data update - osm2pgsql properties
-location-service.update.osm2pgsql.base-path=C:/osm2pgsql/osm2pgsql-bin
-location-service.update.osm2pgsql.exe-file-name=osm2pgsql.exe
-location-service.update.osm2pgsql.style-file-name=default.style
-
+location-service.update.osm2pgsql.run-cmd=osm2pgsql
+location-service.update.osm2pgsql.style-file-path=/usr/share/osm2pgsql/default.style
 #data update - file downloader properties
 location-service.update.file-downloader.download-url=https://download.geofabrik.de/europe/slovakia-latest.osm.pbf
-location-service.update.file-downloader.dest-file-base-path=C:/data/location_service/osm_data
-
+location-service.update.file-downloader.dest-file-base-path=osm_data
 ```

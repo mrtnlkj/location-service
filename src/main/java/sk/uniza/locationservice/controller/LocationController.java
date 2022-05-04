@@ -127,7 +127,7 @@ public class LocationController {
 							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ErrorResponse.class),
 							examples = {
-									@ExampleObject(name = ErrorExamples.LS0004_ERROR_CODE,
+									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
 											value = ErrorExamples.LC_GET_LOCATION_BY_ID_400),
 							}
 					)

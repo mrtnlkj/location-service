@@ -146,7 +146,7 @@ public final class OpenApiExamples {
 			"  \"locationId\": 123,\n" +
 			"  \"versionId\": 1,\n" +
 			"  \"nameSk\": \"Bočiar\",\n" +
-			"  \"nameEn\": 'null',\n" +
+			"  \"nameEn\": null,\n" +
 			"  \"area\": 0.47,\n" +
 			"  \"population\": 222,\n" +
 			"  \"districtNameSk\": \"okres Košice - okolie\",\n" +
@@ -759,14 +759,97 @@ public final class OpenApiExamples {
 			"  \"recordsCount\": 2\n" +
 			"}";
 	public static final String UC_GET_UPDATE_BY_ID = "{\n" +
-			"  \"updateId\": 11256,\n" +
-			"  \"startedTime\": \"2022-04-05T19:10:17.155325Z\",\n" +
-			"  \"finishedTime\": \"2022-04-05T19:51:40.327389Z\",\n" +
-			"  \"dataDownloadUrl\": \"\"https://download.geofabrik.de/europe/slovakia-latest.osm.pbf\"\",\n" +
+			"  \"updateId\": 58,\n" +
+			"  \"startedTime\": \"2022-05-04T12:49:30.540158Z\",\n" +
+			"  \"finishedTime\": \"2022-05-04T13:40:16.510266Z\",\n" +
+			"  \"dataDownloadUrl\": \"https://download.geofabrik.de/europe/slovakia-latest.osm.pbf\",\n" +
 			"  \"status\": \"FINISHED\",\n" +
-			"  \"trigger\": \"SCHEDULED_STARTUP_UPDATE\",\n" +
-			"  \"description\": null,\n" +
-			"  \"failedReason\": null\n" +
+			"  \"type\": \"MANUAL\",\n" +
+			"  \"description\": \"Trying to run manual update of locations data. Default data updater setting will be applied.\",\n" +
+			"  \"failedReason\": null,\n" +
+			"  \"tasks\": [\n" +
+			"    {\n" +
+			"      \"processingTaskId\": 66,\n" +
+			"      \"startedTime\": \"2022-05-04T12:49:30.647016Z\",\n" +
+			"      \"finishedTime\": \"2022-05-04T12:49:52.965725Z\",\n" +
+			"      \"status\": \"FINISHED\",\n" +
+			"      \"taskCode\": \"OSM_FILE_LOAD\",\n" +
+			"      \"updateId\": 58,\n" +
+			"      \"attempt\": 1\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"processingTaskId\": 67,\n" +
+			"      \"startedTime\": \"2022-05-04T12:49:53.017861Z\",\n" +
+			"      \"finishedTime\": \"2022-05-04T12:52:19.330743Z\",\n" +
+			"      \"status\": \"FINISHED\",\n" +
+			"      \"taskCode\": \"OSM2PGSQL_IMPORT\",\n" +
+			"      \"updateId\": 58,\n" +
+			"      \"attempt\": 1\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"processingTaskId\": 68,\n" +
+			"      \"startedTime\": \"2022-05-04T12:52:19.395136Z\",\n" +
+			"      \"finishedTime\": \"2022-05-04T12:52:19.499367Z\",\n" +
+			"      \"status\": \"FINISHED\",\n" +
+			"      \"taskCode\": \"INCREMENT_LOCATION_VERSION\",\n" +
+			"      \"updateId\": 58,\n" +
+			"      \"attempt\": 1\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"processingTaskId\": 69,\n" +
+			"      \"startedTime\": \"2022-05-04T12:52:19.543409Z\",\n" +
+			"      \"finishedTime\": \"2022-05-04T13:08:03.774506Z\",\n" +
+			"      \"status\": \"FINISHED\",\n" +
+			"      \"taskCode\": \"LOCATIONS_IMPORT\",\n" +
+			"      \"updateId\": 58,\n" +
+			"      \"attempt\": 1\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"processingTaskId\": 70,\n" +
+			"      \"startedTime\": \"2022-05-04T13:08:03.826508Z\",\n" +
+			"      \"finishedTime\": \"2022-05-04T13:33:09.490926Z\",\n" +
+			"      \"status\": \"FINISHED\",\n" +
+			"      \"taskCode\": \"PROCESS_STATE_NAMES\",\n" +
+			"      \"updateId\": 58,\n" +
+			"      \"attempt\": 1\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"processingTaskId\": 71,\n" +
+			"      \"startedTime\": \"2022-05-04T13:33:09.544112Z\",\n" +
+			"      \"finishedTime\": \"2022-05-04T13:34:54.200589Z\",\n" +
+			"      \"status\": \"FINISHED\",\n" +
+			"      \"taskCode\": \"PROCESS_REGION_NAMES\",\n" +
+			"      \"updateId\": 58,\n" +
+			"      \"attempt\": 1\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"processingTaskId\": 72,\n" +
+			"      \"startedTime\": \"2022-05-04T13:34:54.248673Z\",\n" +
+			"      \"finishedTime\": \"2022-05-04T13:40:15.798497Z\",\n" +
+			"      \"status\": \"FINISHED\",\n" +
+			"      \"taskCode\": \"PROCESS_DISTRICT_NAMES\",\n" +
+			"      \"updateId\": 58,\n" +
+			"      \"attempt\": 1\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"processingTaskId\": 73,\n" +
+			"      \"startedTime\": \"2022-05-04T13:40:15.851508Z\",\n" +
+			"      \"finishedTime\": \"2022-05-04T13:40:16.066785Z\",\n" +
+			"      \"status\": \"FINISHED\",\n" +
+			"      \"taskCode\": \"VALIDATE_LOCATION_VERSION\",\n" +
+			"      \"updateId\": 58,\n" +
+			"      \"attempt\": 1\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"processingTaskId\": 74,\n" +
+			"      \"startedTime\": \"2022-05-04T13:40:16.121784Z\",\n" +
+			"      \"finishedTime\": \"2022-05-04T13:40:16.462049Z\",\n" +
+			"      \"status\": \"FINISHED\",\n" +
+			"      \"taskCode\": \"FINAL_CLEANUP\",\n" +
+			"      \"updateId\": 58,\n" +
+			"      \"attempt\": 1\n" +
+			"    }\n" +
+			"  ]\n" +
 			"}";
 
 	public static final String UC_GET_UPDATES_NOT_FOUND = LC_GET_LOCATIONS_NOT_FOUND;

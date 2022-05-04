@@ -205,7 +205,7 @@ public class UpdateController {
 							}
 					)
 			),
-			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
+			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.UC_MANUAL_UPDATE_HTTP_500_DESCRIPTION,
 					content = @Content(
 							schema = @Schema(type = SchemaType.OBJECT,
 									implementation = ErrorResponse.class),
@@ -231,8 +231,6 @@ public class UpdateController {
 											value = OpenApiExamples.UC_MANUAL_UPDATES_REQUEST_DEFAULT),
 									@ExampleObject(name = "Manual update request with specified custom url.",
 											value = OpenApiExamples.UC_MANUAL_UPDATES_REQUEST_WITH_URL_SPECIFIED),
-									@ExampleObject(name = "Manual update request with skipping download.",
-											value = OpenApiExamples.UC_MANUAL_UPDATES_REQUEST_WITH_SKIP_DOWNLOAD),
 							}))
 			@RequestBody(required = false) @Valid ManualUpdateRequest request) {
 		UpdateResponse response = updateService.executeManualUpdate(request);
@@ -253,7 +251,18 @@ public class UpdateController {
 									@ExampleObject(name = "Update aborted.",
 											value = OpenApiExamples.UC_ABORT_UPDATE_EXAMPLE),
 							})),
-			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.HTTP_500_DESCRIPTION,
+			@ApiResponse(responseCode = ErrorExamples.HTTP_400, description = HTTP_400_DESCRIPTION,
+					content = @Content(
+							mediaType = MediaType.APPLICATION_JSON_VALUE,
+							schema = @Schema(type = SchemaType.OBJECT,
+									implementation = ErrorResponse.class),
+							examples = {
+									@ExampleObject(name = ErrorExamples.LS0001_ERROR_CODE,
+											value = ErrorExamples.UC_ABORT_400)
+							}
+					)
+			),
+			@ApiResponse(responseCode = ErrorExamples.HTTP_500, description = ErrorExamples.UC_ABORT_UPDATE_HTTP_500_DESCRIPTION,
 					content = @Content(
 							mediaType = MediaType.APPLICATION_JSON_VALUE,
 							schema = @Schema(type = SchemaType.OBJECT,
