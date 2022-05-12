@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  db:
+    image: postgres
+    container_name: db
+    build:
+      context: postgresql-postgis-docker/
+      dockerfile: Dockerfile
+    ports:
+      - "5455:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      retries: 10
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+       - ./postgresql-postgis-docker/scripts:/docker-entrypoint-initdb.d/
+
+  service:
+    image: location-service
+    container_name: location-service
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    restart: on-failure:5
